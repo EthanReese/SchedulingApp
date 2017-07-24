@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import static java.lang.Float.parseFloat;
+
 /**
  * Created by Ethan Reese, Aletea VanVeldhuesen, and Josh Bromley on 7/24/17.
  */
@@ -13,6 +15,8 @@ import java.util.Scanner;
 
 
 public class SchedulingApp {
+
+
 
     BufferedReader br = null;
     Scanner scanner = new Scanner(System.in);
@@ -69,5 +73,21 @@ public class SchedulingApp {
         }
         return returnList;
     }
+
+    public void classes(ArrayList<ArrayList<String>> courseTable) {
+        ArrayList<Courses> courses = new ArrayList<Courses>();
+
+        for (int i = 0; i < courseTable.size(); i++) {
+            String name = courseTable.get(i).get(0);
+            boolean isRequired = false;
+            if (courseTable.get(i).get(1) == "true") {
+                isRequired = true;
+            }
+            Double credit = Double.parseDouble(courseTable.get(i).get(2));
+            Courses course = new Courses(name, isRequired, credit);
+            courses.add(course);
+        }
+    }
+
 
 }
