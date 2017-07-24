@@ -43,11 +43,11 @@ public class Courses {
 
     String courseCode;
     Boolean requried;
-    Float creditAmount;
+    Double creditAmount;
     ArrayList<String> studentsInCourse;
     ArrayList<String> teachersTeachingCourse;
 
-    public Courses(String codeInput, Boolean requiredInput, Float creditInput){
+    public Courses(String codeInput, Boolean requiredInput, Double creditInput){
         courseCode = codeInput;
         requried = requiredInput;
         creditAmount = creditInput;
