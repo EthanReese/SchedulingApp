@@ -2,9 +2,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 
 /**
  * Created by Ethan Reese, Aletea VanVeldhuesen, and Josh Bromley on 7/24/17.
@@ -15,18 +15,29 @@ import java.util.Arrays;
 public class SchedulingApp {
 
     BufferedReader br = null;
+    Scanner scanner = new Scanner(System.in);
     public SchedulingApp(){
+        //Potentially do this as some kind of GUI
+
+        //Prompt the user for input of the files and assign the paths to strings
+        System.out.println("Please input the path of the file with the forecasting options.");
+        String forecastingFile = scanner.nextLine();
+        System.out.println("Please input the path of the file with a teacher list and qualifications.");
+        String teacherFile = scanner.nextLine();
+        System.out.println("Please input the path of the file with the course list.");
+        String courseFile = scanner.nextLine();
 
 
-
-
+        //Call the functions corresponding to each individual file
+        ArrayList<ArrayList<String>> forecastingTable  = readCSV(forecastingFile);
+        ArrayList
     }
 
     public static void main(String[] args){
         new SchedulingApp();
     }
 
-    public ArrayList<ArrayList<String>> readForecasting(String filePath){
+    public ArrayList<ArrayList<String>> readCSV(String filePath){
         //Make a proper arraylist to return
         ArrayList<ArrayList<String>> returnList= new ArrayList<ArrayList<String>>();
         int counter = 0;
