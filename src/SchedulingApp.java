@@ -4,5 +4,12 @@
 public class SchedulingApp {
     public SchedulingApp(){
 
+
+
+
+    }
+
+    public static void main(String[] args){
+        new SchedulingApp();
     }
 }
