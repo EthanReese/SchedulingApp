@@ -30,7 +30,8 @@ public class SchedulingApp {
 
         //Call the functions corresponding to each individual file
         ArrayList<ArrayList<String>> forecastingTable  = readCSV(forecastingFile);
-        ArrayList
+        ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
+        ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
     }
 
     public static void main(String[] args){
