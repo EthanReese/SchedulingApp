@@ -89,5 +89,17 @@ public class SchedulingApp {
         }
     }
 
+    public void requestedClasses(ArrayList<ArrayList<String>> forecastTable){
+        ArrayList<Student> students = new ArrayList<Student>();
+        ArrayList<Courses> request = new ArrayList<Courses>();
+        String id;
+        for(int i = 0; i < forecastTable.size(); i++){
+            id = forecastTable.get(i).get(0);
+
+
+
+        }
+    }
+
 
 }

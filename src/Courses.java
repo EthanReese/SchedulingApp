@@ -17,11 +17,11 @@ public class Courses {
         this.requried = requried;
     }
 
-    public Float getCreditAmount() {
+    public Double getCreditAmount() {
         return creditAmount;
     }
 
-    public void setCreditAmount(Float creditAmount) {
+    public void setCreditAmount(Double creditAmount) {
         this.creditAmount = creditAmount;
     }
 
@@ -44,8 +44,8 @@ public class Courses {
     String courseCode;
     Boolean requried;
     Double creditAmount;
-    ArrayList<String> studentsInCourse;
-    ArrayList<String> teachersTeachingCourse;
+    ArrayList<String> studentsInCourse = new ArrayList<String>();
+    ArrayList<String> teachersTeachingCourse = new ArrayList<String>();
 
     public Courses(String codeInput, Boolean requiredInput, Double creditInput){
         courseCode = codeInput;
