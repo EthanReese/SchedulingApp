@@ -89,14 +89,21 @@ public class SchedulingApp {
         }
     }
 
-    public void requestedClasses(ArrayList<ArrayList<String>> forecastTable){
+    public void requestedClasses(ArrayList<ArrayList<String>> forecastTable, ArrayList<Courses> courses){
         ArrayList<Student> students = new ArrayList<Student>();
         ArrayList<Courses> request = new ArrayList<Courses>();
         String id;
         for(int i = 0; i < forecastTable.size(); i++){
             id = forecastTable.get(i).get(0);
-
-
+            for(int j = 1; j < forecastTable.get(i).size(); j++){
+                for(int k = 0; k < courses.size(); k++){
+                    if(forecastTable.get(i).get(j).equals(courses.get(k).courseCode)){
+                        request.add(j, courses.get(k));
+                    }
+                    break;
+                }
+            }
+            students.add(new Student(id, request));
 
         }
     }
