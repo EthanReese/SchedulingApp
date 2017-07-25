@@ -197,7 +197,7 @@ public class SchedulingApp {
         }
     }
     //Sort through the sections and pick periods where they can be
-    public void assignPeriods(){
+    public int antiMode(){
 
     }
 
