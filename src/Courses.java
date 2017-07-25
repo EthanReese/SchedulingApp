@@ -41,9 +41,18 @@ public class Courses {
         this.teachersTeachingCourse = teachersTeachingCourse;
     }
 
+    public int getSections() {
+        return sections;
+    }
+
+    public void setSections(int sections) {
+        this.sections = sections;
+    }
+
     String courseCode;
     Boolean requried;
     Double creditAmount;
+    int sections;
     ArrayList<String> studentsInCourse = new ArrayList<String>();
     ArrayList<String> teachersTeachingCourse = new ArrayList<String>();
 
@@ -59,6 +68,13 @@ public class Courses {
 
     public void addTeacher(String teacherName){
         teachersTeachingCourse.add(teacherName);
+    }
+
+
+
+    public void determineSections(int maxStudents){
+        sections = (int)Math.ceil(studentsInCourse.size() / maxStudents);
+
     }
 
 
