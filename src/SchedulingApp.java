@@ -116,6 +116,7 @@ public class SchedulingApp {
 
     }
 
+
     public void electives(ArrayList<ArrayList<String>> forecastingTable) {
         for (int i = 0; i < forecastingTable.size(); i++) {
             for (int j = 1; j < forecastingTable.get(i).size(); j++) {
