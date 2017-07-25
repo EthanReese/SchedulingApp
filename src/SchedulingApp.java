@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -23,6 +24,8 @@ public class SchedulingApp {
     ArrayList<Courses> courses = new ArrayList<Courses>();
     ArrayList<Teacher> teachers = new ArrayList<Teacher>();
     ArrayList<Student> students = new ArrayList<Student>();
+    final int MIN = 15;
+    final int MAX = 40;
     public SchedulingApp(){
         //Potentially do this as some kind of GUI
 
@@ -37,7 +40,7 @@ public class SchedulingApp {
 
 
         //Call the functions corresponding to each individual file
-        ArrayList<ArrayList<String>> forecastingTable = readCSV(forecastingFile);
+        ArrayList<ArrayList<String>> forecastingTable  = readCSV(forecastingFile);
         ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
         ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
         classes(courseTable);
@@ -48,33 +51,32 @@ public class SchedulingApp {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         new SchedulingApp();
     }
 
-    public ArrayList<ArrayList<String>> readCSV(String filePath) {
+    public ArrayList<ArrayList<String>> readCSV(String filePath){
         //Make a proper arraylist to return
-        ArrayList<ArrayList<String>> returnList = new ArrayList<ArrayList<String>>();
+        ArrayList<ArrayList<String>> returnList= new ArrayList<ArrayList<String>>();
         int counter = 0;
         //Attempt to read in the file
         try{
             String line;
             //Make a buffered reader that can read in the csv file
             br = new BufferedReader(new FileReader(filePath));
-            while((line = br.readLine()) != null){
-                System.out.println(line);
-                ArrayList<String> tempList = new ArrayList<String>(Arrays.asList((line).split(",")));
+            while((br.readLine()) != null){
+                ArrayList<String> tempList = new ArrayList<String>(Arrays.asList((br.readLine()).split(",")));
                 returnList.add(counter, tempList);
                 counter += 1;
             }
 
-        } catch (FileNotFoundException e) {
+        }catch(FileNotFoundException e){
             e.printStackTrace();
             //Todo: Tell the user to input a new forecasting file
-        } catch (IOException e) {
+        }catch(IOException e){
             e.printStackTrace();
             //idk how the user is supposed to fix that
-        } finally {
+        }finally {
             if (br != null) {
                 try {
                     br.close();
@@ -85,9 +87,8 @@ public class SchedulingApp {
         }
         return returnList;
     }
+
     public void classes(ArrayList<ArrayList<String>> courseTable) {
-
-
         for (int i = 0; i < courseTable.size(); i++) {
             String name = courseTable.get(i).get(0);
             boolean isRequired = false;
@@ -110,7 +111,7 @@ public class SchedulingApp {
         }
     }
 
-    public void requestedClasses(ArrayList<ArrayList<String>> forecastTable) {
+    public void requestedClasses(ArrayList<ArrayList<String>> forecastTable, ArrayList<Courses> courses) {
         ArrayList<Courses> request = new ArrayList<Courses>();
         String id = new String();
         for (int i = 0; i < forecastTable.size(); i++) {
@@ -123,8 +124,8 @@ public class SchedulingApp {
 
     }
 
-
-    public void electives(ArrayList<ArrayList<String>> forecastingTable) {
+    public void setClassList(ArrayList<ArrayList<String>> forecastingTable) {
+        ArrayList<ArrayList<String>> studentCourseList = new ArrayList<ArrayList<String>>();
         for (int i = 0; i < forecastingTable.size(); i++) {
             for (int j = 1; j < forecastingTable.get(i).size(); j++) {
                 for (int k = 0; k < courses.size(); k++) {
@@ -133,6 +134,9 @@ public class SchedulingApp {
                     }
                 }
             }
+        }
+        for (int i = 0; i < studentCourseList.size(); i++) {
+            courses.get(i).setStudentsInCourse(studentCourseList.get(i));
         }
     }
 
@@ -151,6 +155,26 @@ public class SchedulingApp {
             }
         }
         return null;
+    }
+
+
+    public void reassign(ArrayList<Courses> courseList) {
+        ArrayList<Courses> nonRequired = new ArrayList<Courses>();
+        for (int k = 0; k < courses.size(); k++) {
+            if (courses.get(k).getRequried() == false) {
+                nonRequired.add(courses.get(k));
+            }
+        }
+        for (int i = 0; i < courseList.size(); i++) {
+            if (courseList.get(i).getStudentsInCourse().size() < MIN) {
+                ArrayList<String> studentReassigned = new ArrayList<String>(courseList.get(i).getStudentsInCourse());
+                courses.remove(courseList.get(i));
+                for (int j = 0; j < studentReassigned.size(); j++) {
+                    int randCourse = (int) (Math.random() * (nonRequired.size()-1));
+                    nonRequired.get(randCourse).addStudent(studentReassigned.get(j));
+                }
+            }
+        }
     }
 
     //Quicksort method: I chose to store the array outside the function and return nothing because it seemed easier than trying to worry about the recursive returns.
@@ -195,6 +219,30 @@ public class SchedulingApp {
         if (high > i){
             quickSort(array, i, high);
         }
+    }
+    //Sort through the sections and pick periods where they can be
+    public ArrayList<Courses> antiMode(){
+        //Set an integer to the max value of an integer
+        int returnInt = Integer.MAX_VALUE;
+        ArrayList<Courses> returnList = new ArrayList<Courses>();
+        int[] numOfEach = new int[courses.get(courses.size()).getSections()];
+        //Loop through the list of courses and make an additional array that has an element for each number of sections.
+        for (int i = 0; i < courses.size(); i++){
+            numOfEach[courses.get(i).getSections()+1]++;
+        }
+        //Loop through the resultant array and find the number that is the lowest and keep track of its index
+        for (int i = 0; i < numOfEach.length; i++) {
+            if(numOfEach[i] < returnInt){
+                returnInt = i;
+            }
+        }
+        //Loop through the courses list and take all of the antimode classes into a new return list.
+        for (int i = 0; i < courses.size(); i++) {
+            if(courses.get(i).getSections() == returnInt){
+                returnList.add(courses.get(i));
+            }
+        }
+        return returnList;
     }
 
 }

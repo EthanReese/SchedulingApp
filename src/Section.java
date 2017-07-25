@@ -13,6 +13,7 @@ public class Section {
     public Section(String course, int period, String teacher){
         this.course = course;
         this.period = period;
+        this.teacher = teacher;
     }
 
 
