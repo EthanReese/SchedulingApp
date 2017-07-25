@@ -126,6 +126,14 @@ public class SchedulingApp {
         }
     }
 
+    public void teachingClasses (ArrayList<Teacher> teachers, ArrayList<Courses> courses){
+        for(int i = 0; i < teachers.size(); i++){
+            for(int j = 0; j < teachers.get(i).qualified.size(); j++){
+                search(courses,teachers.get(i).qualified.get(j).courseCode).addTeacher(teachers.get(i).identifier);
+            }
+        }
+    }
+
     public Courses search(ArrayList<Courses> courseList, String code ) {
         for (int i = 0; i < courseList.size(); i++) {
             if (courseList.get(i).courseCode.equals(code)) {
