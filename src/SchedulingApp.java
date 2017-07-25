@@ -17,9 +17,9 @@ import static java.lang.Float.parseFloat;
 public class SchedulingApp {
 
 
-
     BufferedReader br = null;
     Scanner scanner = new Scanner(System.in);
+    ArrayList<Courses> courses = new ArrayList<Courses>();
     public SchedulingApp(){
         //Potentially do this as some kind of GUI
 
@@ -33,18 +33,18 @@ public class SchedulingApp {
 
 
         //Call the functions corresponding to each individual file
-        ArrayList<ArrayList<String>> forecastingTable  = readCSV(forecastingFile);
+        ArrayList<ArrayList<String>> forecastingTable = readCSV(forecastingFile);
         ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
         ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         new SchedulingApp();
     }
 
-    public ArrayList<ArrayList<String>> readCSV(String filePath){
+    public ArrayList<ArrayList<String>> readCSV(String filePath) {
         //Make a proper arraylist to return
-        ArrayList<ArrayList<String>> returnList= new ArrayList<ArrayList<String>>();
+        ArrayList<ArrayList<String>> returnList = new ArrayList<ArrayList<String>>();
         int counter = 0;
         //Attempt to read in the file
         try{
@@ -58,13 +58,13 @@ public class SchedulingApp {
                 counter += 1;
             }
 
-        }catch(FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             //Todo: Tell the user to input a new forecasting file
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             //idk how the user is supposed to fix that
-        }finally {
+        } finally {
             if (br != null) {
                 try {
                     br.close();
@@ -75,9 +75,8 @@ public class SchedulingApp {
         }
         return returnList;
     }
-
     public void classes(ArrayList<ArrayList<String>> courseTable) {
-        ArrayList<Courses> courses = new ArrayList<Courses>();
+
 
         for (int i = 0; i < courseTable.size(); i++) {
             String name = courseTable.get(i).get(0);
@@ -91,25 +90,58 @@ public class SchedulingApp {
         }
     }
 
-    public void requestedClasses(ArrayList<ArrayList<String>> forecastTable, ArrayList<Courses> courses){
-        ArrayList<Student> students = new ArrayList<Student>();
-        ArrayList<Courses> request = new ArrayList<Courses>();
-        String id;
-        for(int i = 0; i < forecastTable.size(); i++){
-            id = forecastTable.get(i).get(0);
-            for(int j = 1; j < forecastTable.get(i).size(); j++){
-                for(int k = 0; k < courses.size(); k++){
-                    if(forecastTable.get(i).get(j).equals(courses.get(k).courseCode)){
-                        request.add(j, courses.get(k));
-                    }
-                    break;
-                }
-            }
-            students.add(new Student(request, id));
+    ArrayList<Student> students = new ArrayList<Student>();
 
+    public void requestedClasses(ArrayList<ArrayList<String>> forecastTable, ArrayList<Courses> courses) {
+        ArrayList<Courses> request = new ArrayList<Courses>();
+        String id = new String();
+        for (int i = 0; i < forecastTable.size(); i++) {
+            id = forecastTable.get(i).get(0);
+            for (int j = 1; j < forecastTable.get(i).size(); j++) {
+                request.add(j, search(courses, forecastTable.get(i).get(j)));
+            }
         }
+        students.add(new Student(request, id));
+
     }
 
 
+
+    public Courses search(ArrayList<Courses> courseList, String code ) {
+            for (int i = 0; i < courseList.size(); i++) {
+                if (courseList.get(i).courseCode.equals(code)) {
+                    return courseList.get(i);
+                }
+            }
+            return null;
+    }
+
+}
+
+    public void teachers(ArrayList<ArrayList<String>> teacherTable) {
+        for (int i = 0; i < teacherTable.size(); i++) {
+            ArrayList<Courses> qualified = new ArrayList<Courses>();
+            for(int j = 1; j < teacherTable.get(i).size(); j++) {
+                for (int k = 0; k < courses.size(); k++) {
+                    if (courses.get(k).courseCode == teacherTable.get(i).get(j)) {
+                        qualified.add(courses.get(i));
+                    }
+                }
+            }
+            Teacher teacher = new Teacher(qualified, teacherTable.get(i).toString());
+        }
+    }
+
+    public void electives(ArrayList<ArrayList<String>> forecastingTable) {
+        for (int i = 0; i < forecastingTable.size(); i++) {
+            for (int j = 1; j < forecastingTable.get(i).size(); j++) {
+                for (int k = 0; k < courses.size(); k++) {
+                    if (courses.get(k).courseCode == forecastingTable.get(i).get(j)) {
+                        //studentsInCourse.add(forecastingTable.get(i).get(0));
+                    }
+                }
+            }
+        }
+    }
 
 }
