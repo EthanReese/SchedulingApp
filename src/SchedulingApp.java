@@ -196,5 +196,9 @@ public class SchedulingApp {
             quickSort(array, i, high);
         }
     }
+    //Sort through the sections and pick periods where they can be
+    public void assignPeriods(){
+
+    }
 
 }
