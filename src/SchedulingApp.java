@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -197,8 +198,28 @@ public class SchedulingApp {
         }
     }
     //Sort through the sections and pick periods where they can be
-    public int antiMode(){
-
+    public ArrayList<Courses> antiMode(){
+        //Set an integer to the max value of an integer
+        int returnInt = Integer.MAX_VALUE;
+        ArrayList<Courses> returnList = new ArrayList<Courses>();
+        int[] numOfEach = new int[courses.get(courses.size()).getSections()];
+        //Loop through the list of courses and make an additional array that has an element for each number of sections.
+        for (int i = 0; i < courses.size(); i++){
+            numOfEach[courses.get(i).getSections()+1]++;
+        }
+        //Loop through the resultant array and find the number that is the lowest and keep track of its index
+        for (int i = 0; i < numOfEach.length; i++) {
+            if(numOfEach[i] < returnInt){
+                returnInt = i;
+            }
+        }
+        //Loop through the courses list and take all of the antimode classes into a new return list.
+        for (int i = 0; i < courses.size(); i++) {
+            if(courses.get(i).getSections() == returnInt){
+                returnList.add(courses.get(i));
+            }
+        }
+        return returnList;
     }
 
 }
