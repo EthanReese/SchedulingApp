@@ -20,6 +20,7 @@ public class SchedulingApp {
 
     BufferedReader br = null;
     Scanner scanner = new Scanner(System.in);
+    ArrayList<Courses> courses = new ArrayList<Courses>();
     public SchedulingApp(){
         //Potentially do this as some kind of GUI
 
@@ -36,6 +37,7 @@ public class SchedulingApp {
         ArrayList<ArrayList<String>> forecastingTable  = readCSV(forecastingFile);
         ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
         ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
+
     }
 
     public static void main(String[] args){
@@ -75,7 +77,7 @@ public class SchedulingApp {
     }
 
     public void classes(ArrayList<ArrayList<String>> courseTable) {
-        ArrayList<Courses> courses = new ArrayList<Courses>();
+
 
         for (int i = 0; i < courseTable.size(); i++) {
             String name = courseTable.get(i).get(0);
@@ -89,5 +91,30 @@ public class SchedulingApp {
         }
     }
 
+    public void teachers(ArrayList<ArrayList<String>> teacherTable) {
+        for (int i = 0; i < teacherTable.size(); i++) {
+            ArrayList<Courses> qualified = new ArrayList<Courses>();
+            for(int j = 1; j < teacherTable.get(i).size(); j++) {
+                for (int k = 0; k < courses.size(); k++) {
+                    if (courses.get(k).courseCode == teacherTable.get(i).get(j)) {
+                        qualified.add(courses.get(i));
+                    }
+                }
+            }
+            Teacher teacher = new Teacher(qualified, teacherTable.get(i).toString());
+        }
+    }
+
+    public void electives(ArrayList<ArrayList<String>> forecastingTable) {
+        for (int i = 0; i < forecastingTable.size(); i++) {
+            for (int j = 1; j < forecastingTable.get(i).size(); j++) {
+                for (int k = 0; k < courses.size(); k++) {
+                    if (courses.get(k).courseCode == forecastingTable.get(i).get(j)) {
+                        studentsInCourse.add(forecastingTable.get(i).get(0));
+                    }
+                }
+            }
+        }
+    }
 
 }
