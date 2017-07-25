@@ -103,7 +103,7 @@ public class SchedulingApp {
                     break;
                 }
             }
-            students.add(new Student(id, request));
+            students.add(new Student(request, id));
 
         }
     }
