@@ -1,0 +1,3 @@
+EX160, true, 1.0
+MX120, false, 0.5
+R5180, true, 1.0
