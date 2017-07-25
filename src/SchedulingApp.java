@@ -36,37 +36,38 @@ public class SchedulingApp {
 
 
         //Call the functions corresponding to each individual file
-        ArrayList<ArrayList<String>> forecastingTable  = readCSV(forecastingFile);
+        ArrayList<ArrayList<String>> forecastingTable = readCSV(forecastingFile);
         ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
         ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
-
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         new SchedulingApp();
     }
 
-    public ArrayList<ArrayList<String>> readCSV(String filePath){
+    public ArrayList<ArrayList<String>> readCSV(String filePath) {
         //Make a proper arraylist to return
-        ArrayList<ArrayList<String>> returnList= new ArrayList<ArrayList<String>>();
+        ArrayList<ArrayList<String>> returnList = new ArrayList<ArrayList<String>>();
         int counter = 0;
         //Attempt to read in the file
         try{
+            String line;
             //Make a buffered reader that can read in the csv file
             br = new BufferedReader(new FileReader(filePath));
-            while((br.readLine()) != null){
-                ArrayList<String> tempList = new ArrayList<String>(Arrays.asList((br.readLine()).split(",")));
+            while((line = br.readLine()) != null){
+                System.out.println(line);
+                ArrayList<String> tempList = new ArrayList<String>(Arrays.asList((line).split(",")));
                 returnList.add(counter, tempList);
                 counter += 1;
             }
 
-        }catch(FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             //Todo: Tell the user to input a new forecasting file
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             //idk how the user is supposed to fix that
-        }finally {
+        } finally {
             if (br != null) {
                 try {
                     br.close();
@@ -77,8 +78,9 @@ public class SchedulingApp {
         }
         return returnList;
     }
-
     public void classes(ArrayList<ArrayList<String>> courseTable) {
+
+
         for (int i = 0; i < courseTable.size(); i++) {
             String name = courseTable.get(i).get(0);
             boolean isRequired = false;
@@ -113,6 +115,7 @@ public class SchedulingApp {
         students.add(new Student(request, id));
 
     }
+
 
     public void electives(ArrayList<ArrayList<String>> forecastingTable) {
         for (int i = 0; i < forecastingTable.size(); i++) {
