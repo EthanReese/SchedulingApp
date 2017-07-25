@@ -110,7 +110,7 @@ public class SchedulingApp {
             for (int j = 1; j < forecastingTable.get(i).size(); j++) {
                 for (int k = 0; k < courses.size(); k++) {
                     if (courses.get(k).courseCode == forecastingTable.get(i).get(j)) {
-                        studentsInCourse.add(forecastingTable.get(i).get(0));
+                        //studentsInCourse.add(forecastingTable.get(i).get(0));
                     }
                 }
             }
