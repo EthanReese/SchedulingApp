@@ -77,8 +77,6 @@ public class SchedulingApp {
     }
 
     public void classes(ArrayList<ArrayList<String>> courseTable) {
-
-
         for (int i = 0; i < courseTable.size(); i++) {
             String name = courseTable.get(i).get(0);
             boolean isRequired = false;
