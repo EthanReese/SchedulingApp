@@ -92,7 +92,7 @@ public class SchedulingApp {
         for (int i = 0; i < courseTable.size(); i++) {
             String name = courseTable.get(i).get(0);
             boolean isRequired = false;
-            if (courseTable.get(i).get(1) == "true") {
+            if (courseTable.get(i).get(1).equals("true")) {
                 isRequired = true;
             }
             Double credit = Double.parseDouble(courseTable.get(i).get(2));
@@ -110,10 +110,13 @@ public class SchedulingApp {
             teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
         }
     }
-
+    //Create studet objects
     public void requestedClasses(ArrayList<ArrayList<String>> forecastTable, ArrayList<Courses> courses) {
+        //Temporary array list for storing the requested courses
         ArrayList<Courses> request = new ArrayList<Courses>();
+        //Store the id
         String id = new String();
+        //For each student, get their ID, the search for the classes they want and create the student object
         for (int i = 0; i < forecastTable.size(); i++) {
             id = forecastTable.get(i).get(0);
             for (int j = 1; j < forecastTable.get(i).size(); j++) {
@@ -147,13 +150,15 @@ public class SchedulingApp {
             }
         }
     }
-
+    //Seach for certain courses
     public Courses search(ArrayList<Courses> courseList, String code ) {
         for (int i = 0; i < courseList.size(); i++) {
+            //Go through the list of courses one by one until the inputted code matches a course code
             if (courseList.get(i).courseCode.equals(code)) {
                 return courseList.get(i);
             }
         }
+        //if there is no match, return nothing
         return null;
     }
 
