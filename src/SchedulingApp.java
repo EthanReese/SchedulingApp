@@ -33,6 +33,7 @@ public class SchedulingApp {
         String teacherFile = scanner.nextLine();
         System.out.println("Please input the path of the file with the course list.");
         String courseFile = scanner.nextLine();
+        System.out.println("What is the maximum number of students in each class");
 
 
         //Call the functions corresponding to each individual file
