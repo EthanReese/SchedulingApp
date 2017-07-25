@@ -91,17 +91,13 @@ public class SchedulingApp {
         }
     }
 
-    public void teachers(ArrayList<ArrayList<String>> teacherTable) {
+    public void teacherCreation(ArrayList<ArrayList<String>> teacherTable) {
         for (int i = 0; i < teacherTable.size(); i++) {
             ArrayList<Courses> qualified = new ArrayList<Courses>();
             for(int j = 1; j < teacherTable.get(i).size(); j++) {
-                for (int k = 0; k < courses.size(); k++) {
-                    if (courses.get(k).courseCode == teacherTable.get(i).get(j)) {
-                        qualified.add(courses.get(i));
-                    }
-                }
+               qualified.add(j,search(courses,teacherTable.get(i).get(j)));
             }
-            Teacher teacher = new Teacher(qualified, teacherTable.get(i).toString());
+            teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
         }
     }
 
