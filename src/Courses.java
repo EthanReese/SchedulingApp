@@ -70,13 +70,7 @@ public class Courses {
         creditAmount = creditInput;
     }
 
-    public void addStudent(String studentName){
-        studentsInCourse.add(studentName);
-    }
 
-    public void addTeacher(String teacherName){
-        teachersTeachingCourse.add(teacherName);
-    }
 
 
 

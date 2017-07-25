@@ -45,8 +45,8 @@ public class SchedulingApp {
         ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
         classes(courseTable);
         teacherCreation(teacherTable);
-        requestedClasses(forecastingTable);
-        electives(forecastingTable);
+        requestedClasses(forecastingTable,courses);
+        setClassList(forecastingTable);
 
 
     }
