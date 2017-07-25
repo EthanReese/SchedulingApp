@@ -21,6 +21,8 @@ public class SchedulingApp {
     BufferedReader br = null;
     Scanner scanner = new Scanner(System.in);
     ArrayList<Courses> courses = new ArrayList<Courses>();
+    ArrayList<Teacher> teachers = new ArrayList<Teacher>();
+    ArrayList<Student> students = new ArrayList<Student>();
     public SchedulingApp(){
         //Potentially do this as some kind of GUI
 
@@ -103,6 +105,19 @@ public class SchedulingApp {
         }
     }
 
+    public void requestedClasses(ArrayList<ArrayList<String>> forecastTable, ArrayList<Courses> courses) {
+        ArrayList<Courses> request = new ArrayList<Courses>();
+        String id = new String();
+        for (int i = 0; i < forecastTable.size(); i++) {
+            id = forecastTable.get(i).get(0);
+            for (int j = 1; j < forecastTable.get(i).size(); j++) {
+                request.add(j, search(courses, forecastTable.get(i).get(j)));
+            }
+        }
+        students.add(new Student(request, id));
+
+    }
+
     public void electives(ArrayList<ArrayList<String>> forecastingTable) {
         for (int i = 0; i < forecastingTable.size(); i++) {
             for (int j = 1; j < forecastingTable.get(i).size(); j++) {
@@ -113,6 +128,15 @@ public class SchedulingApp {
                 }
             }
         }
+    }
+
+    public Courses search(ArrayList<Courses> courseList, String code ) {
+        for (int i = 0; i < courseList.size(); i++) {
+            if (courseList.get(i).courseCode.equals(code)) {
+                return courseList.get(i);
+            }
+        }
+        return null;
     }
 
 }
