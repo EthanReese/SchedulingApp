@@ -39,6 +39,12 @@ public class SchedulingApp {
         ArrayList<ArrayList<String>> forecastingTable = readCSV(forecastingFile);
         ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
         ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
+        classes(courseTable);
+        teacherCreation(teacherTable);
+        requestedClasses(forecastingTable);
+        electives(forecastingTable);
+
+
     }
 
     public static void main(String[] args) {
@@ -103,7 +109,7 @@ public class SchedulingApp {
         }
     }
 
-    public void requestedClasses(ArrayList<ArrayList<String>> forecastTable, ArrayList<Courses> courses) {
+    public void requestedClasses(ArrayList<ArrayList<String>> forecastTable) {
         ArrayList<Courses> request = new ArrayList<Courses>();
         String id = new String();
         for (int i = 0; i < forecastTable.size(); i++) {
@@ -144,6 +150,50 @@ public class SchedulingApp {
             }
         }
         return null;
+    }
+
+    //Quicksort method: I chose to store the array outside the function and return nothing because it seemed easier than trying to worry about the recursive returns.
+    public static void quickSort(ArrayList<Courses> array, int low, int high) {
+        //If the array has only one element, then it is already sorted
+        if (array == null || array.size() <= 1)
+            return;
+        //If low is higher than high, then the algorithm cannot work
+        if (low >= high)
+            return;
+
+        // pick the pivot
+        int middle = low + (high - low) / 2;
+        int pivot = array.get(middle).getStudentsInCourse().size();
+
+        // make left < pivot and right > pivot
+        int i = low, j = high;
+        //Sort through the array and swap numbers to the other side of the pivot if necessary.
+        while (i <= j) {
+            while (array.get(i).getStudentsInCourse().size() < pivot) {
+                i++;
+            }
+
+            while (array.get(j).getStudentsInCourse().size() > pivot) {
+                j--;
+            }
+
+            if (i <= j) {
+                Courses temp = array.get(i);
+                array.set(j,array.get(i));
+                array.set(i, temp);
+                i++;
+                j--;
+            }
+        }
+
+        // recursively sort two sub parts
+        if (low < j){
+            quickSort(array, low, j);
+        }
+
+        if (high > i){
+            quickSort(array, i, high);
+        }
     }
 
 }
