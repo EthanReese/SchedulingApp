@@ -70,7 +70,6 @@ public class SchedulingApp {
         teacherCreation(teacherTable);
         requestedClasses(forecastingTable, courses);
         setClassList(forecastingTable);
-        testStudents(students);
 
 
 
@@ -151,10 +150,10 @@ public class SchedulingApp {
         for (int i = 0; i < forecastTable.size(); i++) {
             id = forecastTable.get(i).get(0);
             for (int j = 0; j < forecastTable.get(i).size(); j++) {
-                System.out.println(forecastTable.get(i).get(j));
                 request.add(search(courses, forecastTable.get(i).get(j)));
-                request.remove(0);
+
             }
+            request.remove(0);
             students.add(new Student(request, id));
             request.clear();
         }
@@ -195,7 +194,7 @@ public class SchedulingApp {
             }
         }
         //if there is no match, return nothing
-        System.out.println("Null");
+
         return null;
     }
 
@@ -377,14 +376,6 @@ public class SchedulingApp {
         }
     }
 
-    public void testStudents (ArrayList<Student> testStudents){
-        for(int i = 0; i < 10; i++){
-            System.out.println(testStudents.get(i).identifier + ",");
-            for(int j = 0; j < testStudents.get(i).requested.size(); j++){
-                System.out.println(testStudents.get(i).requested.get(j).courseCode + ",");
-            }
-        }
-    }
 
     //Function to search for a student given their identifier
     public Student searchStudent(String identifier){

@@ -33,7 +33,11 @@ public class Student {
     ArrayList<Courses> assigned = new ArrayList<Courses>();
     String identifier;
     public Student(ArrayList<Courses> requested, String identifier){
-        this.requested = requested;
+
+        for(int i = 0; i < requested.size(); i++){
+            this.requested.add(requested.get(i));
+        }
         this.identifier = identifier;
+
     }
 }

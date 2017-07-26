@@ -36,7 +36,9 @@ public class Teacher {
     ArrayList<Sections> teaching = new ArrayList<Sections>();
     String identifier;
     public Teacher(ArrayList<Courses> qualified, String identifier){
-        this.qualified = qualified;
+        for(int i = 0; i < qualified.size(); i++){
+            this.qualified.add(qualified.get(i));
+        }
         this.identifier = identifier;
     }
 
