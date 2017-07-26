@@ -151,7 +151,7 @@ public class SchedulingApp {
         for (int i = 0; i < forecastingTable.size(); i++) {
             for (int j = 1; j < forecastingTable.get(i).size(); j++) {
                 for (int k = 0; k < courses.size(); k++) {
-                    if (courses.get(k).courseCode == forecastingTable.get(i).get(j)) {
+                    if (courses.get(k).courseCode.equals(forecastingTable.get(i).get(j))) {
                         //studentsInCourse.add(forecastingTable.get(i).get(0));
                     }
                 }
@@ -185,7 +185,7 @@ public class SchedulingApp {
     public void reassign(ArrayList<Courses> courseList) {
         ArrayList<Courses> nonRequired = new ArrayList<Courses>();
         for (int k = 0; k < courses.size(); k++) {
-            if (courses.get(k).getRequried() == false) {
+            if (!(courses.get(k).getRequried())) {
                 nonRequired.add(courses.get(k));
             }
         }
