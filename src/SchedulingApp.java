@@ -70,7 +70,7 @@ public class SchedulingApp {
         teacherCreation(teacherTable);
         requestedClasses(forecastingTable, courses);
         setClassList(forecastingTable);
-        testStudents(students);
+        //testStudents(students);
 
 
 
@@ -151,7 +151,7 @@ public class SchedulingApp {
         for (int i = 0; i < forecastTable.size(); i++) {
             id = forecastTable.get(i).get(0);
             for (int j = 0; j < forecastTable.get(i).size(); j++) {
-                System.out.println(forecastTable.get(i).get(j));
+                System.out.println(search(courses, forecastTable.get(i).get(j)).courseCode);
                 request.add(search(courses, forecastTable.get(i).get(j)));
                 request.remove(0);
             }
@@ -188,6 +188,7 @@ public class SchedulingApp {
     }
     //Seach for certain courses
     public Courses search(ArrayList<Courses> courseList, String code ) {
+        System.out.println(code);
         for (int i = 0; i < courseList.size(); i++) {
             //Go through the list of courses one by one until the inputted code matches a course code
             if (courseList.get(i).courseCode.equals(code)) {
@@ -299,7 +300,7 @@ public class SchedulingApp {
     }
 
     //for each course
-    public void addPeriod(ArrayList<Courses>) {
+    public void addPeriod() {
         //keep track of max number of courses in a period
         int[] periodTracker = new int[totalPeriods];
         int maxPeriods = (int)((totalSections.size()/totalPeriods)+.5);
@@ -386,72 +387,16 @@ public class SchedulingApp {
         }
     }
 
-    //Function to search for a student given their identifier
-    public Student searchStudent(String identifier){
-        //Loop through all the students and find if a student of the identifier exists
-        for (int i = 0; i < students.size(); i++) {
-            if(students.get(i).getIdentifier().equals(identifier)){
-                return students.get(i);
-            }
-        }
-        //If the student doesn't exist then its an error so this is a debug comment
-        System.out.println("A search was made for a student that doesn't exist.");
-        return null;
-    }
-
-
     //Assign students to a section semi randomly
     public void assignStudentsToSection(Courses course){
         //Loop through all the students in a course
         for (int i = 0; i < course.getStudentsInCourse().size(); i++) {
             //Find the arraylist of sections that are available to the student
             ArrayList<Sections> sections = course.getSectionsOccuring();
-            //Make an array of periods that the student has free
-            boolean[] freePeriods = new boolean[totalPeriods];
-            Student student = searchStudent(course.getStudentsInCourse().get(i));
-            for (int j = 0; j < totalPeriods; j++) {
-                //Make sure that I don't get an index out of bounds exception, but check if something has already been put into the arraylist
-                Boolean test = true;
-                try{
-                    if(student.getAssigned().get(j).equals(null)){
-                        test = false;
-                    }
-                }catch(IndexOutOfBoundsException e){
-                    test = false;
-                }
-                //If the student doesn't already have a class assigned during that period, then it will be true
-                if(!test){
-                    freePeriods[j] = true;
-                }
-                //Otherwise they are busy so they aren't free
-                else{
-                    freePeriods[j] = false;
-                }
-            }
             //Go through and knock out any of the periods that the student isn't available
-            for (int j = 0; j < sections.size(); j++) {
-                //Check whether or not the student is free during that period, and if they aren't knock it off of the list
-                if(!freePeriods[sections.get(j).getPeriod()]){
-                    sections.remove(j);
-                }
+            for (int j = 0; j < 1; j++) {
+                
             }
-            //Now the student is free for all the sections in the list, so it puts them in the section with the fewest people
-            int minCourseCount = Integer.MAX_VALUE;
-            int indexOfBestSection = 0;
-            //Loop through all of the sections and find the number of students in them
-            for (int j = 0; j < sections.size(); j++) {
-                if(sections.get(j).getStudents().size() < minCourseCount){
-                    minCourseCount = sections.get(j).getStudents().size();
-                    indexOfBestSection = j;
-                }
-            }
-            //Add the course to the student's schedule
-            ArrayList<Courses> studentSched = student.getAssigned();
-            studentSched.set(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
-            student.setAssigned(studentSched);
-
-            //Add a student to the section's list of studentsB
-            sections.get(indexOfBestSection).addStudent(student);
         }
 
     }
