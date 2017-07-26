@@ -287,7 +287,7 @@ public class SchedulingApp {
         }
         return returnList;
     }
-
+    //Create section objects for each section of the course
     public void addSections() {
         //for each course, for each section, create a new section for that course
         for (int i = 0; i < coursesList.size(); i++) {
@@ -299,12 +299,12 @@ public class SchedulingApp {
     }
 
     //for each course
-    public void addPeriod(ArrayList<Courses>) {
+    public void addPeriod(ArrayList<Courses> courses) {
         //keep track of max number of courses in a period
         int[] periodTracker = new int[totalPeriods];
         int maxPeriods = (int)((totalSections.size()/totalPeriods)+.5);
         //get antiMode courses
-        ArrayList<Courses> List = antiMode();
+        ArrayList<Courses> List = courses;
         //Loop through the list of classes at the antimode that need to be assigned.
         for (int i = 0; i < List.size(); i++) {
             //determine how many sections of this class can be assigned to one period
@@ -454,5 +454,28 @@ public class SchedulingApp {
             sections.get(indexOfBestSection).addStudent(student);
         }
 
+    }
+    //Run the second wave of sorting classes
+    public ArrayList<Courses> secondWave(){
+        int startPoint = antiMode().get(0).getSections();
+        ArrayList<Courses> returnList = new ArrayList<Courses>();
+        //Loop through until it gets to the first course that is already sorted as part of the antimode
+        for (int i = 0; i < courses.size(); i++) {
+            if(courses.get(i).getSections() == startPoint){
+                //When it hits the middleish point, first go down from there
+                for (int j = i; j < 0; j--) {
+                    if(courses.get(j).getSections() != startPoint){
+                        returnList.add(courses.get(j));
+                    }
+                }
+                //Then after it goes all the way down and adds everything under it into it, then go up from the middleish point
+                for (int j = i; j < courses.size(); j++) {
+                    if(courses.get(j).getSections() != startPoint){
+                        returnList.add(courses.get(j));
+                    }
+                }
+            }
+        }
+        return returnList;
     }
 }
