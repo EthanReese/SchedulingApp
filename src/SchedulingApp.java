@@ -121,12 +121,12 @@ public class SchedulingApp {
         for (int i = 0; i < teacherTable.size(); i++) {
             ArrayList<Courses> qualified = new ArrayList<Courses>();
             for(int j = 1; j < teacherTable.get(i).size(); j++) {
-               qualified.add(j,search(courses,teacherTable.get(i).get(j)));
+               qualified.set(j-1,search(courses,teacherTable.get(i).get(j)));
             }
             teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
         }
     }
-    //Create studet objects
+    //Create student objects
     public void requestedClasses(ArrayList<ArrayList<String>> forecastTable, ArrayList<Courses> courses) {
         //Temporary array list for storing the requested courses
         ArrayList<Courses> request = new ArrayList<Courses>();
@@ -136,7 +136,7 @@ public class SchedulingApp {
         for (int i = 0; i < forecastTable.size(); i++) {
             id = forecastTable.get(i).get(0);
             for (int j = 1; j < forecastTable.get(i).size(); j++) {
-                request.add(j, search(courses, forecastTable.get(i).get(j)));
+                request.set(j-1, search(courses, forecastTable.get(i).get(j)));
             }
         }
         students.add(new Student(request, id));
@@ -300,7 +300,7 @@ public class SchedulingApp {
 
 
 
-    public void TeacherSections(Courses course) {
+    public void teacherSections(Courses course) {
         int sections = course.getSections();
         ArrayList<String> teachers = course.getTeachersTeachingCourse();
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
