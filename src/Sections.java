@@ -11,6 +11,10 @@ public class Sections {
         this.period = number;
     }
 
+    public void setTheTeacher(Teacher assigned) {
+        this.teacher = assigned;
+    }
+
     
     public Sections(Courses course, int period, Teacher teacher, ArrayList<Student> students) {
         this.course = course;

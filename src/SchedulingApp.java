@@ -36,6 +36,7 @@ public class SchedulingApp {
     ArrayList<Student> students = new ArrayList<Student>();
     int MIN = 15;
     int MAX = 40;
+    int totalPeriods = 8;
     public SchedulingApp(){
         //Potentially do this as some kind of GUI
 
@@ -48,9 +49,14 @@ public class SchedulingApp {
         System.out.println("Please input the path of the file with the course list.");
         String courseFile = scanner.nextLine();
         System.out.println("What is the maximum number of students in each class");
-        MAX = Integer.parseInt(scanner.nextLine());
-        System.out.println("What is the minimum number of students in each class.");
-        MIN = Integer.parseInt(scanner.nextLine());
+        String maximum = scanner.nextLine();
+        MIN = Integer.parseInt(maximum);
+        System.out.println("What is the minimum number of students in each class");
+        String minimum = scanner.nextLine();
+        MAX = Integer.parseInt(minimum);
+        System.out.println("how many periods does your school offer?");
+        String periodNumber = scanner.nextLine();
+        totalPeriods = Integer.parseInt(periodNumber);
 
 
 
@@ -145,14 +151,14 @@ public class SchedulingApp {
 
     }
 
-
+    //get the students in a course and set that
     public void setClassList(ArrayList<ArrayList<String>> forecastingTable) {
         ArrayList<ArrayList<String>> studentCourseList = new ArrayList<ArrayList<String>>();
         for (int i = 0; i < forecastingTable.size(); i++) {
             for (int j = 1; j < forecastingTable.get(i).size(); j++) {
                 for (int k = 0; k < courses.size(); k++) {
-                    if (courses.get(k).courseCode.equals(forecastingTable.get(i).get(j))) {
-                        //studentsInCourse.add(forecastingTable.get(i).get(0));
+                    if (courses.get(k).courseCode == forecastingTable.get(i).get(j)) {
+                        courses.get(k).addStudent(forecastingTable.get(i).get(0));
                     }
                 }
             }
@@ -280,34 +286,49 @@ public class SchedulingApp {
         }
     }
 
+    //for each fourse
     public void addPeriod() {
-        //for each antiMode course, find its sections and assign them random periods that do not overlap
-        int[] periodTracker = new int[8];
-        //The maximum number of periods that are the maximum you can have in a period
-        int maxPeriods = (int)Math.ceil((totalSections.size()/8));
+        //keep track of max number of courses in a period
+        int[] periodTracker = new int[totalPeriods];
+        int maxPeriods = (int)((totalSections.size()/totalPeriods)+.5);
+        //get antiMode courses
         ArrayList<Courses> List = antiMode();
         //Loop through the list of classes at the antimode that need to be assigned.
         for (int i = 0; i < List.size(); i++) {
-            int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8};
+            //determine how many sections of this class can be assigned to one period
+            int overlap = (int)((List.get(i).sections/totalPeriods)+.5);
+            int[] assigned = new int[totalPeriods];
             for (int j = 0; j < List.get(i).sections; j++) {
                 int k = 0;
+                //find the sections for this course
                 while(totalSections.get(k).course != List.get(i)) {
                     k++;
                 }
-                int periodAssigned = numbers[(int)(Math.random()*(8-1)+1)];
+                //assigne a random period, and add it to the array keeping track of total classes in a period
+                int periodAssigned = (int)(Math.random()*(totalPeriods-1)+1);
                 periodTracker[periodAssigned]++;
-                while (periodTracker[periodAssigned] == maxPeriods+1) {
-                    periodAssigned = numbers[(int)(Math.random()*(8-1)+1)];
+                //make sure there aren't too many of this class in this period, and that is doesn't go over max periods
+                while (periodTracker[periodAssigned] == maxPeriods+1 || assigned[periodAssigned] == overlap) {
+                    periodAssigned = (int)(Math.random()*(totalPeriods-1)+1);
                 }
+                assigned[periodAssigned]++;
                 totalSections.get(k).setThePeriod(periodAssigned);
             }
         }
     }
 
 
-
+    //assigns teachers to separate sections for a specific course
     public void teacherSections(Courses course) {
         int sections = course.getSections();
+        ArrayList<Sections> courseSections = new ArrayList<Sections>();
+        //find the course's sections
+        for (int i = 0; i < totalSections.size(); i++) {
+            if (totalSections.get(i).course == course) {
+                courseSections.add(totalSections.get(i));
+            }
+        }
+        //keep track of teachers that can teach this course and their quialifications
         ArrayList<String> teachers = course.getTeachersTeachingCourse();
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
         for (int i = 0; i < teachers.size(); i++) {
@@ -317,7 +338,15 @@ public class SchedulingApp {
                 }
             }
         }
+        //for each section, assign a teacher that is qualified
+        //AND FREE (coding this now)
         for (int i = 0; i < sections; i++) {
+            /*ArrayList<Teacher> freeList = qualifyList;
+            for (int j = 0; j < freeList.size(); j++) {
+                for (int k = 0; k < freeList.get(j).getTeaching().size(); k++) {
+                    if (freeList.get(j).getTeaching().get(k).period == )
+                }
+            }*/
             Teacher first = qualifyList.get(i);
             int smallestIndex = i;
             for (int j = i; j < qualifyList.size(); j++) {
@@ -326,6 +355,8 @@ public class SchedulingApp {
                     smallestIndex = j;
                 }
             }
+            courseSections.get(i).setTheTeacher(first);
+            first.addTeaching(courseSections.get(i));
             qualifyList.remove(smallestIndex);
         }
     }

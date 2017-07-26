@@ -12,12 +12,16 @@ public class Teacher {
         this.qualified = qualified;
     }
 
-    public ArrayList<Courses> getTeaching() {
+    public ArrayList<Sections> getTeaching() {
         return teaching;
     }
 
-    public void setTeaching(ArrayList<Courses> teaching) {
+    public void setTeaching(ArrayList<Sections> teaching) {
         this.teaching = teaching;
+    }
+
+    public void addTeaching(Sections section) {
+        this.teaching.add(section);
     }
 
     public String getIdentifier() {
@@ -29,7 +33,7 @@ public class Teacher {
     }
 
     ArrayList<Courses> qualified = new ArrayList<Courses>();
-    ArrayList<Courses> teaching = new ArrayList<Courses>();
+    ArrayList<Sections> teaching = new ArrayList<Sections>();
     String identifier;
     public Teacher(ArrayList<Courses> qualified, String identifier){
         this.qualified = qualified;
