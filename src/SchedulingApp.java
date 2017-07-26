@@ -1,13 +1,11 @@
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
-
-import static java.lang.Float.parseFloat;
 
 /**
  * Created by Ethan Reese, Aletea VanVeldhuesen, and Josh Bromley on 7/24/17.
@@ -17,7 +15,16 @@ import static java.lang.Float.parseFloat;
 
 public class SchedulingApp {
 
-
+    //Create the swing interface elements
+    JFrame frame = new JFrame();
+    JPanel panel = new JPanel();
+    JButton generateButton = new JButton("Generate Schedules");
+    JLabel forecastLabel = new JLabel("Forecasting Database Path");
+    JLabel teacherLabel = new JLabel("Teacher Database Path");
+    JLabel courseLabel = new JLabel("Course Database Path");
+    JTextField forecastInput = new JTextField();
+    JTextField teacherInput = new JTextField();
+    JTextField courseInput = new JTextField();
 
     BufferedReader br = null;
     Scanner scanner = new Scanner(System.in);
@@ -27,10 +34,11 @@ public class SchedulingApp {
     ArrayList<Courses> courses = new ArrayList<Courses>();
     ArrayList<Teacher> teachers = new ArrayList<Teacher>();
     ArrayList<Student> students = new ArrayList<Student>();
-    final int MIN = 15;
-    final int MAX = 40;
+    int MIN = 15;
+    int MAX = 40;
     public SchedulingApp(){
         //Potentially do this as some kind of GUI
+
 
         //Prompt the user for input of the files and assign the paths to strings
         System.out.println("Please input the path of the file with the forecasting options.");
@@ -40,6 +48,10 @@ public class SchedulingApp {
         System.out.println("Please input the path of the file with the course list.");
         String courseFile = scanner.nextLine();
         System.out.println("What is the maximum number of students in each class");
+        MAX = Integer.parseInt(scanner.nextLine());
+        System.out.println("What is the minimum number of students in each class.");
+        MIN = Integer.parseInt(scanner.nextLine());
+
 
 
         //Call the functions corresponding to each individual file
