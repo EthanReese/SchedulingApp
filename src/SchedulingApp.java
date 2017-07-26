@@ -72,6 +72,7 @@ public class SchedulingApp {
 
 
 
+
     }
 
     public static void main(String[] args){
@@ -129,10 +130,13 @@ public class SchedulingApp {
     public void teacherCreation(ArrayList<ArrayList<String>> teacherTable) {
         ArrayList<Courses> qualified = new ArrayList<Courses>();
         for (int i = 0; i < teacherTable.size(); i++) {
-            for(int j = 0; j < teacherTable.get(i).size()-1; j++) {
-               qualified.set(j,search(courses,teacherTable.get(i).get(j+1)));
+            for(int j = 0; j < teacherTable.get(i).size(); j++) {
+
+               qualified.add(search(courses,teacherTable.get(i).get(j)));
+               qualified.remove(0);
             }
             teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
+            qualified.clear();
         }
     }
     //Create student objects
@@ -144,11 +148,15 @@ public class SchedulingApp {
         //For each student, get their ID, the search for the classes they want and create the student object
         for (int i = 0; i < forecastTable.size(); i++) {
             id = forecastTable.get(i).get(0);
-            for (int j = 1; j < forecastTable.get(i).size(); j++) {
-                request.set(j-1, search(courses, forecastTable.get(i).get(j)));
+            for (int j = 0; j < forecastTable.get(i).size(); j++) {
+                System.out.println(forecastTable.get(i).get(j));
+                request.add(search(courses, forecastTable.get(i).get(j)));
+                request.remove(0);
             }
+            students.add(new Student(request, id));
+            request.clear();
         }
-        students.add(new Student(request, id));
+
 
     }
 
@@ -185,6 +193,7 @@ public class SchedulingApp {
             }
         }
         //if there is no match, return nothing
+        System.out.println("Null");
         return null;
     }
 
@@ -370,7 +379,7 @@ public class SchedulingApp {
         for(int i = 0; i < 10; i++){
             System.out.println(testStudents.get(i).identifier + ",");
             for(int j = 0; j < testStudents.get(i).requested.size(); j++){
-                System.out.println(testStudents.get(i).requested.get(j) + ",");
+                System.out.println(testStudents.get(i).requested.get(j).courseCode + ",");
             }
         }
     }
