@@ -68,6 +68,7 @@ public class SchedulingApp {
         teacherCreation(teacherTable);
         requestedClasses(forecastingTable, courses);
         setClassList(forecastingTable);
+        testStudents(students);
 
 
 
@@ -126,10 +127,10 @@ public class SchedulingApp {
 
     //Turns the teacher list into a list of teacher objects
     public void teacherCreation(ArrayList<ArrayList<String>> teacherTable) {
+        ArrayList<Courses> qualified = new ArrayList<Courses>();
         for (int i = 0; i < teacherTable.size(); i++) {
-            ArrayList<Courses> qualified = new ArrayList<Courses>();
-            for(int j = 1; j < teacherTable.get(i).size(); j++) {
-               qualified.set(j-1,search(courses,teacherTable.get(i).get(j)));
+            for(int j = 0; j < teacherTable.get(i).size()-1; j++) {
+               qualified.set(j,search(courses,teacherTable.get(i).get(j+1)));
             }
             teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
         }
@@ -286,7 +287,7 @@ public class SchedulingApp {
         }
     }
 
-    //for each fourse
+    //for each course
     public void addPeriod() {
         //keep track of max number of courses in a period
         int[] periodTracker = new int[totalPeriods];
@@ -358,6 +359,15 @@ public class SchedulingApp {
             courseSections.get(i).setTheTeacher(first);
             first.addTeaching(courseSections.get(i));
             qualifyList.remove(smallestIndex);
+        }
+    }
+
+    public void testStudents (ArrayList<Student> testStudents){
+        for(int i = 0; i < 10; i++){
+            System.out.println(testStudents.get(i).identifier + ",");
+            for(int j = 0; j < testStudents.get(i).requested.size(); j++){
+                System.out.println(testStudents.get(i).requested.get(j) + ",");
+            }
         }
     }
 }
