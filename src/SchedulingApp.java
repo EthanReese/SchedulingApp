@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -66,11 +67,19 @@ public class SchedulingApp {
         ArrayList<ArrayList<String>> forecastingTable  = readCSV(forecastingFile);
         ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
         ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
+        //Convert the files into the proper types of objects
         classes(courseTable);
         teacherCreation(teacherTable);
         requestedClasses(forecastingTable, courses);
+        //Run all of our actual functions that do stuff
         setClassList(forecastingTable);
         testStudents(students);
+        addSections();
+        ArrayList<Courses> earlyCourses = antiMode();
+        addPeriod(earlyCourses);
+        for (int i = 0; i < earlyCourses.size(); i++) {
+
+        }
 
 
 
@@ -283,6 +292,23 @@ public class SchedulingApp {
         for (int i = 0; i < courses.size(); i++) {
             if(courses.get(i).getSections() == returnInt){
                 returnList.add(courses.get(i));
+            }
+        }
+        //Loop through until it gets to the first course that is already sorted as part of the antimode
+        for (int i = 0; i < courses.size(); i++) {
+            if(courses.get(i).getSections() == returnInt){
+                //When it hits the middleish point, first go down from there
+                for (int j = i; j < 0; j--) {
+                    if(courses.get(j).getSections() != returnInt){
+                        returnList.add(courses.get(j));
+                    }
+                }
+                //Then after it goes all the way down and adds everything under it into it, then go up from the middleish point
+                for (int j = i; j < courses.size(); j++) {
+                    if(courses.get(j).getSections() != returnInt){
+                        returnList.add(courses.get(j));
+                    }
+                }
             }
         }
         return returnList;
