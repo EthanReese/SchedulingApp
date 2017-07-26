@@ -35,6 +35,9 @@ public class Sections {
     public void setStudents(ArrayList<Student> students) {
         this.students = students;
     }
+    public void addStudent(Student student){
+        students.add(student);
+    }
 
     Teacher teacher;
     ArrayList<Student> students;
