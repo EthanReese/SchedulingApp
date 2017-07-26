@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Courses {
@@ -41,21 +42,30 @@ public class Courses {
         this.teachersTeachingCourse = teachersTeachingCourse;
     }
 
+    //Getter and setter for the sections
+    public ArrayList<Sections> getSectionsOccuring(){return sections;}
+    public void setSectionsOccuring(ArrayList<Sections> sections){
+        this.sections = sections;
+    }
+    public void addSection(Sections section){
+        sections.add(section);
+    }
 
     public int getSections() {
-        return sections;
+        return numSections;
     }
 
     public void setSections(int sections) {
-        this.sections = sections;
+        this.numSections = sections;
     }
 
     String courseCode;
     Boolean requried;
     Double creditAmount;
-    int sections;
+    int numSections;
     ArrayList<String> studentsInCourse = new ArrayList<String>();
     ArrayList<String> teachersTeachingCourse = new ArrayList<String>();
+    ArrayList<Sections> sections;
 
     public Courses(String codeInput, Boolean requiredInput, Double creditInput){
         courseCode = codeInput;

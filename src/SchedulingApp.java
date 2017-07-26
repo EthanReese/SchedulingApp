@@ -208,8 +208,8 @@ public class SchedulingApp {
         }
     }
 
-    //Quicksort method: I chose to store the array outside the function and return nothing because it seemed easier than trying to worry about the recursive returns.
-    public static void quickSort(ArrayList<Courses> array, int low, int high) {
+    //Quicksort method: sort out the courses array
+    public void quickSort(ArrayList<Courses> array, int low, int high) {
         //If the array has only one element, then it is already sorted
         if (array == null || array.size() <= 1)
             return;
@@ -297,9 +297,9 @@ public class SchedulingApp {
         //Loop through the list of classes at the antimode that need to be assigned.
         for (int i = 0; i < List.size(); i++) {
             //determine how many sections of this class can be assigned to one period
-            int overlap = (int)((List.get(i).sections/totalPeriods)+.5);
+            int overlap = (int)((List.get(i).getSections()/totalPeriods)+.5);
             int[] assigned = new int[totalPeriods];
-            for (int j = 0; j < List.get(i).sections; j++) {
+            for (int j = 0; j < List.get(i).getSections(); j++) {
                 int k = 0;
                 //find the sections for this course
                 while(totalSections.get(k).course != List.get(i)) {
@@ -313,7 +313,11 @@ public class SchedulingApp {
                     periodAssigned = (int)(Math.random()*(totalPeriods-1)+1);
                 }
                 assigned[periodAssigned]++;
+                //Change the period in the array?
                 totalSections.get(k).setThePeriod(periodAssigned);
+                //Also link it to the course object
+                List.get(i).addSection(totalSections.get(k));
+
             }
         }
     }
@@ -369,5 +373,11 @@ public class SchedulingApp {
                 System.out.println(testStudents.get(i).requested.get(j) + ",");
             }
         }
+    }
+
+    //Assign students to a section semi randomly
+    public void assignStudentsToSection(Courses course){
+
+
     }
 }
