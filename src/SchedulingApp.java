@@ -80,8 +80,8 @@ public class SchedulingApp {
             String line;
             //Make a buffered reader that can read in the csv file
             br = new BufferedReader(new FileReader(filePath));
-            while((br.readLine()) != null){
-                ArrayList<String> tempList = new ArrayList<String>(Arrays.asList((br.readLine()).split(",")));
+            while((line  = br.readLine()) != null){
+                ArrayList<String> tempList = new ArrayList<>(Arrays.asList((line).split(",")));
                 returnList.add(counter, tempList);
                 counter += 1;
             }
@@ -117,6 +117,8 @@ public class SchedulingApp {
         }
     }
 
+
+    //Turns the teacher list into a list of teacher objects
     public void teacherCreation(ArrayList<ArrayList<String>> teacherTable) {
         for (int i = 0; i < teacherTable.size(); i++) {
             ArrayList<Courses> qualified = new ArrayList<Courses>();
@@ -142,6 +144,7 @@ public class SchedulingApp {
         students.add(new Student(request, id));
 
     }
+
 
     public void setClassList(ArrayList<ArrayList<String>> forecastingTable) {
         ArrayList<ArrayList<String>> studentCourseList = new ArrayList<ArrayList<String>>();
@@ -241,6 +244,7 @@ public class SchedulingApp {
             quickSort(array, i, high);
         }
     }
+
     //Sort through the sections and pick periods where they can be
     public ArrayList<Courses> antiMode(){
         //Set an integer to the max value of an integer
@@ -279,8 +283,10 @@ public class SchedulingApp {
     public void addPeriod() {
         //for each antiMode course, find its sections and assign them random periods that do not overlap
         int[] periodTracker = new int[8];
-        int maxPeriods = (int)((totalSections.size()/8)+.5);
+        //The maximum number of periods that are the maximum you can have in a period
+        int maxPeriods = (int)Math.ceil((totalSections.size()/8));
         ArrayList<Courses> List = antiMode();
+        //Loop through the list of classes at the antimode that need to be assigned.
         for (int i = 0; i < List.size(); i++) {
             int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8};
             for (int j = 0; j < List.get(i).sections; j++) {
