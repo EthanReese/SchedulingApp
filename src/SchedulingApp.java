@@ -21,6 +21,9 @@ public class SchedulingApp {
 
     BufferedReader br = null;
     Scanner scanner = new Scanner(System.in);
+    ArrayList<Courses> coursesList = new ArrayList<Courses>();
+    ArrayList<Teacher> teacherList = new ArrayList<Teacher>();
+    ArrayList<Sections> totalSections = new ArrayList<Sections>();
     ArrayList<Courses> courses = new ArrayList<Courses>();
     ArrayList<Teacher> teachers = new ArrayList<Teacher>();
     ArrayList<Student> students = new ArrayList<Student>();
@@ -45,8 +48,9 @@ public class SchedulingApp {
         ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
         classes(courseTable);
         teacherCreation(teacherTable);
-        requestedClasses(forecastingTable,courses);
+        requestedClasses(forecastingTable, courses);
         setClassList(forecastingTable);
+
 
 
     }
@@ -250,4 +254,61 @@ public class SchedulingApp {
         return returnList;
     }
 
+    public void addSections() {
+        //for each course, for each section, create a new section for that course
+        for (int i = 0; i < coursesList.size(); i++) {
+            for (int j = 0; j < coursesList.get(i).getSections(); j++) {
+                Sections section = new Sections(coursesList.get(i), 0, null, null);
+                totalSections.add(section);
+            }
+        }
+    }
+
+    public void addPeriod() {
+        //for each antiMode course, find its sections and assign them random periods that do not overlap
+        int[] periodTracker = new int[8];
+        int maxPeriods = (int)((totalSections.size()/8)+.5);
+        ArrayList<Courses> List = antiMode();
+        for (int i = 0; i < List.size(); i++) {
+            int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8};
+            for (int j = 0; j < List.get(i).sections; j++) {
+                int k = 0;
+                while(totalSections.get(k).course != List.get(i)) {
+                    k++;
+                }
+                int periodAssigned = numbers[(int)(Math.random()*(8-1)+1)];
+                periodTracker[periodAssigned]++;
+                while (periodTracker[periodAssigned] == maxPeriods+1) {
+                    periodAssigned = numbers[(int)(Math.random()*(8-1)+1)];
+                }
+                totalSections.get(k).setThePeriod(periodAssigned);
+            }
+        }
+    }
+
+
+
+    public void TeacherSections(Courses course) {
+        int sections = course.getSections();
+        ArrayList<String> teachers = course.getTeachersTeachingCourse();
+        ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
+        for (int i = 0; i < teachers.size(); i++) {
+            for (int j = 0; j < teacherList.size(); j++) {
+                if (teacherList.get(j).identifier == teachers.get(i)) {
+                    qualifyList.add(teacherList.get(j));
+                }
+            }
+        }
+        for (int i = 0; i < sections; i++) {
+            Teacher first = qualifyList.get(i);
+            int smallestIndex = i;
+            for (int j = i; j < qualifyList.size(); j++) {
+                if (qualifyList.get(j).qualified.size() < first.qualified.size()) {
+                    first = qualifyList.get(j);
+                    smallestIndex = j;
+                }
+            }
+            qualifyList.remove(smallestIndex);
+        }
+    }
 }

@@ -41,13 +41,6 @@ public class Courses {
         this.teachersTeachingCourse = teachersTeachingCourse;
     }
 
-    public void addStudent(String studentName){
-        studentsInCourse.add(studentName);
-    }
-
-    public void addTeacher(String teacherName){
-        teachersTeachingCourse.add(teacherName);
-    }
 
     public int getSections() {
         return sections;
@@ -70,7 +63,13 @@ public class Courses {
         creditAmount = creditInput;
     }
 
+    public void addStudent(String studentName){
+        studentsInCourse.add(studentName);
+    }
 
+    public void addTeacher(String teacherName){
+        teachersTeachingCourse.add(teacherName);
+    }
 
 
 
