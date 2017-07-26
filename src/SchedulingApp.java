@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -37,6 +38,7 @@ public class SchedulingApp {
     int MIN = 15;
     int MAX = 40;
     int totalPeriods = 8;
+    Random random = new Random();
     public SchedulingApp(){
         //Potentially do this as some kind of GUI
 
@@ -386,7 +388,15 @@ public class SchedulingApp {
 
     //Assign students to a section semi randomly
     public void assignStudentsToSection(Courses course){
-
+        //Loop through all the students in a course
+        for (int i = 0; i < course.getStudentsInCourse().size(); i++) {
+            //Find the arraylist of sections that are available to the student
+            ArrayList<Sections> sections = course.getSectionsOccuring();
+            //Go through and knock out any of the periods that the student isn't available
+            for (int j = 0; j < ; j++) {
+                
+            }
+        }
 
     }
 }
