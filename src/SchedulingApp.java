@@ -339,9 +339,9 @@ public class SchedulingApp {
         //Set an integer to the max value of an integer
         int returnInt = Integer.MAX_VALUE;
         ArrayList<Courses> returnList = new ArrayList<Courses>();
-        int[] numOfEach = new int[courses.get(courses.size()).getSections()];
+        int[] numOfEach = new int[courses.get(courses.size() - 1).getSections()];
         //Loop through the list of courses and make an additional array that has an element for each number of sections.
-        for (int i = 0; i < courses.size() - 1; i++){
+        for (int i = 0; i < courses.size(); i++){
             numOfEach[courses.get(i).getSections()+1]++;
         }
         //Loop through the resultant array and find the number that is the lowest and keep track of its index
@@ -351,13 +351,13 @@ public class SchedulingApp {
             }
         }
         //Loop through the courses list and take all of the antimode classes into a new return list.
-        for (int i = 0; i < courses.size() - 1; i++) {
+        for (int i = 0; i < courses.size(); i++) {
             if(courses.get(i).getSections() == returnInt){
                 returnList.add(courses.get(i));
             }
         }
         //Loop through until it gets to the first course that is already sorted as part of the antimode
-        for (int i = 0; i < courses.size() - 1; i++) {
+        for (int i = 0; i < courses.size(); i++) {
             if(courses.get(i).getSections() == returnInt){
                 //When it hits the middleish point, first go down from there
                 for (int j = i; j < 0; j--) {
@@ -366,7 +366,7 @@ public class SchedulingApp {
                     }
                 }
                 //Then after it goes all the way down and adds everything under it into it, then go up from the middleish point
-                for (int j = i; j < courses.size() - 1; j++) {
+                for (int j = i; j < courses.size(); j++) {
                     if(courses.get(j).getSections() != returnInt){
                         returnList.add(courses.get(j));
                     }
@@ -549,14 +549,14 @@ public class SchedulingApp {
                                 student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j).getCourse());
                                 masterSections.get(j).addStudent(student);
                                 freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()] = false;
-                                return;
+                                continue OUTER;
                             }
                         }
                     }
                     //If it doesn't work out, then it needs to find a way to add a note into the student's final schedule that there was no possible way to fit both.
                     //TODO: Figure out the messaging system bc a required class can't be changed
                     //Maybe try out changing around an elective in the schedule
-                    return;
+                    continue OUTER;
                 }
                 //However if the course isn't required
                 else{
@@ -565,7 +565,7 @@ public class SchedulingApp {
                     for (int j = 0; j < masterSections.size(); j++) {
                         Courses conflict = schedule.get(masterSections.get(j).getPeriod());
                         for (int k = 0; k < masterSections.size(); k++) {
-                            //If the student is free in another
+                            //If a student has a
                             if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
 
                             }
