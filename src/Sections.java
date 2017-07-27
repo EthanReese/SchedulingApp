@@ -33,7 +33,10 @@ public class Sections {
     }
 
     public void setStudents(ArrayList<Student> students) {
-        this.students = students;
+        for(int i = 0; i < students.size(); i++){
+            this.students.set(i,students.get(i));
+
+        }
     }
     public void addStudent(Student student){
         students.add(student);
@@ -63,7 +66,10 @@ public class Sections {
         this.course = course;
         this.period = period;
         this.teacher = teacher;
-        this.students = students;
+        for(int i = 0; i < students.size(); i++){
+            this.students.set(i,students.get(i));
+
+        }
     }
 
 }

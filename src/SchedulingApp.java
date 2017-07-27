@@ -73,7 +73,6 @@ public class SchedulingApp {
         requestedClasses(forecastingTable, courses);
         //Run all of our actual functions that do stuff
         setClassList(forecastingTable);
-        testStudents(students);
         reassign(courses);
         teachingClasses(teachers, courses);
         addSections();
@@ -128,27 +127,10 @@ public class SchedulingApp {
             System.exit(0);
         }
 
-        PrintWriter ww;
-        try {
-            ww = new PrintWriter(new FileWriter(new File("teacherOutput.txt")));
-            //create the output string
-            String teacherOutput = "";
-            for (int i = 0; i < teachers.size(); i++) {
-                teacherOutput += teachers.get(i).identifier + ": ";
-                for (int j = 0; j < teachers.get(i).teaching.size(); j++) {
-                    teacherOutput += teachers.get(i).teaching.get(j).course.courseCode + ", ";
-                }
-            }
-            ww.write(teacherOutput);
-            ww.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.exit(0);
-        }
 
-        int perfected = 0;
-        for (int i = 0; i < students.size(); i++) {
+
+
+        for(int i = 0; i < students.size(); i++) {
             for (int j = 0; j < students.get(i).requested.size(); j++) {
                 for (int k = 0; k < students.get(i).assigned.size(); k++) {
                     if (students.get(i).requested.get(j).courseCode == students.get(i).assigned.get(k).courseCode) {
@@ -218,11 +200,11 @@ public class SchedulingApp {
         ArrayList<Courses> qualified = new ArrayList<Courses>();
         for (int i = 0; i < teacherTable.size(); i++) {
             for(int j = 0; j < teacherTable.get(i).size(); j++) {
-
                qualified.add(search(courses,teacherTable.get(i).get(j)));
                qualified.remove(0);
             }
             teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
+            teachers.get(i).freePeriods= Integer.parseInt(teacherTable.get(i).get(1));
             qualified.clear();
         }
     }
@@ -238,8 +220,8 @@ public class SchedulingApp {
             for (int j = 0; j < forecastTable.get(i).size(); j++) {
                 System.out.println(forecastTable.get(i).get(j));
                 request.add(search(courses, forecastTable.get(i).get(j)));
-                request.remove(0);
             }
+            request.remove(0);
             students.add(new Student(request, id));
             request.clear();
         }
@@ -250,18 +232,20 @@ public class SchedulingApp {
     //get the students in a course and set that
     public void setClassList(ArrayList<ArrayList<String>> forecastingTable) {
         ArrayList<ArrayList<String>> studentCourseList = new ArrayList<ArrayList<String>>();
-        for (int i = 0; i < forecastingTable.size(); i++) {
-            for (int j = 1; j < forecastingTable.get(i).size(); j++) {
+        for (int i = 0; i < students.size(); i++) {
+            for (int j = 1; j < students.get(i).requested.size(); j++){
                 for (int k = 0; k < courses.size(); k++) {
-                    if (courses.get(k).courseCode == forecastingTable.get(i).get(j)) {
-                        courses.get(k).addStudent(forecastingTable.get(i).get(0));
+                    if (courses.get(k).courseCode == students.get(i).requested.get(j).courseCode) {
+                        courses.get(k).addStudent(students.get(i).identifier);
                     }
                 }
             }
         }
+        /*studentCourseList is empty
         for (int i = 0; i < studentCourseList.size(); i++) {
             courses.get(i).setStudentsInCourse(studentCourseList.get(i));
         }
+        */
     }
 
     public void teachingClasses (ArrayList<Teacher> teachers, ArrayList<Courses> courses){
@@ -280,7 +264,7 @@ public class SchedulingApp {
             }
         }
         //if there is no match, return nothing
-        System.out.println("Null");
+
         return null;
     }
 
@@ -394,11 +378,10 @@ public class SchedulingApp {
     //Create section objects for each section of the course
     public void addSections() {
         //for each course, for each section, create a new section for that course
-        for (int i = 0; i < coursesList.size(); i++) {
-            for (int j = 0; j < coursesList.get(i).getSections(); j++) {
-                Sections section = new Sections(coursesList.get(i), 0, null, null);
+        for (int i = 0; i < courses.size(); i++) {
+            for (int j = 0; j < courses.get(i).getSections(); j++) {
+                Sections section = new Sections(courses.get(i), 0, null, null);
                 totalSections.add(section);
-                coursesList.get(i).addSection(section);
             }
         }
     }
@@ -455,10 +438,17 @@ public class SchedulingApp {
             }
             ArrayList<Integer> remover = new ArrayList<Integer>();
             for (int j = 0; j < freeList.size(); j++) {
-                for (int k = 0; k < freeList.get(j).getTeaching().size(); k++) {
-                    if (freeList.get(j).getTeaching().get(k).period == courseSections.get(i).period) {
-                        //add to a list of teachers to remove
-                        remover.add(j);
+                //if the teacher has exceeded their class limit, remove them
+                if (freeList.get(j).getTeaching().size() >= (totalPeriods-freeList.get(j).freePeriods)) {
+                    remover.add(j);
+                }
+                //if the teacher is already teaching this period, remove them
+                else {
+                    for (int k = 0; k < freeList.get(j).getTeaching().size(); k++) {
+                        if (freeList.get(j).getTeaching().get(k).period == courseSections.get(i).period) {
+                            //add to a list of teachers to remove
+                            remover.add(j);
+                        }
                     }
                 }
             }
@@ -466,28 +456,25 @@ public class SchedulingApp {
             for (int j = 0; j < remover.size(); j++) {
                 freeList.remove(remover.get(j));
             }
-            Teacher first = freeList.get(i);
-            int smallestIndex = i;
-            for (int j = i; j < freeList.size(); j++) {
-                if (freeList.get(j).qualified.size() < first.qualified.size()) {
-                    first = freeList.get(j);
-                    smallestIndex = j;
+            if (freeList.size() != 0) {
+                Teacher first = freeList.get(i);
+                int smallestIndex = i;
+                for (int j = i; j < freeList.size(); j++) {
+                    if (freeList.get(j).qualified.size() < first.qualified.size()) {
+                        first = freeList.get(j);
+                        smallestIndex = j;
+                    }
                 }
+                courseSections.get(i).setTheTeacher(first);
+                first.addTeaching(courseSections.get(i));
+                freeList.remove(smallestIndex);
             }
-            courseSections.get(i).setTheTeacher(first);
-            first.addTeaching(courseSections.get(i));
-            freeList.remove(smallestIndex);
+            else {
+
+            }
         }
     }
 
-    public void testStudents (ArrayList<Student> testStudents){
-        for(int i = 0; i < 10; i++){
-            System.out.println(testStudents.get(i).identifier + ",");
-            for(int j = 0; j < testStudents.get(i).requested.size(); j++){
-                System.out.println(testStudents.get(i).requested.get(j).courseCode + ",");
-            }
-        }
-    }
 
     //Function to search for a student given their identifier
     public Student searchStudent(String identifier){
