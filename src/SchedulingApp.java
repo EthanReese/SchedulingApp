@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 /**
  * Created by Ethan Reese, Aletea VanVeldhuesen, and Josh Bromley on 7/24/17.
+ * 7/27/17 13:33
  */
 
 
@@ -72,7 +73,7 @@ public class SchedulingApp {
         teacherCreation(teacherTable);
         requestedClasses(forecastingTable, courses);
         //Run all of our actual functions that do stuff
-        setClassList(forecastingTable);
+        setClassList();
         reassign(courses);
         teachingClasses(teachers, courses);
         addSections();
@@ -229,8 +230,7 @@ public class SchedulingApp {
     }
 
     //get the students in a course and set that
-    public void setClassList(ArrayList<ArrayList<String>> forecastingTable) {
-        ArrayList<ArrayList<String>> studentCourseList = new ArrayList<ArrayList<String>>();
+    public void setClassList() {
         for (int i = 0; i < students.size(); i++) {
             for (int j = 1; j < students.get(i).requested.size(); j++){
                 for (int k = 0; k < courses.size(); k++) {
@@ -240,11 +240,7 @@ public class SchedulingApp {
                 }
             }
         }
-        /*studentCourseList is empty
-        for (int i = 0; i < studentCourseList.size(); i++) {
-            courses.get(i).setStudentsInCourse(studentCourseList.get(i));
-        }
-        */
+
     }
 
     public void teachingClasses (ArrayList<Teacher> teachers, ArrayList<Courses> courses){
