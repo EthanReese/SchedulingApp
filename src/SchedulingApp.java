@@ -122,7 +122,6 @@ public class SchedulingApp {
             ow.write(studentOutput);
             ow.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             System.exit(0);
         }
@@ -342,7 +341,7 @@ public class SchedulingApp {
         int[] numOfEach = new int[courses.get(courses.size() - 1).getSections()];
         //Loop through the list of courses and make an additional array that has an element for each number of sections.
         for (int i = 0; i < courses.size(); i++){
-            numOfEach[courses.get(i).getSections()+1]++;
+            numOfEach[courses.get(i).getSections()]++;
         }
         //Loop through the resultant array and find the number that is the lowest and keep track of its index
         for (int i = 0; i < numOfEach.length; i++) {
@@ -351,13 +350,13 @@ public class SchedulingApp {
             }
         }
         //Loop through the courses list and take all of the antimode classes into a new return list.
-        for (int i = 0; i < courses.size(); i++) {
+        for (int i = 0; i < courses.size() - 1; i++) {
             if(courses.get(i).getSections() == returnInt){
                 returnList.add(courses.get(i));
             }
         }
         //Loop through until it gets to the first course that is already sorted as part of the antimode
-        for (int i = 0; i < courses.size(); i++) {
+        for (int i = 0; i < courses.size() - 1; i++) {
             if(courses.get(i).getSections() == returnInt){
                 //When it hits the middleish point, first go down from there
                 for (int j = i; j < 0; j--) {
@@ -366,7 +365,7 @@ public class SchedulingApp {
                     }
                 }
                 //Then after it goes all the way down and adds everything under it into it, then go up from the middleish point
-                for (int j = i; j < courses.size(); j++) {
+                for (int j = i; j < courses.size() - 1; j++) {
                     if(courses.get(j).getSections() != returnInt){
                         returnList.add(courses.get(j));
                     }
@@ -567,7 +566,7 @@ public class SchedulingApp {
                         for (int k = 0; k < masterSections.size(); k++) {
                             //If a student has a
                             if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
-
+                                conflict.getSectionsOccuring()
                             }
                         }
                     }
