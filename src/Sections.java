@@ -41,6 +41,13 @@ public class Sections {
     public void addStudent(Student student){
         students.add(student);
     }
+    public void removeStudent(Student student){
+        for (int i = 0; i < students.size(); i++) {
+            if(students.get(i).equals(student)){
+                students.remove(i);
+            }
+        }
+    }
 
     Teacher teacher;
     ArrayList<Student> students;
