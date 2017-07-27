@@ -433,7 +433,7 @@ public class SchedulingApp {
         //Loop through the list of classes at the antimode that need to be assigned.
         for (int i = 0; i < List.size(); i++) {
             //determine how many sections of this class can be assigned to one period
-            int overlap = (int)((List.get(i).getSections()/totalPeriods)+.5);
+            int overlap = (int)(Math.ceil((List.get(i).getSections()/totalPeriods)+.5));
             int[] assigned = new int[totalPeriods];
             for (int j = 0; j < List.get(i).getSections(); j++) {
                 //assign a random period, and add it to the array keeping track of total classes in a period
