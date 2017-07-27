@@ -129,7 +129,7 @@ public class SchedulingApp {
 
 
 
-
+        int perfected = 0;
         for(int i = 0; i < students.size(); i++) {
             for (int j = 0; j < students.get(i).requested.size(); j++) {
                 for (int k = 0; k < students.get(i).assigned.size(); k++) {
@@ -470,7 +470,11 @@ public class SchedulingApp {
                 freeList.remove(smallestIndex);
             }
             else {
-
+                ArrayList<Courses> newQualified = new ArrayList<Courses>();
+                newQualified.add(courseSections.get(i).course);
+                Teacher newTeacher = new Teacher(newQualified, "New Teacher");
+                teachers.add(newTeacher);
+                courseSections.get(i).setTheTeacher(newTeacher);
             }
         }
     }

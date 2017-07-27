@@ -36,6 +36,15 @@ public class Teacher {
         this.identifier = identifier;
     }
 
+    public void setFreePeriods(int Free) {
+        this.freePeriods = Free;
+    }
+
+    public int getFreePeriods() {
+        return freePeriods;
+    }
+
+    int freePeriods = 0;
     ArrayList<Courses> qualified = new ArrayList<Courses>();
     ArrayList<Sections> teaching = new ArrayList<Sections>();
     String identifier;
