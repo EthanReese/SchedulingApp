@@ -76,7 +76,7 @@ public class Courses {
     int numSections;
     ArrayList<String> studentsInCourse = new ArrayList<String>();
     ArrayList<String> teachersTeachingCourse = new ArrayList<String>();
-    ArrayList<Sections> sections;
+    ArrayList<Sections> sections = new ArrayList<>();
 
     public Courses(String codeInput, Boolean requiredInput, Double creditInput){
         courseCode = codeInput;
