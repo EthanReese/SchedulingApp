@@ -80,9 +80,7 @@ public class SchedulingApp {
         addSections();
         ArrayList<Courses> antiModeCourses = antiMode();
         addPeriod(antiModeCourses);
-        //System.out.println(teachers.size());
         for (int i = 0; i < antiModeCourses.size(); i++) {
-            //System.out.println(teachers.size());
             teacherSections(antiModeCourses.get(i));
         }
         for (int i = 0; i < antiModeCourses.size(); i++) {
@@ -455,17 +453,15 @@ public class SchedulingApp {
 
     //assigns teachers to separate sections for a specific course
     public void teacherSections(Courses course) {
-        System.out.println(teachers.size());
         ArrayList<Sections> courseSections = new ArrayList<Sections>();
         //find the course's sections
         courseSections = course.getSectionsOccuring();
         //keep track of teachers that can teach this course and their quialifications
-        ArrayList<String> teacher = course.getTeachersTeachingCourse();
+        ArrayList<String> teacherString = course.getTeachersTeachingCourse();
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
-        System.out.println(teachers.size());
-        for (int i = 0; i < teacher.size(); i++) {
+        for (int i = 0; i < teacherString.size(); i++) {
             for (int j = 0; j < teachers.size(); j++) {
-                if (teachers.get(j).identifier == teacher.get(i)) {
+                if (teachers.get(j).identifier == teacherString.get(i)) {
                     qualifyList.add(teachers.get(j));
                 }
             }
