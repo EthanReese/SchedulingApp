@@ -50,4 +50,7 @@ public class Student {
         this.identifier = identifier;
 
     }
+    public void setClass(int period, Courses course){
+        this.assigned.set(period, course);
+    }
 }

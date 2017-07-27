@@ -382,7 +382,7 @@ public class SchedulingApp {
                 Sections section = new Sections(courses.get(i), 0, null, null);
                 totalSections.add(section);
                 courses.get(i).addSection(section);
-                courses.get(i).setSections(courses.get(i).getSections() + 1);
+                System.out.println("Hello");
             }
         }
     }
@@ -506,6 +506,7 @@ public class SchedulingApp {
 
             ArrayList<Sections> masterSections = course.getSectionsOccuring();
             ArrayList<Sections> sections = new ArrayList<>();
+            System.out.println(course.getSectionsOccuring().size());
             for (int j = 0; j < course.getSectionsOccuring().size(); j++) {
                 sections.add(course.getSectionsOccuring().get(i));
             }
@@ -584,6 +585,9 @@ public class SchedulingApp {
                 }
                 continue OUTER;
             }
+            else{
+                System.out.println(sections.size());
+            }
 
             //Now the student is free for all the sections in the list, so it puts them in the section with the fewest people
             int minCourseCount = Integer.MAX_VALUE;
@@ -596,7 +600,7 @@ public class SchedulingApp {
                 }
             }
             //Add the course to the student's schedule
-            ArrayList<Courses> studentSched = student.getAssigned();
+            ArrayList<Courses> studentSched = new ArrayList<>(student.getAssigned());
             if(studentSched.size() <= sections.get(indexOfBestSection).getPeriod()){
                 studentSched.add(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
             }
