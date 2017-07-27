@@ -80,7 +80,9 @@ public class SchedulingApp {
         addSections();
         ArrayList<Courses> antiModeCourses = antiMode();
         addPeriod(antiModeCourses);
+        //System.out.println(teachers.size());
         for (int i = 0; i < antiModeCourses.size(); i++) {
+            //System.out.println(teachers.size());
             teacherSections(antiModeCourses.get(i));
         }
         for (int i = 0; i < antiModeCourses.size(); i++) {
@@ -427,21 +429,21 @@ public class SchedulingApp {
     //for each course
     public void addPeriod(ArrayList<Courses> List) {
         //keep track of max number of courses in a period
-        int[] periodTracker = new int[totalPeriods];
+        int[] periodTracker = new int[totalPeriods + 1];
         int maxPeriods = (int)(Math.ceil((totalSections.size()/totalPeriods)+.5));
         //get antiMode courses
         //Loop through the list of classes at the antimode that need to be assigned.
         for (int i = 0; i < List.size(); i++) {
             //determine how many sections of this class can be assigned to one period
             int overlap = (int)(Math.ceil((List.get(i).getSections()/totalPeriods)+.5));
-            int[] assigned = new int[totalPeriods];
+            int[] assigned = new int[totalPeriods + 1];
             for (int j = 0; j < List.get(i).getSections(); j++) {
                 //assign a random period, and add it to the array keeping track of total classes in a period
                 int periodAssigned = (int)(Math.random()*(totalPeriods-1)+1);
                 periodTracker[periodAssigned]++;
                 //make sure there aren't too many of this class in this period, and that is doesn't go over max periods
                 while (periodTracker[periodAssigned] == maxPeriods+1 || assigned[periodAssigned] == overlap) {
-                    periodAssigned = (int)(Math.random()*(totalPeriods-1)+1);
+                    periodAssigned = random.nextInt(totalPeriods) + 1;
                 }
                 assigned[periodAssigned]++;
                 //Change the period in the array?
@@ -453,13 +455,15 @@ public class SchedulingApp {
 
     //assigns teachers to separate sections for a specific course
     public void teacherSections(Courses course) {
+        System.out.println(teachers.size());
         ArrayList<Sections> courseSections = new ArrayList<Sections>();
         //find the course's sections
         courseSections = course.getSectionsOccuring();
         //keep track of teachers that can teach this course and their quialifications
         ArrayList<String> teacher = course.getTeachersTeachingCourse();
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
-        for (int i = 0; i < teachers.size(); i++) {
+        System.out.println(teachers.size());
+        for (int i = 0; i < teacher.size(); i++) {
             for (int j = 0; j < teachers.size(); j++) {
                 if (teachers.get(j).identifier == teacher.get(i)) {
                     qualifyList.add(teachers.get(j));
