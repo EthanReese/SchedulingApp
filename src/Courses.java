@@ -93,7 +93,13 @@ public class Courses {
     }
 
 
-
+    public void removeStudentFromCourse(String studentName){
+        for (int i = 0; i < this.studentsInCourse.size(); i++) {
+            if(this.studentsInCourse.get(i) == studentName){
+                this.studentsInCourse.remove(studentName);
+            }
+        }
+    }
 
 
 

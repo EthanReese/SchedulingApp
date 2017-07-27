@@ -583,6 +583,7 @@ public class SchedulingApp {
 
 
     //Assign students to a section semi randomly
+    @SuppressWarnings("Duplicates")
     public void assignStudentsToSection(Courses course){
         //Loop through all the students in a course
         OUTER:
@@ -634,6 +635,7 @@ public class SchedulingApp {
                     for (int j = 0; j < masterSections.size(); j++) {
                         Courses conflict = schedule.get(masterSections.get(j).getPeriod());
                         for (int k = 0; k < conflict.getSectionsOccuring().size(); k++) {
+                            //noinspection Duplicates
                             if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
                                 //Change the period to be at one of the new free ones and remove the student from the previous period and add them into the new section
                                 conflict.getSectionsOccuring().get(k).removeStudent(student);
@@ -658,21 +660,53 @@ public class SchedulingApp {
                     ArrayList<Courses> schedule = student.getAssigned();
                     for (int j = 0; j < masterSections.size(); j++) {
                         Courses conflict = schedule.get(masterSections.get(j).getPeriod());
-                        for (int k = 0; k < masterSections.size(); k++) {
-                            //If a student has a
+                        for (int k = 0; k < conflict.getSectionsOccuring().size(); k++) {
+                            //If a student has a scheduling conflict
+                            //noinspection duplicates
                             if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
-                                conflict.getSectionsOccuring();
+                                conflict.getSectionsOccuring().get(k).removeStudent(student);
+                                student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod(), schedule.get(masterSections.get(j).getPeriod()));
+                                conflict.getSectionsOccuring().get(k).addStudent(student);
+                                //Change the original period to be back to null
+                                student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j).getCourse());
+                                masterSections.get(j).addStudent(student);
+                                freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()] = false;
+                                continue OUTER;
                             }
                         }
                     }
+                    //Finally if that doesn't work, the student is going to be reassigned to a different course for that elective
+                        //If the student is free for that period find the course that is farthest away from needing and addition section
+                        int mini = Integer.MAX_VALUE;
+                        Courses a = null;
+                        Sections b = null;
+                        for (int k = 0; k < courses.size(); k++) {
+                            //If the course is the farthest away from needing another section so far then it needs to save it
+                            if((courses.get(k).getStudentsInCourse().size() % MAX)<mini){
+                                //Then I need to check to make sure that the student actually has a free period that coincides with when the class is offered
+                                for (int l = 0; l < courses.get(k).getSectionsOccuring().size(); l++) {
+                                        //If the student is free in a period when the course is offered then save that section as the best section to add the student to
+                                        if (freePeriods[courses.get(k).getSectionsOccuring().get(l).getPeriod()]){
+                                            mini = courses.get(k).getSections();
+                                            a = courses.get(k);
+                                            b = courses.get(k).getSectionsOccuring().get(l);
+                                        }
+                                }
 
-                    //Finally if that doesn't work, the student is going to be reassigned to a different course.
+                            }
+                        }
+                        if(a == null){
+                            //We're fucked
+                            continue OUTER;
+                        }
+                        //Add the student to a section and remove them from the previous course
+                        course.removeStudentFromCourse(student.identifier);
+                        a.addStudent(student.identifier);
+                        b.addStudent(student);
+                        student.changePeriod(b.getPeriod(), b.getCourse());
+                        continue OUTER;
+                    }
                 }
-                continue OUTER;
-            }
-            else{
-                System.out.println(sections.size());
-            }
 
             //Now the student is free for all the sections in the list, so it puts them in the section with the fewest people
             int minCourseCount = Integer.MAX_VALUE;
