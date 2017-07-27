@@ -122,6 +122,7 @@ public class SchedulingApp {
             ow.write(studentOutput);
             ow.close();
         } catch (IOException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
             System.exit(0);
         }
@@ -340,7 +341,7 @@ public class SchedulingApp {
         ArrayList<Courses> returnList = new ArrayList<Courses>();
         int[] numOfEach = new int[courses.get(courses.size() - 1).getSections()];
         //Loop through the list of courses and make an additional array that has an element for each number of sections.
-        for (int i = 0; i < courses.size(); i++){
+        for (int i = 0; i < courses.size()-1; i++){
             numOfEach[courses.get(i).getSections()]++;
         }
         //Loop through the resultant array and find the number that is the lowest and keep track of its index
