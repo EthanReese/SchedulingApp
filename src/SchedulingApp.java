@@ -416,7 +416,8 @@ public class SchedulingApp {
             int total = (int)(Math.ceil(courses.get(i).getStudentsInCourse().size()/MAX));
             courses.get(i).setSections(total);
             for (int j = 0; j < courses.get(i).getSections(); j++) {
-                Sections section = new Sections(courses.get(i), 0, null, null);
+                ArrayList<Student> fakeStudents = new ArrayList<Student>();
+                Sections section = new Sections(courses.get(i), 0, null, fakeStudents);
                 totalSections.add(section);
                 courses.get(i).addSection(section);
                 System.out.println("Hello");
