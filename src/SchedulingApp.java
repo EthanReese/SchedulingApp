@@ -420,7 +420,6 @@ public class SchedulingApp {
                 Sections section = new Sections(courses.get(i), 0, null, fakeStudents);
                 totalSections.add(section);
                 courses.get(i).addSection(section);
-                System.out.println("Hello");
             }
         }
     }
