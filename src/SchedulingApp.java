@@ -428,7 +428,7 @@ public class SchedulingApp {
     public void addPeriod(ArrayList<Courses> List) {
         //keep track of max number of courses in a period
         int[] periodTracker = new int[totalPeriods];
-        int maxPeriods = (int)((totalSections.size()/totalPeriods)+.5);
+        int maxPeriods = (int)(Math.ceil((totalSections.size()/totalPeriods)+.5));
         //get antiMode courses
         //Loop through the list of classes at the antimode that need to be assigned.
         for (int i = 0; i < List.size(); i++) {
