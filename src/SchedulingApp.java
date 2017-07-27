@@ -73,7 +73,6 @@ public class SchedulingApp {
         requestedClasses(forecastingTable, courses);
         //Run all of our actual functions that do stuff
         setClassList(forecastingTable);
-        testStudents(students);
         reassign(courses);
         teachingClasses(teachers, courses);
         addSections();
@@ -136,10 +135,10 @@ public class SchedulingApp {
             System.exit(0);
         }
 
-        }
 
-        int perfected = 0;
-        for (int i = 0; i < students.size(); i++) {
+
+
+        for(int i = 0; i < students.size(); i++) {
             for (int j = 0; j < students.get(i).requested.size(); j++) {
                 for (int k = 0; k < students.get(i).assigned.size(); k++) {
                     if (students.get(i).requested.get(j).courseCode == students.get(i).assigned.get(k).courseCode) {
