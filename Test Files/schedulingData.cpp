@@ -12,7 +12,7 @@ int main(){
     int freshmanCount, sophomoresCount, juniorsCount, seniorsCount;
     int id = 100000;
     int cid = 1001;
-    myFile.open("studentDataCSV.txt");
+    myFile.open("a.txt");
     cout << "How many freshman, sophomores, juniors and seniors do you want" << endl;
     cin >> freshmanCount >> sophomoresCount >> juniorsCount >> seniorsCount;
     for (int i = 0; i < freshmanCount; i++){
@@ -35,21 +35,22 @@ int main(){
         id++;
     }
     myFile.close();
-    myFile.open("courseDataCSV.txt");
+    myFile.open("c.txt");
     for(int m = 0; m < 13; m++){
         if(m < 4){
             for (int n = 0; n < 4; n++){
                 myFile << cid << ",true," << 1 << endl;
                 cid++;
             }
-            cid+=7;
+
         }
         else{
             for (int o = 0; o < 4; o++){
                 myFile << cid << ",false," << 1 << endl;
+                cid++;
             }
         }
-
+        cid+=6;
     }
     myFile << 1131 << ",true," << 1 << endl << 1141 << ",true," << 1 << endl << 1142 << ",true," << 1 << endl;
     myFile.close();

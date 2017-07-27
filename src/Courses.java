@@ -31,7 +31,11 @@ public class Courses {
     }
 
     public void setStudentsInCourse(ArrayList<String> studentsInCourse) {
-        this.studentsInCourse = studentsInCourse;
+       for(int i = 0; i < studentsInCourse.size(); i++){
+           this.studentsInCourse.set(i,studentsInCourse.get(i));
+
+       }
+
     }
 
     public ArrayList<String> getTeachersTeachingCourse() {
@@ -39,7 +43,10 @@ public class Courses {
     }
 
     public void setTeachersTeachingCourse(ArrayList<String> teachersTeachingCourse) {
-        this.teachersTeachingCourse = teachersTeachingCourse;
+        for(int i = 0; i < teachersTeachingCourse.size(); i++){
+            this.teachersTeachingCourse.set(i,teachersTeachingCourse.get(i));
+
+        }
     }
 
     //Getter and setter for the sections
