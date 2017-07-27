@@ -9,7 +9,9 @@ public class Teacher {
     }
 
     public void setQualified(ArrayList<Courses> qualified) {
-        this.qualified = qualified;
+        for(int i = 0; i < qualified.size(); i++){
+            this.qualified.set(i,qualified.get(i));
+        }
     }
 
     public ArrayList<Sections> getTeaching() {
@@ -17,7 +19,9 @@ public class Teacher {
     }
 
     public void setTeaching(ArrayList<Sections> teaching) {
-        this.teaching = teaching;
+        for(int i = 0; i < teaching.size(); i++){
+            this.teaching.set(i,teaching.get(i));
+        }
     }
 
     public void addTeaching(Sections section) {

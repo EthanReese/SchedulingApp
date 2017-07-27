@@ -30,8 +30,6 @@ public class SchedulingApp {
 
     BufferedReader br = null;
     Scanner scanner = new Scanner(System.in);
-    ArrayList<Courses> coursesList = new ArrayList<Courses>();
-    ArrayList<Teacher> teacherList = new ArrayList<Teacher>();
     ArrayList<Sections> totalSections = new ArrayList<Sections>();
     ArrayList<Courses> courses = new ArrayList<Courses>();
     ArrayList<Teacher> teachers = new ArrayList<Teacher>();
@@ -73,6 +71,8 @@ public class SchedulingApp {
         requestedClasses(forecastingTable, courses);
         //Run all of our actual functions that do stuff
         setClassList(forecastingTable);
+
+
 
 
 
@@ -154,10 +154,11 @@ public class SchedulingApp {
             id = forecastTable.get(i).get(0);
             for (int j = 0; j < forecastTable.get(i).size(); j++) {
                 request.add(search(courses, forecastTable.get(i).get(j)));
-                request.remove(0);
             }
+            request.remove(0);
             students.add(new Student(request, id));
             request.clear();
+
         }
 
 
@@ -166,18 +167,20 @@ public class SchedulingApp {
     //get the students in a course and set that
     public void setClassList(ArrayList<ArrayList<String>> forecastingTable) {
         ArrayList<ArrayList<String>> studentCourseList = new ArrayList<ArrayList<String>>();
-        for (int i = 0; i < forecastingTable.size(); i++) {
-            for (int j = 1; j < forecastingTable.get(i).size(); j++) {
+        for (int i = 0; i < students.size(); i++) {
+            for (int j = 1; j < students.get(i).requested.size(); j++){
                 for (int k = 0; k < courses.size(); k++) {
-                    if (courses.get(k).courseCode == forecastingTable.get(i).get(j)) {
-                        courses.get(k).addStudent(forecastingTable.get(i).get(0));
+                    if (courses.get(k).courseCode == students.get(i).requested.get(j).courseCode) {
+                        courses.get(k).addStudent(students.get(i).identifier);
                     }
                 }
             }
         }
+        /*studentCourseList is empty
         for (int i = 0; i < studentCourseList.size(); i++) {
             courses.get(i).setStudentsInCourse(studentCourseList.get(i));
         }
+        */
     }
 
     public void teachingClasses (ArrayList<Teacher> teachers, ArrayList<Courses> courses){
@@ -308,9 +311,9 @@ public class SchedulingApp {
     //Create section objects for each section of the course
     public void addSections() {
         //for each course, for each section, create a new section for that course
-        for (int i = 0; i < coursesList.size(); i++) {
-            for (int j = 0; j < coursesList.get(i).getSections(); j++) {
-                Sections section = new Sections(coursesList.get(i), 0, null, null);
+        for (int i = 0; i < courses.size(); i++) {
+            for (int j = 0; j < courses.get(i).getSections(); j++) {
+                Sections section = new Sections(courses.get(i), 0, null, null);
                 totalSections.add(section);
             }
         }
@@ -363,12 +366,15 @@ public class SchedulingApp {
             }
         }
         //keep track of teachers that can teach this course and their quialifications
-        ArrayList<String> teachers = course.getTeachersTeachingCourse();
+        ArrayList<String> teachersString = new ArrayList<String>();
+        for(int i = 0; i < course.teachersTeachingCourse.size(); i++){
+            teachersString.set(i,course.teachersTeachingCourse.get(i));
+        }
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
         for (int i = 0; i < teachers.size(); i++) {
-            for (int j = 0; j < teacherList.size(); j++) {
-                if (teacherList.get(j).identifier == teachers.get(i)) {
-                    qualifyList.add(teacherList.get(j));
+            for (int j = 0; j < teachersString.size(); j++) {
+                if (teachers.get(j).identifier == teachersString.get(i)) {
+                    qualifyList.add(teachers.get(j));
                 }
             }
         }

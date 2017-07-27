@@ -10,7 +10,10 @@ public class Student {
     }
 
     public void setRequested(ArrayList<Courses> requested) {
-        this.requested = requested;
+        for(int y = 0; y < requested.size(); y++){
+            this.requested.set(y,requested.get(y));
+
+        }
     }
 
     public ArrayList<Courses> getAssigned() {
@@ -18,7 +21,10 @@ public class Student {
     }
 
     public void setAssigned(ArrayList<Courses> assigned) {
-        this.assigned = assigned;
+        for(int x = 0; x < assigned.size(); x++){
+            this.assigned.set(x,assigned.get(x));
+
+        }
     }
 
     public String getIdentifier() {
