@@ -218,7 +218,6 @@ public class SchedulingApp {
         for (int i = 0; i < forecastTable.size(); i++) {
             id = forecastTable.get(i).get(0);
             for (int j = 0; j < forecastTable.get(i).size(); j++) {
-                System.out.println(forecastTable.get(i).get(j));
                 request.add(search(courses, forecastTable.get(i).get(j)));
             }
             request.remove(0);
@@ -533,7 +532,7 @@ public class SchedulingApp {
                 }
             }
             //Go through and knock out any of the periods that the student isn't available
-            System.out.println(sections.size());
+            //System.out.println(sections.size());
             for (int j = 0; j < sections.size(); j++) {
                 //Check whether or not the student is free during that period, and if they aren't knock it off of the list
                 if(!freePeriods[sections.get(j).getPeriod()]){
@@ -583,6 +582,7 @@ public class SchedulingApp {
 
                     //Finally if that doesn't work, the student is going to be reassigned to a different course.
                 }
+                continue OUTER;
             }
 
             //Now the student is free for all the sections in the list, so it puts them in the section with the fewest people
@@ -597,7 +597,12 @@ public class SchedulingApp {
             }
             //Add the course to the student's schedule
             ArrayList<Courses> studentSched = student.getAssigned();
-            studentSched.set(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
+            if(studentSched.size() <= sections.get(indexOfBestSection).getPeriod()){
+                studentSched.add(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
+            }
+            else{
+                studentSched.set(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
+            }
             student.setAssigned(studentSched);
 
             //Add a student to the section's list of studentsB
