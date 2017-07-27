@@ -1,3 +1,5 @@
+import sun.swing.SwingUtilities2;
+
 import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -431,6 +433,7 @@ public class SchedulingApp {
         //Loop through all the students in a course
         for (int i = 0; i < course.getStudentsInCourse().size(); i++) {
             //Find the arraylist of sections that are available to the student
+            ArrayList<Sections> masterSections = course.getSectionsOccuring();
             ArrayList<Sections> sections = course.getSectionsOccuring();
             //Make an array of periods that the student has free
             boolean[] freePeriods = new boolean[totalPeriods];
@@ -461,6 +464,42 @@ public class SchedulingApp {
                     sections.remove(j);
                 }
             }
+            //First check to make sure the student is free for some sections and if they aren't try to reassign another class
+            if(sections.size() == 0){
+                //If the course is required, first try to assign it to a different period
+                if(course.getRequried()){
+                    //If there aren't any other similar periods free, then try to move a class that is in one of those periods to a different section
+                    ArrayList<Courses> schedule = student.getAssigned();
+                    for (int j = 0; j < masterSections.size(); j++) {
+                        Courses conflict = schedule.get(masterSections.get(j).getPeriod());
+                        for (int k = 0; k < conflict.getSectionsOccuring().size(); k++) {
+                            if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
+                                //Change the period to be at one of the new free ones and remove the student from the previous period and add them into the new section
+                                conflict.getSectionsOccuring().get(k).removeStudent(student);
+                                student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod(), schedule.get(masterSections.get(j).getPeriod()));
+                                conflict.getSectionsOccuring().get(k).addStudent(student);
+                                //Change the original period to be back to null
+                                student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j).getCourse());
+                                masterSections.get(j).addStudent(student);
+                                freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()] = false;
+                                return;
+                            }
+                        }
+                    }
+                    //Make sure the section isn't way too full and add them to that class
+
+                    //If it doesn't work out, then it needs to find a way to add a note into the student's final schedule that there was no possible way to fit both.
+                }
+                //However if the course isn't required
+                else{
+                    //If there are other sections of that class free in different periods, see if the student is free for that
+
+                    //If that doesn't work try to move the student to free sections of the other courses they are taking
+
+                    //Finally if that doesn't work, the student is going to be reassigned to a different course.
+                }
+            }
+
             //Now the student is free for all the sections in the list, so it puts them in the section with the fewest people
             int minCourseCount = Integer.MAX_VALUE;
             int indexOfBestSection = 0;
@@ -471,6 +510,11 @@ public class SchedulingApp {
                     indexOfBestSection = j;
                 }
             }
+
+
+
+
+
             //Add the course to the student's schedule
             ArrayList<Courses> studentSched = student.getAssigned();
             studentSched.set(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
@@ -481,27 +525,5 @@ public class SchedulingApp {
         }
 
     }
-    //Run the second wave of sorting classes
-    public ArrayList<Courses> secondWave(){
-        int startPoint = antiMode().get(0).getSections();
-        ArrayList<Courses> returnList = new ArrayList<Courses>();
-        //Loop through until it gets to the first course that is already sorted as part of the antimode
-        for (int i = 0; i < courses.size(); i++) {
-            if(courses.get(i).getSections() == startPoint){
-                //When it hits the middleish point, first go down from there
-                for (int j = i; j < 0; j--) {
-                    if(courses.get(j).getSections() != startPoint){
-                        returnList.add(courses.get(j));
-                    }
-                }
-                //Then after it goes all the way down and adds everything under it into it, then go up from the middleish point
-                for (int j = i; j < courses.size(); j++) {
-                    if(courses.get(j).getSections() != startPoint){
-                        returnList.add(courses.get(j));
-                    }
-                }
-            }
-        }
-        return returnList;
-    }
+
 }

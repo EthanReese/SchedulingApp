@@ -29,6 +29,10 @@ public class Student {
         this.identifier = identifier;
     }
 
+    public void changePeriod(int index, Courses course){
+        assigned.set(index, course);
+    }
+
     ArrayList<Courses> requested = new ArrayList<Courses>();
     ArrayList<Courses> assigned = new ArrayList<Courses>();
     String identifier;
