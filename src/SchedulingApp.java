@@ -226,11 +226,11 @@ public class SchedulingApp {
         ArrayList<Courses> qualified = new ArrayList<Courses>();
         for (int i = 0; i < teacherTable.size(); i++) {
             for(int j = 0; j < teacherTable.get(i).size(); j++) {
-
                qualified.add(search(courses,teacherTable.get(i).get(j)));
                qualified.remove(0);
             }
             teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
+            teachers.get(i).freePeriods= Integer.parseInt(teacherTable.get(i).get(1));
             qualified.clear();
         }
     }
@@ -463,10 +463,17 @@ public class SchedulingApp {
             }
             ArrayList<Integer> remover = new ArrayList<Integer>();
             for (int j = 0; j < freeList.size(); j++) {
-                for (int k = 0; k < freeList.get(j).getTeaching().size(); k++) {
-                    if (freeList.get(j).getTeaching().get(k).period == courseSections.get(i).period) {
-                        //add to a list of teachers to remove
-                        remover.add(j);
+                //if the teacher has exceeded their class limit, remove them
+                if (freeList.get(j).getTeaching().size() >= (totalPeriods-freeList.get(j).freePeriods)) {
+                    remover.add(j);
+                }
+                //if the teacher is already teaching this period, remove them
+                else {
+                    for (int k = 0; k < freeList.get(j).getTeaching().size(); k++) {
+                        if (freeList.get(j).getTeaching().get(k).period == courseSections.get(i).period) {
+                            //add to a list of teachers to remove
+                            remover.add(j);
+                        }
                     }
                 }
             }
@@ -474,17 +481,22 @@ public class SchedulingApp {
             for (int j = 0; j < remover.size(); j++) {
                 freeList.remove(remover.get(j));
             }
-            Teacher first = freeList.get(i);
-            int smallestIndex = i;
-            for (int j = i; j < freeList.size(); j++) {
-                if (freeList.get(j).qualified.size() < first.qualified.size()) {
-                    first = freeList.get(j);
-                    smallestIndex = j;
+            if (freeList.size() != 0) {
+                Teacher first = freeList.get(i);
+                int smallestIndex = i;
+                for (int j = i; j < freeList.size(); j++) {
+                    if (freeList.get(j).qualified.size() < first.qualified.size()) {
+                        first = freeList.get(j);
+                        smallestIndex = j;
+                    }
                 }
+                courseSections.get(i).setTheTeacher(first);
+                first.addTeaching(courseSections.get(i));
+                freeList.remove(smallestIndex);
             }
-            courseSections.get(i).setTheTeacher(first);
-            first.addTeaching(courseSections.get(i));
-            freeList.remove(smallestIndex);
+            else {
+
+            }
         }
     }
 
