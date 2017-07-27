@@ -339,9 +339,9 @@ public class SchedulingApp {
         //Set an integer to the max value of an integer
         int returnInt = Integer.MAX_VALUE;
         ArrayList<Courses> returnList = new ArrayList<Courses>();
-        int[] numOfEach = new int[courses.get(courses.size() - 1).getSections()];
+        int[] numOfEach = new int[courses.get(courses.size() - 1).getSections()+1];
         //Loop through the list of courses and make an additional array that has an element for each number of sections.
-        for (int i = 0; i < courses.size()-1; i++){
+        for (int i = 0; i < courses.size(); i++){
             numOfEach[courses.get(i).getSections()]++;
         }
         //Loop through the resultant array and find the number that is the lowest and keep track of its index
@@ -351,13 +351,13 @@ public class SchedulingApp {
             }
         }
         //Loop through the courses list and take all of the antimode classes into a new return list.
-        for (int i = 0; i < courses.size() - 1; i++) {
+        for (int i = 0; i < courses.size(); i++) {
             if(courses.get(i).getSections() == returnInt){
                 returnList.add(courses.get(i));
             }
         }
         //Loop through until it gets to the first course that is already sorted as part of the antimode
-        for (int i = 0; i < courses.size() - 1; i++) {
+        for (int i = 0; i < courses.size(); i++) {
             if(courses.get(i).getSections() == returnInt){
                 //When it hits the middleish point, first go down from there
                 for (int j = i; j < 0; j--) {
@@ -366,7 +366,7 @@ public class SchedulingApp {
                     }
                 }
                 //Then after it goes all the way down and adds everything under it into it, then go up from the middleish point
-                for (int j = i; j < courses.size() - 1; j++) {
+                for (int j = i; j < courses.size(); j++) {
                     if(courses.get(j).getSections() != returnInt){
                         returnList.add(courses.get(j));
                     }
@@ -382,6 +382,8 @@ public class SchedulingApp {
             for (int j = 0; j < courses.get(i).getSections(); j++) {
                 Sections section = new Sections(courses.get(i), 0, null, null);
                 totalSections.add(section);
+                courses.get(i).addSection(section);
+                courses.get(i).setSections(courses.get(i).getSections() + 1);
             }
         }
     }
@@ -408,7 +410,9 @@ public class SchedulingApp {
                 assigned[periodAssigned]++;
                 //Change the period in the array?
                 List.get(i).getSectionsOccuring().get(j).setThePeriod(periodAssigned);
-            }
+                //Add the section to the course object
+                System.out.print(List.get(i).getSectionsOccuring().size());
+                }
         }
     }
 
@@ -422,9 +426,9 @@ public class SchedulingApp {
         //keep track of teachers that can teach this course and their quialifications
         ArrayList<String> teacher = course.getTeachersTeachingCourse();
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
-        for (int i = 0; i < teachers.size(); i++) {
+        for (int i = 0; i < teacher.size(); i++) {
             for (int j = 0; j < teachers.size(); j++) {
-                if (teachers.get(j).identifier == teacher.get(i)) {
+                if (teachers.get(j).getIdentifier() == teacher.get(i)) {
                     qualifyList.add(teachers.get(j));
                 }
             }
@@ -500,8 +504,12 @@ public class SchedulingApp {
         OUTER:
         for (int i = 0; i < course.getStudentsInCourse().size(); i++) {
             //Find the arraylist of sections that are available to the student
+
             ArrayList<Sections> masterSections = course.getSectionsOccuring();
-            ArrayList<Sections> sections = course.getSectionsOccuring();
+            ArrayList<Sections> sections = new ArrayList<>();
+            for (int j = 0; j < course.getSectionsOccuring().size(); j++) {
+                sections.add(course.getSectionsOccuring().get(i));
+            }
             //Make an array of periods that the student has free
             boolean[] freePeriods = new boolean[totalPeriods];
             Student student = searchStudent(course.getStudentsInCourse().get(i));
@@ -525,6 +533,7 @@ public class SchedulingApp {
                 }
             }
             //Go through and knock out any of the periods that the student isn't available
+            System.out.println(sections.size());
             for (int j = 0; j < sections.size(); j++) {
                 //Check whether or not the student is free during that period, and if they aren't knock it off of the list
                 if(!freePeriods[sections.get(j).getPeriod()]){
@@ -567,7 +576,7 @@ public class SchedulingApp {
                         for (int k = 0; k < masterSections.size(); k++) {
                             //If a student has a
                             if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
-                                conflict.getSectionsOccuring()
+                                conflict.getSectionsOccuring();
                             }
                         }
                     }

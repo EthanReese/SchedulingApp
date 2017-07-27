@@ -50,12 +50,16 @@ public class Courses {
     }
 
     //Getter and setter for the sections
-    public ArrayList<Sections> getSectionsOccuring(){return sections;}
+    public ArrayList<Sections> getSectionsOccuring(){
+        return sections;
+    }
     public void setSectionsOccuring(ArrayList<Sections> sections){
-        this.sections = sections;
+        for (int i = 0; i < sections.size(); i++) {
+            this.sections.add(sections.get(i));
+        }
     }
     public void addSection(Sections section){
-        sections.add(section);
+        this.sections.add(section);
     }
 
     public int getSections() {
@@ -87,6 +91,7 @@ public class Courses {
     public void addTeacher(String teacherName){
         teachersTeachingCourse.add(teacherName);
     }
+
 
 
 
