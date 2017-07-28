@@ -102,8 +102,11 @@ public class SchedulingApp {
                 sectionsOutput+= "Period: " + i + "\n";
                 //Loop through all of the sections that have been scheduled and find what period they are occurring.
                 for (int j = 0; j < sectionSchedule.size(); j++) {
+                    try {
+                        sectionsOutput += sectionSchedule.get(j).getCourse().getCourseCode() + ", " + sectionSchedule.get(j).getTeacher().getIdentifier() + ", " + sectionSchedule.get(j).getStudents().size() + " students" + "\n";
+                    } catch (NullPointerException n) {
 
-                    sectionsOutput += sectionSchedule.get(j).getCourse().getCourseCode() + ", " + sectionSchedule.get(j).getTeacher().getIdentifier() + ", " + sectionSchedule.get(j).getStudents().size() + " students" + "\n";
+                    }
                 }
             }
             pw.write(sectionsOutput);
@@ -148,7 +151,7 @@ public class SchedulingApp {
                     int period = j;
                     for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
                         if (teachers.get(i).getTeaching().get(k).period == (j+1)) {
-                            teacherOutput += teachers.get(i).getTeaching().get(k) + ", ";
+                            teacherOutput += teachers.get(i).getTeaching().get(k).getCourse().getCourseCode() + ", ";
                             period++;
                         }
                     }
@@ -232,7 +235,7 @@ public class SchedulingApp {
         for (int i = 0; i < courseTable.size(); i++) {
             String name = courseTable.get(i).get(0);
             boolean isRequired = false;
-            if (courseTable.get(i).get(1).toLowerCase().equals("true")) {
+            if (courseTable.get(i).get(1).equals("true")) {
                 isRequired = true;
             }
             Double credit = Double.parseDouble(courseTable.get(i).get(2));
@@ -251,7 +254,8 @@ public class SchedulingApp {
 
             }
             teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
-            teachers.get(i).freePeriods= Integer.parseInt(teacherTable.get(i).get(1));
+            ArrayList<Sections> teaching = new ArrayList<Sections>();
+            teachers.get(i).setTeaching(teaching);
             qualified.clear();
         }
     }
@@ -481,37 +485,47 @@ public class SchedulingApp {
                 for (int j = 0; j < qualifyList.size(); j++) {
                     freeList.add(qualifyList.get(j));
                 }
-                ArrayList<Integer> remover = new ArrayList<Integer>();
+                ArrayList<Teacher> remover = new ArrayList<Teacher>();
                 for (int j = 0; j < freeList.size(); j++) {
                     //if the teacher has exceeded their class limit, remove them
                     if (freeList.get(j).getTeaching().size() >= (totalPeriods - freeList.get(j).freePeriods)) {
-                        remover.add(j);
+                        remover.add(freeList.get(j));
                     }
                     //if the teacher is already teaching this period, remove them
                     else {
                         for (int k = 0; k < freeList.get(j).getTeaching().size(); k++) {
-                            if (freeList.get(j).getTeaching().get(k).period == courseSections.get(i).period) {
+                            if (freeList.get(j).getTeaching().get(k).getPeriod() == courseSections.get(i).getPeriod()) {
                                 //add to a list of teachers to remove
                                 busyTeachers.add(freeList.get(j));
-                                remover.add(j);
+                                remover.add(freeList.get(j));
                             }
                         }
                     }
                 }
                 //remove teachers on list of teachers to remove
-                for (int j = 0; j < remover.size(); j++) {
-                    freeList.remove(remover.get(j));
+            System.out.println(course.getCourseCode());
+            for (int j = 0; j < freeList.size(); j++) {
+                for (int k = 0; k < remover.size(); k++) {
+                    if (freeList.get(j) == remover.get(k)) {
+                        freeList.remove(j);
+                    }
                 }
+            }
             if (freeList.size() != 0) {
                 Teacher first = freeList.get(0);
                 int smallestIndex = 0;
                 for (int j = 1; j < freeList.size(); j++) {
-                    if (freeList.get(j).qualified.size() < first.qualified.size()) {
+                    if (freeList.get(j).qualified.size() < first.qualified.size() && !freeList.get(j).getIdentifier().equals("New Teacher")) {
                         first = freeList.get(j);
                         smallestIndex = j;
                     }
                 }
                 courseSections.get(i).setTheTeacher(first);
+                for (int j = 0; j < totalSections.size(); j++) {
+                    if (totalSections.get(j) == courseSections.get(i)) {
+                        totalSections.get(j).setTheTeacher(first);
+                    }
+                }
                 first.addTeaching(courseSections.get(i));
                 freeList.remove(smallestIndex);
             }
@@ -544,8 +558,8 @@ public class SchedulingApp {
                         }
                     }
                     for (int j = 0; j < busyTeachers.size(); j++) {
-                        for (int k = 0; k < busyTeachers.get(i).getTeaching().size(); k++) {
-                            if (busyTeachers.get(j).getTeaching().get(k).period == courseSections.get(i).period) {
+                        for (int k = 0; k < busyTeachers.get(j).getTeaching().size(); k++) {
+                            if (busyTeachers.get(j).getTeaching().get(k).getPeriod() == courseSections.get(i).getPeriod()) {
                                Courses currentCourse = busyTeachers.get(j).getTeaching().get(k).getCourse();
                                 for (int l = 0; l < teachers.size(); l++) {
                                     for (int m = 0; m < teachers.get(l).getQualified().size(); m++) {
@@ -564,6 +578,7 @@ public class SchedulingApp {
                                                 busyTeachers.get(j).teaching.remove(currentCourse);
                                                 busyTeachers.get(j).addTeaching(courseSections.get(i));
                                                 teachers.get(l).addTeaching(busyTeachers.get(j).getTeaching().get(k));
+                                                break;
                                             }
                                         }
                                     }
@@ -575,7 +590,6 @@ public class SchedulingApp {
                 }
                 ArrayList<Courses> newQualified = new ArrayList<Courses>();
                 Teacher newTeacher = new Teacher(newQualified, "New Teacher");
-                newTeacher.setFreePeriods(7);
                 addedTeachers.add(newTeacher);
                 teachers.add(newTeacher);
                 newTeacher.addTeaching(courseSections.get(i));
