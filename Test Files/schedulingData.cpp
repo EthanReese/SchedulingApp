@@ -54,6 +54,7 @@ int main(){
     }
     myFile << 1131 << ",true," << 1 << endl << 1141 << ",true," << 1 << endl << 1142 << ",true," << 1 << endl;
     myFile.close();
+    return 0;
 
 
 

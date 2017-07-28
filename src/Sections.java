@@ -61,7 +61,7 @@ public class Sections {
         this.teacher = assigned;
     }
 
-    
+
     public Sections(Courses course, int period, Teacher teacher, ArrayList<Student> students) {
         this.course = course;
         this.period = period;
