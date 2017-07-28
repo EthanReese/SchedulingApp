@@ -505,13 +505,10 @@ public class SchedulingApp {
                     }
                 }
                 //remove teachers on list of teachers to remove
-            for (int j = 0; j < freeList.size(); j++) {
                 for (int k = 0; k < remover.size(); k++) {
-                    if (freeList.get(j) == remover.get(k)) {
-                        freeList.remove(j);
-                    }
+                        freeList.remove(remover.get(k));
                 }
-            }
+            freeList.trimToSize();
             if (freeList.size() != 0) {
                 Teacher first = freeList.get(0);
                 int smallestIndex = 0;
@@ -552,7 +549,20 @@ public class SchedulingApp {
                                     if (freeToSwap == true) {
                                         //set new teacher for busy teacher's course and add to their teaching
                                         //assign busy teacher to section. Remove previous course from busyTeacher's teaching and replace.
-
+                                        for (int n = 0; n < totalSections.size(); n++) {
+                                            if (totalSections.get(n) == courseSections.get(i)) {
+                                                totalSections.get(n).setTheTeacher(courseSections.get(j).getTeacher());
+                                            }
+                                            if(totalSections.get(n) == courseSections.get(j)) {
+                                                totalSections.get(n).setTheTeacher(busyTeachers.get(k));
+                                            }
+                                        }
+                                        courseSections.get(i).setTheTeacher(courseSections.get(j).getTeacher());
+                                        courseSections.get(j).getTeacher().addTeaching(courseSections.get(i));
+                                        courseSections.get(j).getTeacher().getTeaching().remove(courseSections.get(j));
+                                        busyTeachers.get(k).addTeaching(courseSections.get(j));
+                                        courseSections.get(j).setTheTeacher(busyTeachers.get(k));
+                                        break;
                                     }
                                 }
                             }
@@ -574,6 +584,14 @@ public class SchedulingApp {
                                             if (canTeach == true) {
                                                 //set new teacher for busy teacher's course and add to their teaching
                                                 //assign busy teacher to section. Remove previous course from busyTeacher's teaching and replace.
+                                                for (int n = 0; n < totalSections.size(); n++) {
+                                                    if (totalSections.get(n) ==  busyTeachers.get(j).getTeaching().get(k)) {
+                                                        totalSections.get(n).setTheTeacher(teachers.get(l));
+                                                    }
+                                                    if(totalSections.get(n) == courseSections.get(i)) {
+                                                        totalSections.get(n).setTheTeacher(busyTeachers.get(j));
+                                                    }
+                                                }
                                                 busyTeachers.get(j).getTeaching().get(k).setTheTeacher(teachers.get(l));
                                                 courseSections.get(i).setTheTeacher(busyTeachers.get(j));
                                                 busyTeachers.get(j).teaching.remove(currentCourse);
@@ -589,12 +607,15 @@ public class SchedulingApp {
                     }
                     break;
                 }
-                ArrayList<Courses> newQualified = new ArrayList<Courses>();
-                Teacher newTeacher = new Teacher(newQualified, "New Teacher");
-                addedTeachers.add(newTeacher);
-                teachers.add(newTeacher);
-                newTeacher.addTeaching(courseSections.get(i));
-                courseSections.get(i).setTheTeacher(newTeacher);
+                if (courseSections.get(i).getTeacher() == null) {
+                    ArrayList<Courses> newQualified = new ArrayList<Courses>();
+                    newQualified.add(course);
+                    Teacher newTeacher = new Teacher(newQualified, "New Teacher");
+                    addedTeachers.add(newTeacher);
+                    teachers.add(newTeacher);
+                    newTeacher.addTeaching(courseSections.get(i));
+                    courseSections.get(i).setTheTeacher(newTeacher);
+                }
             }
         }
     }
