@@ -246,11 +246,12 @@ public class SchedulingApp {
         ArrayList<Courses> qualified = new ArrayList<Courses>();
         for (int i = 0; i < teacherTable.size(); i++) {
             for(int j = 1; j < teacherTable.get(i).size(); j++) {
-                qualified.add(search(courses,teacherTable.get(i).get(j)));
-
+               qualified.add(search(courses,teacherTable.get(i).get(j)));
             }
             teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
             teachers.get(i).freePeriods= Integer.parseInt(teacherTable.get(i).get(1));
+            ArrayList<Sections> teaching = new ArrayList<Sections>();
+            teachers.get(i).setTeaching(teaching);
             qualified.clear();
         }
     }
@@ -290,8 +291,8 @@ public class SchedulingApp {
 
     public void teachingClasses (ArrayList<Teacher> teachers, ArrayList<Courses> courses){
         for(int i = 0; i < teachers.size(); i++){
-            for(int j = 1; j < teachers.get(i).qualified.size(); j++){
-                search(courses,teachers.get(i).qualified.get(j).courseCode).addTeacher(teachers.get(i).identifier);
+            for(int j = 0; j < teachers.get(i).qualified.size(); j++){
+                search(courses,teachers.get(i).qualified.get(1).courseCode).addTeacher(teachers.get(i).identifier);
             }
         }
     }
@@ -466,11 +467,10 @@ public class SchedulingApp {
         //keep track of teachers that can teach this course and their quialifications
         ArrayList<String> teacher = course.getTeachersTeachingCourse();
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
-        //System.out.println(teachers.size());
-        for (int i = 0; i < teacher.size(); i++) {
-            for (int j = 0; j < teachers.size(); j++) {
-                if (teachers.get(j).identifier == teacher.get(i)) {
-                    qualifyList.add(teachers.get(j));
+        for (int i = 0; i < teachers.size(); i++) {
+            for (int j = 0; j < teachers.get(i).getQualified().size(); j++) {
+                if (teachers.get(i).getQualified().get(j).courseCode == course.courseCode) {
+                    qualifyList.add(teachers.get(i));
                 }
             }
         }
@@ -479,39 +479,40 @@ public class SchedulingApp {
             //close qualifylist, and get rid of non-free teachers for this section
             ArrayList<Teacher> freeList = new ArrayList<Teacher>();
             ArrayList<Teacher> busyTeachers = new ArrayList<Teacher>();
-            for (int j = 0; j < qualifyList.size(); j++) {
-                freeList.add(qualifyList.get(j));
-            }
-            ArrayList<Integer> remover = new ArrayList<Integer>();
-            for (int j = 0; j < freeList.size(); j++) {
-                //if the teacher has exceeded their class limit, remove them
-                if (freeList.get(j).getTeaching().size() >= (totalPeriods-freeList.get(j).freePeriods)) {
-                    remover.add(j);
+                for (int j = 0; j < qualifyList.size(); j++) {
+                    freeList.add(qualifyList.get(j));
                 }
-                //if the teacher is already teaching this period, remove them
-                else {
-                    for (int k = 0; k < freeList.get(j).getTeaching().size(); k++) {
-                        if (freeList.get(j).getTeaching().get(k).period == courseSections.get(i).period) {
-                            //add to a list of teachers to remove
-                            busyTeachers.add(freeList.get(j));
-                            remover.add(j);
+                ArrayList<Integer> remover = new ArrayList<Integer>();
+                for (int j = 0; j < freeList.size(); j++) {
+                    //if the teacher has exceeded their class limit, remove them
+                    if (freeList.get(j).getTeaching().size() >= (totalPeriods - freeList.get(j).freePeriods)) {
+                        remover.add(j);
+                    }
+                    //if the teacher is already teaching this period, remove them
+                    else {
+                        for (int k = 0; k < freeList.get(j).getTeaching().size(); k++) {
+                            if (freeList.get(j).getTeaching().get(k).period == courseSections.get(i).period) {
+                                //add to a list of teachers to remove
+                                busyTeachers.add(freeList.get(j));
+                                remover.add(j);
+                            }
                         }
                     }
                 }
-            }
-            //remove teachers on list of teachers to remove
-            for (int j = 0; j < remover.size(); j++) {
-                freeList.remove(remover.get(j));
-            }
+                //remove teachers on list of teachers to remove
+                for (int j = 0; j < remover.size(); j++) {
+                    freeList.remove(remover.get(j));
+                }
             if (freeList.size() != 0) {
-                Teacher first = freeList.get(i);
-                int smallestIndex = i;
-                for (int j = i; j < freeList.size(); j++) {
+                Teacher first = freeList.get(0);
+                int smallestIndex = 0;
+                for (int j = 1; j < freeList.size(); j++) {
                     if (freeList.get(j).qualified.size() < first.qualified.size()) {
                         first = freeList.get(j);
                         smallestIndex = j;
                     }
                 }
+                System.out.println(first.identifier);
                 courseSections.get(i).setTheTeacher(first);
                 first.addTeaching(courseSections.get(i));
                 freeList.remove(smallestIndex);
@@ -519,7 +520,7 @@ public class SchedulingApp {
             else {
                 //for every busy teacher, if a different qualified teacher can teach their section, do so and assign busy teacher
                 while(courseSections.get(i).getTeacher() == null) {
-                    if (i > 1) {
+                    if (i > 0) {
                         for (int j = 0; j < i; j++) {
                             boolean freeToTeach = true;
                             for (int k = 0; k < courseSections.get(j).getTeacher().getTeaching().size(); k++) {
@@ -529,7 +530,17 @@ public class SchedulingApp {
                             }
                             if (freeToTeach == true) {
                                 for (int k = 0; k < busyTeachers.size(); k++) {
+                                    boolean freeToSwap = true;
+                                    for (int l = 0; l < busyTeachers.get(k).getTeaching().size(); l++) {
+                                        if (busyTeachers.get(k).getTeaching().get(l).getPeriod() == courseSections.get(j).getTeacher().getTeaching().get(k).getPeriod()) {
+                                            freeToSwap = false;
+                                        }
+                                    }
+                                    if (freeToSwap == true) {
+                                        //set new teacher for busy teacher's course and add to their teaching
+                                        //assign busy teacher to section. Remove previous course from busyTeacher's teaching and replace.
 
+                                    }
                                 }
                             }
                         }
@@ -537,7 +548,7 @@ public class SchedulingApp {
                     for (int j = 0; j < busyTeachers.size(); j++) {
                         for (int k = 0; k < busyTeachers.get(i).getTeaching().size(); k++) {
                             if (busyTeachers.get(j).getTeaching().get(k).period == courseSections.get(i).period) {
-                                Courses currentCourse = busyTeachers.get(j).getTeaching().get(k).getCourse();
+                               Courses currentCourse = busyTeachers.get(j).getTeaching().get(k).getCourse();
                                 for (int l = 0; l < teachers.size(); l++) {
                                     for (int m = 0; m < teachers.get(l).getQualified().size(); m++) {
                                         if (teachers.get(l).getQualified().get(m) == currentCourse) {
@@ -565,8 +576,8 @@ public class SchedulingApp {
                     break;
                 }
                 ArrayList<Courses> newQualified = new ArrayList<Courses>();
-                newQualified.add(courseSections.get(i).course);
                 Teacher newTeacher = new Teacher(newQualified, "New Teacher");
+                newTeacher.setFreePeriods(7);
                 addedTeachers.add(newTeacher);
                 teachers.add(newTeacher);
                 newTeacher.addTeaching(courseSections.get(i));
