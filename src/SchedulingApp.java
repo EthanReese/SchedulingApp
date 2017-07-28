@@ -124,9 +124,9 @@ public class SchedulingApp {
                 studentOutput += students.get(i).getIdentifier() + ":\n";
                 for (int j = 1; j < totalPeriods+1; j++) {
                     try {
-                        studentOutput += students.get(i).getAssigned().get(j).getCourseCode() + ", ";
+                        studentOutput += students.get(i).getAssigned().get(j).getCourseCode() + ", \n";
                     }catch(NullPointerException e){
-                        studentOutput += "Student was unable to be assigned to a course, ";
+                        studentOutput += "Student was unable to be assigned to a course, \n";
                     }
                 }
             }
@@ -247,9 +247,9 @@ public class SchedulingApp {
     public void teacherCreation(ArrayList<ArrayList<String>> teacherTable) {
         ArrayList<Courses> qualified = new ArrayList<Courses>();
         for (int i = 0; i < teacherTable.size(); i++) {
-            for(int j = 0; j < teacherTable.get(i).size(); j++) {
-               qualified.add(search(courses,teacherTable.get(i).get(j)));
-               qualified.remove(0);
+            for(int j = 1; j < teacherTable.get(i).size(); j++) {
+                qualified.add(search(courses,teacherTable.get(i).get(j)));
+
             }
             teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
             teachers.get(i).freePeriods= Integer.parseInt(teacherTable.get(i).get(1));
@@ -292,7 +292,7 @@ public class SchedulingApp {
 
     public void teachingClasses (ArrayList<Teacher> teachers, ArrayList<Courses> courses){
         for(int i = 0; i < teachers.size(); i++){
-            for(int j = 0; j < teachers.get(i).qualified.size(); j++){
+            for(int j = 1; j < teachers.get(i).qualified.size(); j++){
                 search(courses,teachers.get(i).qualified.get(j).courseCode).addTeacher(teachers.get(i).identifier);
             }
         }
@@ -540,7 +540,7 @@ public class SchedulingApp {
                     for (int j = 0; j < busyTeachers.size(); j++) {
                         for (int k = 0; k < busyTeachers.get(i).getTeaching().size(); k++) {
                             if (busyTeachers.get(j).getTeaching().get(k).period == courseSections.get(i).period) {
-                               Courses currentCourse = busyTeachers.get(j).getTeaching().get(k).getCourse();
+                                Courses currentCourse = busyTeachers.get(j).getTeaching().get(k).getCourse();
                                 for (int l = 0; l < teachers.size(); l++) {
                                     for (int m = 0; m < teachers.get(l).getQualified().size(); m++) {
                                         if (teachers.get(l).getQualified().get(m) == currentCourse) {

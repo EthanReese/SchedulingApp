@@ -31,10 +31,10 @@ public class Courses {
     }
 
     public void setStudentsInCourse(ArrayList<String> studentsInCourse) {
-       for(int i = 0; i < studentsInCourse.size(); i++){
-           this.studentsInCourse.set(i,studentsInCourse.get(i));
+        for(int i = 0; i < studentsInCourse.size(); i++){
+            this.studentsInCourse.set(i,studentsInCourse.get(i));
 
-       }
+        }
 
     }
 
