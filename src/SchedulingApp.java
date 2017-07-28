@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -80,6 +81,23 @@ public class SchedulingApp {
         addSections();
         quickSort(courses, 0, courses.size()-1);
         System.out.println(antiMode().size());
+        ArrayList<Courses> allCourses = antiMode();
+        ArrayList<Courses> c = antiMode();
+        for (int i = 0; i < antiMode().size(); i++) {
+            for (int j = 0; j < antiMode().size(); j++) {
+                if(c.get(i) == antiMode().get(j) && i!=j){
+                    System.out.println("The Array isn't unique");
+                }
+            }
+        }
+
+
+
+
+
+
+
+
         ArrayList<Courses> antiModeCourses = antiMode();
         addPeriod(antiModeCourses);
         for (int i = 0; i < antiModeCourses.size(); i++) {
@@ -398,28 +416,26 @@ public class SchedulingApp {
         }
         //Loop through the courses list and take all of the antimode classes into a new return list.
         for (int i = 0; i < courses.size(); i++) {
-            if(courses.get(i).getSections() == returnInt){
+            if(courses.get(i).getSections() == returnInt && !returnList.contains(courses.get(i))){
                 returnList.add(courses.get(i));
             }
         }
         //Loop through until it gets to the first course that is already sorted as part of the antimode
         for (int i = 0; i < courses.size(); i++) {
-            if(courses.get(i).getSections() == returnInt){
                 //When it hits the middleish point, first go down from there
-                for (int j = i + 2; j <= 0; j--) {
-                    if(courses.get(j).getSections() != returnInt){
-                        returnList.add(courses.get(j));
-                    }
+            Boolean test = true;
+            for (int j = 0; j < returnList.size(); j++) {
+                if(courses.get(i) == returnList.get(j)){
+                    test = false;
                 }
-                //Then after it goes all the way down and adds everything under it into it, then go up from the middleish point
-                for (int j = i - 4; j < courses.size(); j++) {
-                    if(courses.get(j).getSections() != returnInt){
-                        returnList.add(courses.get(j));
-                    }
-                }
-                break;
             }
+            if (test){
+                returnList.add(courses.get(i));
+            }
+            System.out.println("return "+returnList.size());
+            System.out.println("course "+ courses.size());
         }
+
         return returnList;
     }
     //Create section objects for each section of the course
