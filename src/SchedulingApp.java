@@ -391,7 +391,7 @@ public class SchedulingApp {
         }
         //Loop through the resultant array and find the number that is the lowest and keep track of its index
         for (int i = 0; i < numOfEach.length; i++) {
-            if(numOfEach[i] < returnInt){
+            if(numOfEach[i] < returnInt && i > 0){
                 returnInt = i;
             }
         }
@@ -503,7 +503,6 @@ public class SchedulingApp {
                     }
                 }
                 //remove teachers on list of teachers to remove
-            System.out.println(course.getCourseCode());
             for (int j = 0; j < freeList.size(); j++) {
                 for (int k = 0; k < remover.size(); k++) {
                     if (freeList.get(j) == remover.get(k)) {
@@ -544,7 +543,7 @@ public class SchedulingApp {
                                 for (int k = 0; k < busyTeachers.size(); k++) {
                                     boolean freeToSwap = true;
                                     for (int l = 0; l < busyTeachers.get(k).getTeaching().size(); l++) {
-                                        if (busyTeachers.get(k).getTeaching().get(l).getPeriod() == courseSections.get(j).getTeacher().getTeaching().get(k).getPeriod()) {
+                                        if (busyTeachers.get(k).getTeaching().get(l).getPeriod() == courseSections.get(j).getPeriod()) {
                                             freeToSwap = false;
                                         }
                                     }
