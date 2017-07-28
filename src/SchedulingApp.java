@@ -79,6 +79,7 @@ public class SchedulingApp {
         teachingClasses(teachers, courses);
         addSections();
         quickSort(courses, 0, courses.size()-1);
+        System.out.println(antiMode().size());
         ArrayList<Courses> antiModeCourses = antiMode();
         addPeriod(antiModeCourses);
         for (int i = 0; i < antiModeCourses.size(); i++) {
@@ -405,17 +406,18 @@ public class SchedulingApp {
         for (int i = 0; i < courses.size(); i++) {
             if(courses.get(i).getSections() == returnInt){
                 //When it hits the middleish point, first go down from there
-                for (int j = i; j < 0; j--) {
+                for (int j = i + 2; j <= 0; j--) {
                     if(courses.get(j).getSections() != returnInt){
                         returnList.add(courses.get(j));
                     }
                 }
                 //Then after it goes all the way down and adds everything under it into it, then go up from the middleish point
-                for (int j = i; j < courses.size(); j++) {
+                for (int j = i - 4; j < courses.size(); j++) {
                     if(courses.get(j).getSections() != returnInt){
                         returnList.add(courses.get(j));
                     }
                 }
+                break;
             }
         }
         return returnList;
