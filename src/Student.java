@@ -41,6 +41,11 @@ public class Student {
     }
 
     public void changePeriod(int index, Courses course){
+        for (int i = 0; i < assigned.size(); i++) {
+            if(assigned.get(i) == course){
+                assigned.remove(i);
+            }
+        }
         assigned.set(index, course);
     }
 
