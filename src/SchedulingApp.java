@@ -40,6 +40,8 @@ public class SchedulingApp {
     ArrayList<Student> students = new ArrayList<Student>();
     int MIN = 15;
     int MAX = 40;
+
+
     int totalPeriods = 8;
     Random random = new Random();
     public SchedulingApp(){
@@ -119,7 +121,7 @@ public class SchedulingApp {
             for (int i = 0; i < students.size(); i++) {
                 studentOutput += students.get(i).identifier + ":\n";
                 for (int j = 0; j < students.get(i).assigned.size(); j++) {
-                    studentOutput +=students.get(i).assigned.get(j).courseCode + ", ";
+                    studentOutput += students.get(i).assigned.get(j).courseCode + ", ";
                 }
             }
             ow.write(studentOutput);
@@ -453,15 +455,17 @@ public class SchedulingApp {
 
     //assigns teachers to separate sections for a specific course
     public void teacherSections(Courses course) {
+        //System.out.println(teachers.size());
         ArrayList<Sections> courseSections = new ArrayList<Sections>();
         //find the course's sections
         courseSections = course.getSectionsOccuring();
         //keep track of teachers that can teach this course and their quialifications
-        ArrayList<String> teacherString = course.getTeachersTeachingCourse();
+        ArrayList<String> teacher = course.getTeachersTeachingCourse();
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
-        for (int i = 0; i < teacherString.size(); i++) {
+        //System.out.println(teachers.size());
+        for (int i = 0; i < teacher.size(); i++) {
             for (int j = 0; j < teachers.size(); j++) {
-                if (teachers.get(j).identifier == teacherString.get(i)) {
+                if (teachers.get(j).identifier == teacher.get(i)) {
                     qualifyList.add(teachers.get(j));
                 }
             }
@@ -592,12 +596,12 @@ public class SchedulingApp {
 
             ArrayList<Sections> masterSections = course.getSectionsOccuring();
             ArrayList<Sections> sections = new ArrayList<>();
-            System.out.println(course.getSectionsOccuring().size());
-            for (int j = 0; j < course.getSectionsOccuring().size(); j++) {
-                sections.add(course.getSectionsOccuring().get(i));
+            //System.out.println(course.getSectionsOccuring().size());
+            for (int j = 0; j < course.getSectionsOccuring().size() - 1; j++) {
+                sections.add(course.getSectionsOccuring().get(j));
             }
             //Make an array of periods that the student has free
-            boolean[] freePeriods = new boolean[totalPeriods];
+            boolean[] freePeriods = new boolean[totalPeriods + 1];
             Student student = searchStudent(course.getStudentsInCourse().get(i));
             for (int j = 0; j < totalPeriods; j++) {
                 //Make sure that I don't get an index out of bounds exception, but check if something has already been put into the arraylist
@@ -607,6 +611,8 @@ public class SchedulingApp {
                         test = false;
                     }
                 }catch(IndexOutOfBoundsException e){
+                    test = false;
+                }catch(NullPointerException e){
                     test = false;
                 }
                 //If the student doesn't already have a class assigned during that period, then it will be true
@@ -638,12 +644,12 @@ public class SchedulingApp {
                             //noinspection Duplicates
                             if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
                                 //Change the period to be at one of the new free ones and remove the student from the previous period and add them into the new section
-                                conflict.getSectionsOccuring().get(k).removeStudent(student);
+                                student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).removeStudent(student);
                                 student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod(), schedule.get(masterSections.get(j).getPeriod()));
-                                conflict.getSectionsOccuring().get(k).addStudent(student);
+                                student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).addStudent(student);
                                 //Change the original period to be back to null
                                 student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j).getCourse());
-                                masterSections.get(j).addStudent(student);
+                                course.getSectionsOccuring().get(j).addStudent(student);
                                 freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()] = false;
                                 continue OUTER;
                             }
@@ -664,12 +670,12 @@ public class SchedulingApp {
                             //If a student has a scheduling conflict
                             //noinspection duplicates
                             if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
-                                conflict.getSectionsOccuring().get(k).removeStudent(student);
+                                student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).removeStudent(student);
                                 student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod(), schedule.get(masterSections.get(j).getPeriod()));
-                                conflict.getSectionsOccuring().get(k).addStudent(student);
+                                student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).addStudent(student);
                                 //Change the original period to be back to null
                                 student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j).getCourse());
-                                masterSections.get(j).addStudent(student);
+                                course.getSectionsOccuring().get(j).addStudent(student);
                                 freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()] = false;
                                 continue OUTER;
                             }
@@ -720,7 +726,17 @@ public class SchedulingApp {
             }
             //Add the course to the student's schedule
             ArrayList<Courses> studentSched = new ArrayList<>(student.getAssigned());
-            if(studentSched.size() <= sections.get(indexOfBestSection).getPeriod()){
+            for (int j = 0; j < totalPeriods+1; j++) {
+                try{
+                    studentSched.get(j);
+                }catch (IndexOutOfBoundsException e ){
+                    studentSched.add(j, null);
+                }
+            }
+            if(studentSched.size() <= sections.get(indexOfBestSection).getPeriod() - 1){
+                for (int j = studentSched.size(); j < indexOfBestSection; j++) {
+                    studentSched.add(j, null);
+                }
                 studentSched.add(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
             }
             else{

@@ -21,6 +21,11 @@ public class Student {
     }
 
     public void setAssigned(ArrayList<Courses> assigned) {
+        if(assigned.size()>this.assigned.size()) {
+            for (int i = this.assigned.size(); i < assigned.size(); i++) {
+                this.assigned.add(i, null);
+            }
+        }
         for(int x = 0; x < assigned.size(); x++){
             this.assigned.set(x,assigned.get(x));
 
@@ -48,6 +53,7 @@ public class Student {
             this.requested.add(requested.get(i));
         }
         this.identifier = identifier;
+
 
     }
     public void setClass(int period, Courses course){
