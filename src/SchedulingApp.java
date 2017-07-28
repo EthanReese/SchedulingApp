@@ -119,9 +119,13 @@ public class SchedulingApp {
             //IS STUDENT ASSIGNMENT IN ORDER???? That's what this assumes.
             String studentOutput = "";
             for (int i = 0; i < students.size(); i++) {
-                studentOutput += students.get(i).identifier + ":\n";
-                for (int j = 0; j < students.get(i).assigned.size(); j++) {
-                    studentOutput += students.get(i).assigned.get(j).courseCode + ", ";
+                studentOutput += students.get(i).getIdentifier() + ":\n";
+                for (int j = 1; j < totalPeriods+1; j++) {
+                    try {
+                        studentOutput += students.get(i).getAssigned().get(j).getCourseCode() + ", ";
+                    }catch(NullPointerException e){
+                        studentOutput += "Student was unable to be assigned to a course, ";
+                    }
                 }
             }
             ow.write(studentOutput);
@@ -171,7 +175,7 @@ public class SchedulingApp {
 
 
         //find how many classes that were requested by students were actually assigned to them
-        int perfected = 0;
+        /*int perfected = 0;
         for(int i = 0; i < students.size(); i++) {
             for (int j = 0; j < students.get(i).requested.size(); j++) {
                 for (int k = 0; k < students.get(i).assigned.size(); k++) {
@@ -183,7 +187,7 @@ public class SchedulingApp {
         }
         double percent = (perfected / (forecastingTable.size()*totalPeriods))*100;
         int roundPercent = (int)(percent);
-        System.out.println("Requested Courses : Assigned Courses = " + roundPercent);
+        System.out.println("Requested Courses : Assigned Courses = " + roundPercent);*/
     }
 
     public static void main(String[] args){
@@ -737,7 +741,7 @@ public class SchedulingApp {
                 for (int j = studentSched.size(); j < indexOfBestSection; j++) {
                     studentSched.add(j, null);
                 }
-                studentSched.add(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
+                studentSched.set(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
             }
             else{
                 studentSched.set(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
