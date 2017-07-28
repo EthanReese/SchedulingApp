@@ -39,7 +39,7 @@ public class Sections {
         }
     }
     public void addStudent(Student student){
-        students.add(student);
+        this.students.add(student);
     }
     public void removeStudent(Student student){
         for (int i = 0; i < students.size(); i++) {
@@ -50,7 +50,7 @@ public class Sections {
     }
 
     Teacher teacher;
-    ArrayList<Student> students;
+    ArrayList<Student> students = new ArrayList<Student>();
 
 
     public void setThePeriod(int number) {
@@ -67,7 +67,7 @@ public class Sections {
         this.period = period;
         this.teacher = teacher;
         for(int i = 0; i < students.size(); i++){
-            this.students.set(i,students.get(i));
+            this.students.add(i,students.get(i));
 
         }
     }
