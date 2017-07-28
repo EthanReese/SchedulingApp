@@ -93,7 +93,7 @@ public class SchedulingApp {
             pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
             //create the output string
             String sectionsOutput = "";
-            for (int i = 0; i < totalPeriods; i++) {
+            for (int i = 1; i < totalPeriods+1; i++) {
                 ArrayList<Sections> sectionSchedule = new ArrayList<Sections>();
                 for (int j = 0; j < totalSections.size(); j++) {
                     if (totalSections.get(j).period == i) {
@@ -489,6 +489,9 @@ public class SchedulingApp {
                 }
                 ArrayList<Teacher> remover = new ArrayList<Teacher>();
                 for (int j = 0; j < freeList.size(); j++) {
+                    if (freeList.get(j).getTeaching().size() >= totalPeriods) {
+                        remover.add(freeList.get(j));
+                    }
                     //if the teacher has exceeded their class limit, remove them
                     if (freeList.get(j).getTeaching().size() >= (totalPeriods - freeList.get(j).freePeriods)) {
                         remover.add(freeList.get(j));
