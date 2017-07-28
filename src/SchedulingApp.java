@@ -453,15 +453,16 @@ public class SchedulingApp {
 
     //assigns teachers to separate sections for a specific course
     public void teacherSections(Courses course) {
+        System.out.println(teachers.size());
         ArrayList<Sections> courseSections = new ArrayList<Sections>();
         //find the course's sections
         courseSections = course.getSectionsOccuring();
         //keep track of teachers that can teach this course and their quialifications
-        ArrayList<String> teacherString = course.getTeachersTeachingCourse();
+        ArrayList<String> teacher = course.getTeachersTeachingCourse();
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
-        for (int i = 0; i < teacherString.size(); i++) {
+        for (int i = 0; i < teacher.size(); i++) {
             for (int j = 0; j < teachers.size(); j++) {
-                if (teachers.get(j).identifier == teacherString.get(i)) {
+                if (teachers.get(j).identifier == teacher.get(i)) {
                     qualifyList.add(teachers.get(j));
                 }
             }
