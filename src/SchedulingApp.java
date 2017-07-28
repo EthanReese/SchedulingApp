@@ -246,12 +246,11 @@ public class SchedulingApp {
         ArrayList<Courses> qualified = new ArrayList<Courses>();
         for (int i = 0; i < teacherTable.size(); i++) {
             for(int j = 1; j < teacherTable.get(i).size(); j++) {
-               qualified.add(search(courses,teacherTable.get(i).get(j)));
+                qualified.add(search(courses,teacherTable.get(i).get(j)));
+
             }
             teachers.add(new Teacher(qualified,teacherTable.get(i).get(0)));
             teachers.get(i).freePeriods= Integer.parseInt(teacherTable.get(i).get(1));
-            ArrayList<Sections> teaching = new ArrayList<Sections>();
-            teachers.get(i).setTeaching(teaching);
             qualified.clear();
         }
     }
@@ -291,8 +290,9 @@ public class SchedulingApp {
 
     public void teachingClasses (ArrayList<Teacher> teachers, ArrayList<Courses> courses){
         for(int i = 0; i < teachers.size(); i++){
-            for(int j = 0; j < teachers.get(i).qualified.size(); j++){
-                search(courses,teachers.get(i).qualified.get(1).courseCode).addTeacher(teachers.get(i).identifier);
+            for(int j = 0; j < teachers.get(i).getQualified().size(); j++){
+                System.out.println(teachers.get(i).getQualified().get(j).getCourseCode());
+                search(courses,teachers.get(i).getQualified().get(j).getCourseCode()).addTeacher(teachers.get(i).getIdentifier());
             }
         }
     }
@@ -300,7 +300,7 @@ public class SchedulingApp {
     public Courses search(ArrayList<Courses> courseList, String code ) {
         for (int i = 0; i < courseList.size(); i++) {
             //Go through the list of courses one by one until the inputted code matches a course code
-            if (courseList.get(i).courseCode.equals(code)) {
+            if (courseList.get(i).getCourseCode().equals(code)) {
                 return courseList.get(i);
             }
         }
