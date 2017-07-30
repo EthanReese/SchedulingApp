@@ -79,7 +79,10 @@ public class SchedulingApp {
         reassign(courses);
         teachingClasses(teachers, courses);
         addSections();
-        quickSort(courses, 0, courses.size()-1);
+        courses  = BubbleSort(courses);
+        for (int i = 0; i < courses.size(); i++) {
+            System.out.println(courses.get(i).getSections());
+        }
         System.out.println(antiMode().size());
         ArrayList<Courses> allCourses = antiMode();
         ArrayList<Courses> c = antiMode();
@@ -355,7 +358,7 @@ public class SchedulingApp {
     }
 
     //Quicksort method: sort out the courses array
-    public void quickSort(ArrayList<Courses> array, int low, int high) {
+    public static void quickSort(ArrayList<Courses> array, int low, int high) {
         //If the array has only one element, then it is already sorted
         if (array == null || array.size() <= 1)
             return;
@@ -365,17 +368,17 @@ public class SchedulingApp {
 
         // pick the pivot
         int middle = low + (high - low) / 2;
-        int pivot = array.get(middle).getStudentsInCourse().size();
+        int pivot = array.get(middle).getSections();
 
         // make left < pivot and right > pivot
         int i = low, j = high;
         //Sort through the array and swap numbers to the other side of the pivot if necessary.
         while (i <= j) {
-            while (array.get(i).getStudentsInCourse().size() < pivot) {
+            while (array.get(i).getSections() < pivot) {
                 i++;
             }
 
-            while (array.get(j).getStudentsInCourse().size() > pivot) {
+            while (array.get(j).getSections() > pivot) {
                 j--;
             }
 
@@ -396,7 +399,29 @@ public class SchedulingApp {
         if (high > i){
             quickSort(array, i, high);
         }
+
+
     }
+
+    //Maybe try out bubblesort
+    //Create a method to run the bubble sort method against the data set
+    public ArrayList<Courses> BubbleSort(ArrayList<Courses> dataSet) {
+
+        Courses temp;
+        //Compare each pair of numbers and swap if they are out of order
+        for (int j = 0; j < dataSet.size(); j++) {
+            for (int i = 0; i < dataSet.size() - 1; i++) {
+                if (dataSet.get(i).getSections() > dataSet.get(i+1).getSections()) {
+                    //Swap the two numbers
+                    temp = dataSet.get(i);
+                    dataSet.set(i, dataSet.get(i+1));
+                    dataSet.set(i+1, temp);
+                }
+            }
+        }
+        return dataSet;
+    }
+
 
     //Sort through the sections and pick periods where they can be
     public ArrayList<Courses> antiMode(){
@@ -420,22 +445,23 @@ public class SchedulingApp {
                 returnList.add(courses.get(i));
             }
         }
+        Boolean test;
         //Loop through until it gets to the first course that is already sorted as part of the antimode
         for (int i = 0; i < courses.size(); i++) {
                 //When it hits the middleish point, first go down from there
-            Boolean test = true;
+            test = true;
             for (int j = 0; j < returnList.size(); j++) {
-                if(courses.get(i) == returnList.get(j)){
+                if(courses.get(i).getCourseCode() == returnList.get(j).getCourseCode()){
                     test = false;
                 }
             }
             if (test){
                 returnList.add(courses.get(i));
+                //System.out.println(courses.get(i).getCourseCode());
             }
-            System.out.println("return "+returnList.size());
-            System.out.println("course "+ courses.size());
         }
-
+        //System.out.println("return "+ returnList.size());
+        //System.out.println("course "+ courses.size());
         return returnList;
     }
     //Create section objects for each section of the course
@@ -820,5 +846,7 @@ public class SchedulingApp {
         }
 
     }
+
+    public double score(ArrayList<Student> testStudents, int newTeachers, )
 
 }
