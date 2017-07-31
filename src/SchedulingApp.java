@@ -694,7 +694,7 @@ public class SchedulingApp {
             ArrayList<Sections> masterSections = course.getSectionsOccuring();
             ArrayList<Sections> sections = new ArrayList<>();
             //System.out.println(course.getSectionsOccuring().size());
-            for (int j = 0; j < course.getSectionsOccuring().size() - 1; j++) {
+            for (int j = 0; j < course.getSectionsOccuring().size() ; j++) {
                 sections.add(course.getSectionsOccuring().get(j));
             }
             //Make an array of periods that the student has free
@@ -725,7 +725,7 @@ public class SchedulingApp {
             //System.out.println(sections.size());
             for (int j = 0; j < sections.size(); j++) {
                 //Check whether or not the student is free during that period, and if they aren't knock it off of the list
-                if(!freePeriods[sections.get(j).getPeriod()]){
+                if(!freePeriods[sections.get(j).getPeriod() ]){
                     sections.remove(j);
                 }
             }
@@ -739,15 +739,15 @@ public class SchedulingApp {
                         Courses conflict = schedule.get(masterSections.get(j).getPeriod()-1);
                         for (int k = 0; k < conflict.getSectionsOccuring().size(); k++) {
                             //noinspection Duplicates
-                            if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
+                            if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod() ]){
                                 //Change the period to be at one of the new free ones and remove the student from the previous period and add them into the new section
-                                student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).removeStudent(student);
-                                student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod(), schedule.get(masterSections.get(j).getPeriod()));
-                                student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).addStudent(student);
+                                student.getAssigned().get(masterSections.get(j).getPeriod() ).getSectionsOccuring().get(k).removeStudent(student);
+                                student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod() , schedule.get(masterSections.get(j).getPeriod() ));
+                                student.getAssigned().get(masterSections.get(j).getPeriod() ).getSectionsOccuring().get(k).addStudent(student);
                                 //Change the original period to be back to null
-                                student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j).getCourse());
+                                student.changePeriod(masterSections.get(j).getPeriod() , masterSections.get(j).getCourse());
                                 course.getSectionsOccuring().get(j).addStudent(student);
-                                freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()] = false;
+                                freePeriods[conflict.getSectionsOccuring().get(k).getPeriod() ] = false;
                                 continue OUTER;
                             }
                         }
@@ -765,7 +765,7 @@ public class SchedulingApp {
                                         if(!courses.get(l).getRequried()){
                                             for (int m = 0; m < courses.get(l).getSectionsOccuring().size(); m++) {
                                                 //If the student is free in that period, add them to that class and remove them from their previous class
-                                                if(freePeriods[courses.get(l).getSectionsOccuring().get(m).getPeriod()] && courses.get(l).getSectionsOccuring().get(m).getPeriod() != masterSections.get(k).getPeriod()){
+                                                if(freePeriods[courses.get(l).getSectionsOccuring().get(m).getPeriod() ] && courses.get(l).getSectionsOccuring().get(m).getPeriod() != masterSections.get(k).getPeriod()){
                                                     Courses oldElective = schedule.get(j);
                                                     Sections oldSection = masterSections.get(k);
                                                     //Loop through to figure out what section the student was originally in
@@ -785,18 +785,18 @@ public class SchedulingApp {
                                                     //Remove the student from the original sections
                                                     oldSection.removeStudent(student);
                                                     //Remove the previous unrequired from the student's schedule
-                                                    student.removePeriod(oldSection.getPeriod());
+                                                    student.removePeriod(oldSection.getPeriod() );
                                                     //Remove the student from the previous unrequired course
                                                     oldElective.removeStudentFromCourse(student.getIdentifier());
 
                                                     //Add the student to the new course
                                                     newElective.addStudent(student.getIdentifier());
                                                     //Add the required course to the student's schedule
-                                                    student.setClass(reqSection.getPeriod(), required);
+                                                    student.setClass(reqSection.getPeriod() , required);
                                                     //Add the student to the new required section
                                                     reqSection.addStudent(student);
                                                     //Add the new unrequired to the student's schedule
-                                                    student.setClass(newSection.getPeriod(), newElective);
+                                                    student.setClass(newSection.getPeriod() , newElective);
                                                     //Add the student to the new unrequired section
                                                     newSection.addStudent(student);
 
@@ -823,7 +823,8 @@ public class SchedulingApp {
                         }
                     }
                     for (int j = 0; j < masterSections.size(); j++) {
-                        Courses conflict = schedule.get(masterSections.get(j).getPeriod());
+                        Courses conflict = schedule.get(masterSections.get(j).getPeriod() );
+                        System.out.println(conflict);
                             for (int k = 0; k < conflict.getSectionsOccuring().size(); k++) {
                                 //If a student has a scheduling conflict
                                 //noinspection duplicates
@@ -854,7 +855,7 @@ public class SchedulingApp {
                                     //Then I need to check to make sure that the student actually has a free period that coincides with when the class is offered
                                     for (int l = 0; l < courses.get(k).getSectionsOccuring().size(); l++) {
                                         //If the student is free in a period when the course is offered then save that section as the best section to add the student to
-                                        if (freePeriods[courses.get(k).getSectionsOccuring().get(l).getPeriod()]) {
+                                        if (freePeriods[courses.get(k).getSectionsOccuring().get(l).getPeriod() ]) {
                                             mini = courses.get(k).getSections();
                                             a = courses.get(k);
                                             b = courses.get(k).getSectionsOccuring().get(l);
@@ -872,7 +873,7 @@ public class SchedulingApp {
                         course.removeStudentFromCourse(student.identifier);
                         a.addStudent(student.identifier);
                         b.addStudent(student);
-                        student.changePeriod(b.getPeriod(), b.getCourse());
+                        student.changePeriod(b.getPeriod() , b.getCourse());
                         continue OUTER;
                     }
                 }
@@ -896,14 +897,14 @@ public class SchedulingApp {
                     studentSched.add(j, null);
                 }
             }
-            if(studentSched.size() <= sections.get(indexOfBestSection).getPeriod() - 1){
+            if(studentSched.size() <= sections.get(indexOfBestSection).getPeriod() ){
                 for (int j = studentSched.size(); j < indexOfBestSection; j++) {
                     studentSched.add(j, null);
                 }
-                studentSched.set(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
+                studentSched.set(sections.get(indexOfBestSection).getPeriod() , sections.get(indexOfBestSection).getCourse());
             }
             else{
-                studentSched.set(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection).getCourse());
+                studentSched.set(sections.get(indexOfBestSection).getPeriod() , sections.get(indexOfBestSection).getCourse());
             }
             student.setAssigned(studentSched);
 
