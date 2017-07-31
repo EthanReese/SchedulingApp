@@ -457,7 +457,7 @@ public class SchedulingApp {
     public void addSections() {
         //for each course, for each section, create a new section for that course
         for (int i = 0; i < courses.size(); i++) {
-            int total = (int)(Math.ceil(courses.get(i).getStudentsInCourse().size()/MAX));
+            int total = (int)(Math.ceil((double)courses.get(i).getStudentsInCourse().size()/(double)MAX));
             courses.get(i).setSections(total);
             for (int j = 0; j < total; j++) {
                 ArrayList<Student> fakeStudents = new ArrayList<Student>();
