@@ -23,6 +23,7 @@ public class SchedulingApp {
     //Create the swing interface elements
     JFrame frame = new JFrame();
     JPanel panel = new JPanel();
+
     JButton generateButton = new JButton("Generate Schedules");
     JLabel forecastLabel = new JLabel("Forecasting Database Path");
     JLabel teacherLabel = new JLabel("Teacher Database Path");
@@ -33,7 +34,6 @@ public class SchedulingApp {
 
     BufferedReader br = null;
     Scanner scanner = new Scanner(System.in);
-    ArrayList<Courses> coursesList = new ArrayList<Courses>();
     ArrayList<Sections> totalSections = new ArrayList<Sections>();
     ArrayList<Courses> courses = new ArrayList<Courses>();
     ArrayList<Teacher> teachers = new ArrayList<Teacher>();
@@ -67,121 +67,146 @@ public class SchedulingApp {
 
 
         //Call the functions corresponding to each individual file
-        ArrayList<ArrayList<String>> forecastingTable  = readCSV(forecastingFile);
-        ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
-        ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
-        //Convert the files into the proper types of objects
-        classes(courseTable);
-        teacherCreation(teacherTable);
-        requestedClasses(forecastingTable, courses);
-        //Run all of our actual functions that do stuff
-        setClassList();
-        reassign(courses);
-        teachingClasses(teachers, courses);
-        addSections();
-        courses  = BubbleSort(courses);
+        ArrayList<Schedule> schedules = new ArrayList<>();
 
 
-        addPeriod(courses);
-        for (int i = 0; i < courses.size(); i++) {
-            teacherSections(courses.get(i));
-        }
-        for (int i = 0; i < courses.size(); i++) {
-            assignStudentsToSection(courses.get(i));
-        }
+        for (int outerIndex = 0; outerIndex < 15; outerIndex++) {
+            ArrayList<ArrayList<String>> forecastingTable  = readCSV(forecastingFile);
+            ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
+            ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
+            //Convert the files into the proper types of objects
+            classes(courseTable);
+            teacherCreation(teacherTable);
+            requestedClasses(forecastingTable, courses);
+            //Run all of our actual functions that do stuff
+            setClassList();
+            reassign(courses);
+            teachingClasses(teachers, courses);
+            addSections();
+            courses = BubbleSort(courses);
 
-        PrintWriter pw;
-        try {
-            pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
-            //create the output string
-            String sectionsOutput = "";
-            for (int i = 0; i < totalPeriods; i++) {
-                ArrayList<Sections> sectionSchedule = new ArrayList<Sections>();
-                for (int j = 0; j < totalSections.size(); j++) {
-                    if (totalSections.get(j).period == i) {
-                        sectionSchedule.add(totalSections.get(j));
-                    }
-                }
-                sectionsOutput+= "Period: " + (i+1) + "\n";
-                //Loop through all of the sections that have been scheduled and find what period they are occurring.
-                for (int j = 0; j < sectionSchedule.size(); j++) {
-                    try {
-                        sectionsOutput += sectionSchedule.get(j).getCourse().getCourseCode() + ", " + sectionSchedule.get(j).getTeacher().getIdentifier() + ", " + sectionSchedule.get(j).getStudents().size() + " students" + "\n";
-                    } catch (NullPointerException n) {
 
-                    }
-                }
+            addPeriod(courses);
+            for (int i = 0; i < courses.size(); i++) {
+                teacherSections(courses.get(i));
             }
-            pw.write(sectionsOutput);
-            pw.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.exit(0);
-        }
-        PrintWriter ow;
-        try {
-            ow = new PrintWriter(new FileWriter(new File("studentOutput.txt")));
-            //create the output string
-            //IS STUDENT ASSIGNMENT IN ORDER???? That's what this assumes.
-            String studentOutput = "";
-            for (int i = 0; i < students.size(); i++) {
-                studentOutput += students.get(i).getIdentifier() + ":\n";
-                for (int j = 1; j < totalPeriods+1; j++) {
-                    try {
-                        studentOutput += students.get(i).getAssigned().get(j).getCourseCode() + ", \n";
-                    }catch(NullPointerException e){
-                        studentOutput += "Student was unable to be assigned to a course, \n";
-                    }
-                }
+            for (int i = 0; i < courses.size(); i++) {
+                assignStudentsToSection(courses.get(i));
             }
-            ow.write(studentOutput);
-            ow.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
 
-        PrintWriter ww;
-        try {
-            ww = new PrintWriter(new FileWriter(new File("teacherOutput.txt")));
-            //create the output string
-            String teacherOutput = "";
-            for (int i = 0; i < teachers.size(); i++) {
-                teacherOutput += teachers.get(i).identifier + ": ";
-                for (int j = 0; j < totalPeriods; j++) {
-                    int period = j;
-                    for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
-                        if (teachers.get(i).getTeaching().get(k).getPeriod() == (j)) {
-                            teacherOutput += teachers.get(i).getTeaching().get(k).getCourse().getCourseCode() + ", ";
-                            period++;
-                        }
-                    }
-                    if (period == j) {
-                        teacherOutput += "Free Period, ";
-                    }
-                }
-                teacherOutput += "\n";
-            }
-            //track how many New Teachers are added
             int totalNewTeachers = 0;
             for (int i = 0; i < teachers.size(); i++) {
                 if (teachers.get(i).identifier.equals("New Teacher")) {
                     totalNewTeachers++;
                 }
             }
-            teacherOutput += "\nTotal New Teachers: " + totalNewTeachers;
-            ww.write(teacherOutput);
-            ww.close();
-            System.out.println(score(students, totalNewTeachers));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.exit(0);
+
+            double score = score(students, totalNewTeachers);
+
+            schedules.add(new Schedule(courses, students, teachers, score, totalSections, totalNewTeachers));
         }
+        double highScore = Double.MIN_VALUE;
+        int highIndex = 0;
+        for (int i = 0; i < schedules.size(); i++) {
+            if(schedules.get(i).getScore()> highScore){
+                highScore = schedules.get(i).getScore();
+                highIndex = i;
+            }
+        }
+        Schedule schedule = schedules.get(highIndex);
+        totalSections = schedule.getSections();
+        courses = schedule.getCourses();
+        students = schedule.getStudents();
+        double score = schedule.score;
+        teachers = schedule.teachers;
+        int totalNewTeachers = schedule.getNewTeachers();
+
+            PrintWriter pw;
+            try {
+                pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
+                //create the output string
+                String sectionsOutput = "";
+                for (int i = 0; i < totalPeriods; i++) {
+                    ArrayList<Sections> sectionSchedule = new ArrayList<Sections>();
+                    for (int j = 0; j < totalSections.size(); j++) {
+                        if (totalSections.get(j).period == i) {
+                            sectionSchedule.add(schedule.getSections().get(j));
+                        }
+                    }
+                    sectionsOutput += "Period: " + (i + 1) + "\n";
+                    //Loop through all of the sections that have been scheduled and find what period they are occurring.
+                    for (int j = 0; j < sectionSchedule.size(); j++) {
+                        try {
+                            sectionsOutput += sectionSchedule.get(j).getCourse().getCourseCode() + ", " + sectionSchedule.get(j).getTeacher().getIdentifier() + ", " + sectionSchedule.get(j).getStudents().size() + " students" + "\n";
+                        } catch (NullPointerException n) {
+
+                        }
+                    }
+                }
+                pw.write(sectionsOutput);
+                pw.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                System.exit(0);
+            }
+            PrintWriter ow;
+            try {
+                ow = new PrintWriter(new FileWriter(new File("studentOutput.txt")));
+                //create the output string
+                //IS STUDENT ASSIGNMENT IN ORDER???? That's what this assumes.
+                String studentOutput = "";
+                for (int i = 0; i < students.size(); i++) {
+                    studentOutput += schedule.getStudents().get(i).getIdentifier() + ":\n";
+                    for (int j = 1; j < totalPeriods; j++) {
+                        try {
+                            studentOutput += students.get(i).getAssigned().get(j).getCourseCode() + ", \n";
+                        } catch (NullPointerException | IndexOutOfBoundsException e) {
+                            studentOutput += "Student was unable to be assigned to a course, \n";
+                        }
+                    }
+                }
+                ow.write(studentOutput);
+                ow.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+
+            PrintWriter ww;
+            try {
+                ww = new PrintWriter(new FileWriter(new File("teacherOutput.txt")));
+                //create the output string
+                String teacherOutput = "";
+                for (int i = 0; i < teachers.size(); i++) {
+                    teacherOutput += teachers.get(i).identifier + ": ";
+                    for (int j = 0; j < totalPeriods; j++) {
+                        int period = j;
+                        for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
+                            if (teachers.get(i).getTeaching().get(k).getPeriod() == (j)) {
+                                teacherOutput += teachers.get(i).getTeaching().get(k).getCourse().getCourseCode() + ", ";
+                                period++;
+                            }
+                        }
+                        if (period == j) {
+                            teacherOutput += "Free Period, ";
+                        }
+                    }
+                    teacherOutput += "\n";
+                }
+                //track how many New Teachers are added
+
+                teacherOutput += "\nTotal New Teachers: " + totalNewTeachers;
+                ww.write(teacherOutput);
+                ww.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                System.exit(0);
+            }
 
 
-        //find how many classes that were requested by students were actually assigned to them
+            //find how many classes that were requested by students were actually assigned to them
         /*int perfected = 0;
         int total = 0;
         for(int i = 0; i < students.size(); i++) {
@@ -200,7 +225,6 @@ public class SchedulingApp {
         double percent = (perfected / total)*100;
         int roundPercent = (int)(percent);
         System.out.println("Student Satisfaction = " + roundPercent);*/
-
 
     }
 
@@ -662,7 +686,7 @@ public class SchedulingApp {
                                 //Change the original period to be back to null
                                 student.changePeriod(masterSections.get(j).getPeriod() , masterSections.get(j).getCourse());
                                 course.getSectionsOccuring().get(j).addStudent(student);
-                                freePeriods[conflict.getSectionsOccuring().get(k).getPeriod() ] = false;
+                                freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()] = false;
                                 continue OUTER;
                             }
                         }
@@ -850,7 +874,7 @@ public class SchedulingApp {
         //Score the algorithm on how many new teachers are hired as a percent of the teachers that exist
         Double b = 1.0 - (double)newTeachers/teachers.size();
 
-        score = (a + b)/2;
+        score = (2*a + b/2)/2;
 
         return score;
     }
