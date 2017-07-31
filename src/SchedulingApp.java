@@ -79,7 +79,6 @@ public class SchedulingApp {
         reassign(courses);
         teachingClasses(teachers, courses);
         addSections();
-        //quickSort(courses, 0, courses.size()-1);
         courses  = BubbleSort(courses);
         ArrayList<Courses> antiModeCourses = courses;
         ArrayList<Courses> c = antiMode();
@@ -95,9 +94,6 @@ public class SchedulingApp {
 
 
 
-
-
-
         addPeriod(antiModeCourses);
         for (int i = 0; i < antiModeCourses.size(); i++) {
             teacherSections(antiModeCourses.get(i));
@@ -107,7 +103,7 @@ public class SchedulingApp {
             teacherSections(antiModeCourses.get(i));
         }*/
         for (int i = 0; i < antiModeCourses.size(); i++) {
-            //assignStudentsToSection(antiModeCourses.get(i));
+            assignStudentsToSection(antiModeCourses.get(i));
         }
         PrintWriter pw;
         try {
@@ -754,7 +750,7 @@ public class SchedulingApp {
                     //If there aren't any other similar periods free, then try to move a class that is in one of those periods to a different section
                     ArrayList<Courses> schedule = student.getAssigned();
                     for (int j = 0; j < masterSections.size(); j++) {
-                        Courses conflict = schedule.get(masterSections.get(j).getPeriod());
+                        Courses conflict = schedule.get(masterSections.get(j).getPeriod()-1);
                         for (int k = 0; k < conflict.getSectionsOccuring().size(); k++) {
                             //noinspection Duplicates
                             if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
@@ -773,10 +769,60 @@ public class SchedulingApp {
                     //If it doesn't work out, then it needs to find a way to add a note into the student's final schedule that there was no possible way to fit both.
                     //Maybe try out changing around an elective in the schedule
                     for (int j = 0; j < schedule.size(); j++) {
-                        if(schedule.get(j).getRequried()){
+                        //If they have an elective in their schedule
+                        if(!schedule.get(j).getRequried()){
+                            //Loop through the possible sections of the course that isn't assigned
+                            for (int k = 0; k < masterSections.size(); k++) {
+                                    //Find a course that is available in one of the same periods as the students
+                                    for (int l = 0; l < courses.size(); l++) {
+                                        //As long as the course isn't required it can be assigned
+                                        if(!courses.get(l).getRequried()){
+                                            for (int m = 0; m < courses.get(l).getSectionsOccuring().size(); m++) {
+                                                //If the student is free in that period, add them to that class and remove them from their previous class
+                                                if(freePeriods[courses.get(l).getSectionsOccuring().get(m).getPeriod()] && courses.get(l).getSectionsOccuring().get(m).getPeriod() != masterSections.get(k).getPeriod()){
+                                                    Courses oldElective = schedule.get(j);
+                                                    Sections oldSection = masterSections.get(k);
+                                                    //Loop through to figure out what section the student was originally in
+                                                    CENTER:
+                                                    for (int n = 0; n < schedule.get(j).getSectionsOccuring().size(); n++) {
+                                                        for (int o = 0; o < schedule.get(j).getSectionsOccuring().get(n).getStudents().size(); o++) {
+                                                            if (schedule.get(j).getSectionsOccuring().get(n).getStudents().get(o) == student) {
+                                                                oldSection = oldElective.getSectionsOccuring().get(n);
+                                                                break CENTER;
+                                                            }
+                                                        }
+                                                    }
+                                                    Courses newElective = courses.get(l);
+                                                    Sections newSection = newElective.getSectionsOccuring().get(m);
+                                                    Courses required = course;
+                                                    Sections reqSection = masterSections.get(k);
+                                                    //Remove the student from the original sections
+                                                    oldSection.removeStudent(student);
+                                                    //Remove the previous unrequired from the student's schedule
+                                                    student.removePeriod(oldSection.getPeriod());
+                                                    //Remove the student from the previous unrequired course
+                                                    oldElective.removeStudentFromCourse(student.getIdentifier());
 
+                                                    //Add the student to the new course
+                                                    newElective.addStudent(student.getIdentifier());
+                                                    //Add the required course to the student's schedule
+                                                    student.setClass(reqSection.getPeriod(), required);
+                                                    //Add the student to the new required section
+                                                    reqSection.addStudent(student);
+                                                    //Add the new unrequired to the student's schedule
+                                                    student.setClass(newSection.getPeriod(), newElective);
+                                                    //Add the student to the new unrequired section
+                                                    newSection.addStudent(student);
+
+
+                                                    continue OUTER;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    }
                     continue OUTER;
                 }
                 //However if the course isn't required

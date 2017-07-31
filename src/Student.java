@@ -71,4 +71,9 @@ public class Student {
     public void setClass(int period, Courses course){
         this.assigned.set(period, course);
     }
+
+
+    public void removePeriod(int period){
+        this.assigned.set(period, null);
+    }
 }
