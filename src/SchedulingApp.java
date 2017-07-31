@@ -865,7 +865,30 @@ public class SchedulingApp {
         }
 
     }
+    //Score the result on a variety of factors
+    public Double score(ArrayList<Student> testStudents, int newTeachers){
+        Double score;
+        //Score the algorithm on how many students got the classes they wanted
+        ArrayList<Double> averageGranted = new ArrayList<Double>();
+        for (int i = 0; i < testStudents.size(); i++) {
+            Double number = 0.0;
+            for (int j = 0; j < testStudents.get(i).getRequested().size(); j++) {
+                for (int k = 0; k < testStudents.get(i).getAssigned().size(); k++) {
+                    if(testStudents.get(i).getAssigned().get(k) == testStudents.get(i).getRequested().get(j)){
+                        ++number;
+                    }
+                }
+            }
+            Double percentage = number/totalPeriods;
+            averageGranted.add(percentage);
+        }
+        //Percentage of students that are happy
+        Double a = averageGranted.stream().mapToDouble(i -> i).average().getAsDouble();
 
-    public double score(ArrayList<Student> testStudents, int newTeachers, )
+        //Score the algorithm on how many new teachers are hired as a percent of the teachers that exist
+        Double b = (double)newTeachers/teachers.size();
+
+        return score;
+    }
 
 }
