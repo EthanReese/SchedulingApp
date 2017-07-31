@@ -103,7 +103,6 @@ public class SchedulingApp {
 
 
 
-        ArrayList<Courses> antiModeCourses = antiMode();
         addPeriod(antiModeCourses);
         for (int i = 0; i < courses.size(); i++) {
             teacherSections(courses.get(i));
@@ -463,8 +462,8 @@ public class SchedulingApp {
             if (test){
                 returnList.add(courses.get(i));
             }
-            System.out.println("return "+returnList.size());
-            System.out.println("course "+ courses.size());
+            //System.out.println("return "+returnList.size());
+            //System.out.println("course "+ courses.size());
         }
 
         return returnList;
@@ -783,8 +782,10 @@ public class SchedulingApp {
                             //If a student has a scheduling conflict
                             //noinspection duplicates
                             if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
+                                //get the assigned classes, get the period of the j item of masterSections
                                 student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).removeStudent(student);
                                 student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod(), schedule.get(masterSections.get(j).getPeriod()));
+                                System.out.println(student.getAssigned());
                                 student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).addStudent(student);
                                 //Change the original period to be back to null
                                 student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j).getCourse());
@@ -867,7 +868,7 @@ public class SchedulingApp {
     }
     //Score the result on a variety of factors
     public Double score(ArrayList<Student> testStudents, int newTeachers){
-        Double score;
+        Double score = 0.0;
         //Score the algorithm on how many students got the classes they wanted
         ArrayList<Double> averageGranted = new ArrayList<Double>();
         for (int i = 0; i < testStudents.size(); i++) {
