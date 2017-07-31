@@ -80,14 +80,14 @@ public class SchedulingApp {
         teachingClasses(teachers, courses);
         addSections();
         courses  = BubbleSort(courses);
-        ArrayList<Courses> antiModeCourses = courses;
 
-        addPeriod(antiModeCourses);
-        for (int i = 0; i < antiModeCourses.size(); i++) {
-            teacherSections(antiModeCourses.get(i));
+
+        addPeriod(courses);
+        for (int i = 0; i < courses.size(); i++) {
+            teacherSections(courses.get(i));
         }
-        for (int i = 0; i < antiModeCourses.size(); i++) {
-            assignStudentsToSection(antiModeCourses.get(i));
+        for (int i = 0; i < courses.size(); i++) {
+            assignStudentsToSection(courses.get(i));
         }
 
         PrintWriter pw;
@@ -95,14 +95,14 @@ public class SchedulingApp {
             pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
             //create the output string
             String sectionsOutput = "";
-            for (int i = 1; i < totalPeriods+1; i++) {
+            for (int i = 0; i < totalPeriods; i++) {
                 ArrayList<Sections> sectionSchedule = new ArrayList<Sections>();
                 for (int j = 0; j < totalSections.size(); j++) {
                     if (totalSections.get(j).period == i) {
                         sectionSchedule.add(totalSections.get(j));
                     }
                 }
-                sectionsOutput+= "Period: " + i+1 + "\n";
+                sectionsOutput+= "Period: " + (i+1) + "\n";
                 //Loop through all of the sections that have been scheduled and find what period they are occurring.
                 for (int j = 0; j < sectionSchedule.size(); j++) {
                     try {
@@ -173,6 +173,7 @@ public class SchedulingApp {
             teacherOutput += "\nTotal New Teachers: " + totalNewTeachers;
             ww.write(teacherOutput);
             ww.close();
+            System.out.println(score(students, totalNewTeachers));
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -199,6 +200,8 @@ public class SchedulingApp {
         double percent = (perfected / total)*100;
         int roundPercent = (int)(percent);
         System.out.println("Student Satisfaction = " + roundPercent);*/
+
+
     }
 
     public static void main(String[] args){
@@ -845,7 +848,7 @@ public class SchedulingApp {
         Double a = averageGranted.stream().mapToDouble(i -> i).average().getAsDouble();
 
         //Score the algorithm on how many new teachers are hired as a percent of the teachers that exist
-        Double b = (double)newTeachers/teachers.size();
+        Double b = 1.0 - (double)newTeachers/teachers.size();
 
         score = (a + b)/2;
 
