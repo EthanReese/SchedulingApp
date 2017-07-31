@@ -81,7 +81,6 @@ public class SchedulingApp {
         addSections();
         courses  = BubbleSort(courses);
         ArrayList<Courses> antiModeCourses = courses;
-        ArrayList<Courses> c = antiMode();
 
         addPeriod(antiModeCourses);
         for (int i = 0; i < antiModeCourses.size(); i++) {
@@ -103,7 +102,7 @@ public class SchedulingApp {
                         sectionSchedule.add(totalSections.get(j));
                     }
                 }
-                sectionsOutput+= "Period: " + i + "\n";
+                sectionsOutput+= "Period: " + i+1 + "\n";
                 //Loop through all of the sections that have been scheduled and find what period they are occurring.
                 for (int j = 0; j < sectionSchedule.size(); j++) {
                     try {
@@ -139,7 +138,6 @@ public class SchedulingApp {
             ow.write(studentOutput);
             ow.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             System.exit(0);
         }
@@ -154,7 +152,7 @@ public class SchedulingApp {
                 for (int j = 0; j < totalPeriods; j++) {
                     int period = j;
                     for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
-                        if (teachers.get(i).getTeaching().get(k).period == (j+1)) {
+                        if (teachers.get(i).getTeaching().get(k).getPeriod() == (j)) {
                             teacherOutput += teachers.get(i).getTeaching().get(k).getCourse().getCourseCode() + ", ";
                             period++;
                         }
@@ -348,52 +346,6 @@ public class SchedulingApp {
         }
     }
 
-    //Quicksort method: sort out the courses array
-    public static void quickSort(ArrayList<Courses> array, int low, int high) {
-        //If the array has only one element, then it is already sorted
-        if (array == null || array.size() <= 1)
-            return;
-        //If low is higher than high, then the algorithm cannot work
-        if (low >= high)
-            return;
-
-        // pick the pivot
-        int middle = low + (high - low) / 2;
-        int pivot = array.get(middle).getSections();
-
-        // make left < pivot and right > pivot
-        int i = low, j = high;
-        //Sort through the array and swap numbers to the other side of the pivot if necessary.
-        while (i <= j) {
-            while (array.get(i).getSections() < pivot) {
-                i++;
-            }
-
-            while (array.get(j).getSections() > pivot) {
-                j--;
-            }
-
-            if (i <= j) {
-                Courses temp = array.get(i);
-                array.set(j,array.get(i));
-                array.set(i, temp);
-                i++;
-                j--;
-            }
-        }
-
-        // recursively sort two sub parts
-        if (low < j){
-            quickSort(array, low, j);
-        }
-
-        if (high > i){
-            quickSort(array, i, high);
-        }
-
-
-    }
-
     //Maybe try out bubblesort
     //Create a method to run the bubble sort method against the data set
     public ArrayList<Courses> BubbleSort(ArrayList<Courses> dataSet) {
@@ -413,46 +365,6 @@ public class SchedulingApp {
         return dataSet;
     }
 
-
-    //Sort through the sections and pick periods where they can be
-    public ArrayList<Courses> antiMode(){
-        //Set an integer to the max value of an integer
-        int returnInt = Integer.MAX_VALUE;
-        ArrayList<Courses> returnList = new ArrayList<Courses>();
-        int[] numOfEach = new int[courses.get(courses.size() - 1).getSections()+1];
-        //Loop through the list of courses and make an additional array that has an element for each number of sections.
-        for (int i = 0; i < courses.size(); i++){
-            numOfEach[courses.get(i).getSections()]++;
-        }
-        //Loop through the resultant array and find the number that is the lowest and keep track of its index
-        for (int i = 0; i < numOfEach.length; i++) {
-            if(numOfEach[i] < returnInt && i > 0){
-                returnInt = i;
-            }
-        }
-        //Loop through the courses list and take all of the antimode classes into a new return list.
-        for (int i = 0; i < courses.size(); i++) {
-            if(courses.get(i).getSections() == returnInt && !returnList.contains(courses.get(i))){
-                returnList.add(courses.get(i));
-            }
-        }
-        Boolean test;
-        //Loop through until it gets to the first course that is already sorted as part of the antimode
-        for (int i = 0; i < courses.size(); i++) {
-                //When it hits the middleish point, first go down from there
-            test = true;
-            for (int j = 0; j < returnList.size(); j++) {
-                if(courses.get(i).getCourseCode() == returnList.get(j).getCourseCode()){
-                    test = false;
-                }
-            }
-            if (test){
-                returnList.add(courses.get(i));
-            }
-        }
-
-        return returnList;
-    }
     //Create section objects for each section of the course
     public void addSections() {
         //for each course, for each section, create a new section for that course
@@ -481,11 +393,11 @@ public class SchedulingApp {
             int[] assigned = new int[totalPeriods + 1];
             for (int j = 0; j < List.get(i).getSections(); j++) {
                 //assign a random period, and add it to the array keeping track of total classes in a period
-                int periodAssigned = (int)(Math.random()*(totalPeriods-1)+1);
+                int periodAssigned = (int)(Math.random()*(totalPeriods));
                 periodTracker[periodAssigned]++;
                 //make sure there aren't too many of this class in this period, and that is doesn't go over max periods
                 while (periodTracker[periodAssigned] == maxPeriods+1 || assigned[periodAssigned] == overlap) {
-                    periodAssigned = random.nextInt(totalPeriods) + 1;
+                    periodAssigned = random.nextInt(totalPeriods);
                 }
                 assigned[periodAssigned]++;
                 //Change the period in the array and change the period for the section
@@ -698,7 +610,7 @@ public class SchedulingApp {
                 sections.add(course.getSectionsOccuring().get(j));
             }
             //Make an array of periods that the student has free
-            boolean[] freePeriods = new boolean[totalPeriods + 1];
+            boolean[] freePeriods = new boolean[totalPeriods];
             Student student = searchStudent(course.getStudentsInCourse().get(i));
             for (int j = 0; j < totalPeriods; j++) {
                 //Make sure that I don't get an index out of bounds exception, but check if something has already been put into the arraylist
@@ -725,7 +637,7 @@ public class SchedulingApp {
             //System.out.println(sections.size());
             for (int j = 0; j < sections.size(); j++) {
                 //Check whether or not the student is free during that period, and if they aren't knock it off of the list
-                if(!freePeriods[sections.get(j).getPeriod() ]){
+                if(!freePeriods[sections.get(j).getPeriod()]){
                     sections.remove(j);
                 }
             }
@@ -736,13 +648,13 @@ public class SchedulingApp {
                     //If there aren't any other similar periods free, then try to move a class that is in one of those periods to a different section
                     ArrayList<Courses> schedule = student.getAssigned();
                     for (int j = 0; j < masterSections.size(); j++) {
-                        Courses conflict = schedule.get(masterSections.get(j).getPeriod()-1);
+                        Courses conflict = schedule.get(masterSections.get(j).getPeriod());
                         for (int k = 0; k < conflict.getSectionsOccuring().size(); k++) {
                             //noinspection Duplicates
-                            if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod() ]){
+                            if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
                                 //Change the period to be at one of the new free ones and remove the student from the previous period and add them into the new section
-                                student.getAssigned().get(masterSections.get(j).getPeriod() ).getSectionsOccuring().get(k).removeStudent(student);
-                                student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod() , schedule.get(masterSections.get(j).getPeriod() ));
+                                student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).removeStudent(student);
+                                student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod(), schedule.get(masterSections.get(j).getPeriod()));
                                 student.getAssigned().get(masterSections.get(j).getPeriod() ).getSectionsOccuring().get(k).addStudent(student);
                                 //Change the original period to be back to null
                                 student.changePeriod(masterSections.get(j).getPeriod() , masterSections.get(j).getCourse());
@@ -765,7 +677,7 @@ public class SchedulingApp {
                                         if(!courses.get(l).getRequried()){
                                             for (int m = 0; m < courses.get(l).getSectionsOccuring().size(); m++) {
                                                 //If the student is free in that period, add them to that class and remove them from their previous class
-                                                if(freePeriods[courses.get(l).getSectionsOccuring().get(m).getPeriod() ] && courses.get(l).getSectionsOccuring().get(m).getPeriod() != masterSections.get(k).getPeriod()){
+                                                if(freePeriods[courses.get(l).getSectionsOccuring().get(m).getPeriod()] && courses.get(l).getSectionsOccuring().get(m).getPeriod() != masterSections.get(k).getPeriod()){
                                                     Courses oldElective = schedule.get(j);
                                                     Sections oldSection = masterSections.get(k);
                                                     //Loop through to figure out what section the student was originally in
@@ -792,11 +704,11 @@ public class SchedulingApp {
                                                     //Add the student to the new course
                                                     newElective.addStudent(student.getIdentifier());
                                                     //Add the required course to the student's schedule
-                                                    student.setClass(reqSection.getPeriod() , required);
+                                                    student.setClass(reqSection.getPeriod(), required);
                                                     //Add the student to the new required section
                                                     reqSection.addStudent(student);
                                                     //Add the new unrequired to the student's schedule
-                                                    student.setClass(newSection.getPeriod() , newElective);
+                                                    student.setClass(newSection.getPeriod(), newElective);
                                                     //Add the student to the new unrequired section
                                                     newSection.addStudent(student);
 
@@ -855,7 +767,7 @@ public class SchedulingApp {
                                     //Then I need to check to make sure that the student actually has a free period that coincides with when the class is offered
                                     for (int l = 0; l < courses.get(k).getSectionsOccuring().size(); l++) {
                                         //If the student is free in a period when the course is offered then save that section as the best section to add the student to
-                                        if (freePeriods[courses.get(k).getSectionsOccuring().get(l).getPeriod() ]) {
+                                        if (freePeriods[courses.get(k).getSectionsOccuring().get(l).getPeriod()]) {
                                             mini = courses.get(k).getSections();
                                             a = courses.get(k);
                                             b = courses.get(k).getSectionsOccuring().get(l);
@@ -866,7 +778,6 @@ public class SchedulingApp {
                             }
                         }
                         if(a == null){
-                            //We're fucked
                             continue OUTER;
                         }
                         //Add the student to a section and remove them from the previous course
@@ -890,7 +801,7 @@ public class SchedulingApp {
             }
             //Add the course to the student's schedule
             ArrayList<Courses> studentSched = new ArrayList<Courses>(student.getAssigned());
-            for (int j = 0; j < totalPeriods+1; j++) {
+            for (int j = 0; j < totalPeriods; j++) {
                 try{
                     studentSched.get(j);
                 }catch (IndexOutOfBoundsException e ){
