@@ -98,10 +98,6 @@ public class SchedulingApp {
         for (int i = 0; i < antiModeCourses.size(); i++) {
             teacherSections(antiModeCourses.get(i));
         }
-
-        /*for (int i = 0; i < antiModeCourses.size(); i++) {
-            teacherSections(antiModeCourses.get(i));
-        }*/
         for (int i = 0; i < antiModeCourses.size(); i++) {
             assignStudentsToSection(antiModeCourses.get(i));
         }
@@ -134,7 +130,7 @@ public class SchedulingApp {
             e.printStackTrace();
             System.exit(0);
         }
-        /*PrintWriter ow;
+        PrintWriter ow;
         try {
             ow = new PrintWriter(new FileWriter(new File("studentOutput.txt")));
             //create the output string
@@ -156,7 +152,7 @@ public class SchedulingApp {
             // TODO Auto-generated catch block
             e.printStackTrace();
             System.exit(0);
-        }*/
+        }
 
         PrintWriter ww;
         try {
