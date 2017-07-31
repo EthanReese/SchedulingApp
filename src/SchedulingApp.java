@@ -82,17 +82,6 @@ public class SchedulingApp {
         courses  = BubbleSort(courses);
         ArrayList<Courses> antiModeCourses = courses;
         ArrayList<Courses> c = antiMode();
-        for (int i = 0; i < antiMode().size(); i++) {
-            for (int j = 0; j < antiMode().size(); j++) {
-                if(c.get(i) == antiMode().get(j) && i!=j){
-                    System.out.println("The Array isn't unique");
-                }
-            }
-        }
-
-
-
-
 
         addPeriod(antiModeCourses);
         for (int i = 0; i < antiModeCourses.size(); i++) {
@@ -101,6 +90,7 @@ public class SchedulingApp {
         for (int i = 0; i < antiModeCourses.size(); i++) {
             assignStudentsToSection(antiModeCourses.get(i));
         }
+
         PrintWriter pw;
         try {
             pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
@@ -301,7 +291,7 @@ public class SchedulingApp {
     //get the students in a course and set that
     public void setClassList() {
         for (int i = 0; i < students.size(); i++) {
-            for (int j = 1; j < students.get(i).getRequested().size(); j++){
+            for (int j = 0; j < students.get(i).getRequested().size(); j++){
                 for (int k = 0; k < courses.size(); k++) {
                     if (courses.get(k).getCourseCode() == students.get(i).getRequested().get(j).getCourseCode()) {
                         courses.get(k).addStudent(students.get(i).getIdentifier());
