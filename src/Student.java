@@ -49,7 +49,7 @@ public class Student {
         if(this.assigned.size() >= index) {
         }
         else{
-            for (int i = this.assigned.size(); i < index; i++) {
+            for (int i = this.assigned.size(); i < index + 1; i++) {
                 this.assigned.add(null);
             }
         }

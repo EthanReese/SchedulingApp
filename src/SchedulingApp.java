@@ -60,7 +60,7 @@ public class SchedulingApp {
         System.out.println("What is the minimum number of students in each class");
         String minimum = scanner.nextLine();
         MIN = Integer.parseInt(minimum);
-        System.out.println("how many periods does your school offer?");
+        System.out.println("How many periods does your school offer?");
         String periodNumber = scanner.nextLine();
         totalPeriods = Integer.parseInt(periodNumber);
 
@@ -887,6 +887,8 @@ public class SchedulingApp {
 
         //Score the algorithm on how many new teachers are hired as a percent of the teachers that exist
         Double b = (double)newTeachers/teachers.size();
+
+        score = (a + b)/2;
 
         return score;
     }
