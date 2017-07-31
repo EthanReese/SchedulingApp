@@ -517,7 +517,7 @@ public class SchedulingApp {
         for (int i = 0; i < course.getSectionsOccuring().size(); i++) {
             courseSections.add(course.getSectionsOccuring().get(i));
         }
-        //keep track of teachers that can teach this course and their quialifications
+        //keep track of teachers that can teach this course and their qualifications
         ArrayList<String> teacher = course.getTeachersTeachingCourse();
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
         System.out.println(course.courseCode + ", " + course.getSections());
@@ -768,8 +768,12 @@ public class SchedulingApp {
                         }
                     }
                     //If it doesn't work out, then it needs to find a way to add a note into the student's final schedule that there was no possible way to fit both.
-                    //TODO: Figure out the messaging system bc a required class can't be changed
                     //Maybe try out changing around an elective in the schedule
+                    for (int j = 0; j < schedule.size(); j++) {
+                        if(schedule.get(j).getRequried()){
+
+                        }
+                    }
                     continue OUTER;
                 }
                 //However if the course isn't required
