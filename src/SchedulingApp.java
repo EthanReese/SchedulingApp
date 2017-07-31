@@ -56,10 +56,10 @@ public class SchedulingApp {
         String courseFile = scanner.nextLine();
         System.out.println("What is the maximum number of students in each class");
         String maximum = scanner.nextLine();
-        MIN = Integer.parseInt(maximum);
+        MAX = Integer.parseInt(maximum);
         System.out.println("What is the minimum number of students in each class");
         String minimum = scanner.nextLine();
-        MAX = Integer.parseInt(minimum);
+        MIN = Integer.parseInt(minimum);
         System.out.println("how many periods does your school offer?");
         String periodNumber = scanner.nextLine();
         totalPeriods = Integer.parseInt(periodNumber);
@@ -79,6 +79,8 @@ public class SchedulingApp {
         reassign(courses);
         teachingClasses(teachers, courses);
         addSections();
+        //quickSort(courses, 0, courses.size()-1);
+        ArrayList<Courses> antiModeCourses = courses;
         courses  = BubbleSort(courses);
         for (int i = 0; i < courses.size(); i++) {
             System.out.println(courses.get(i).getSections());
@@ -103,9 +105,12 @@ public class SchedulingApp {
 
         ArrayList<Courses> antiModeCourses = antiMode();
         addPeriod(antiModeCourses);
-        for (int i = 0; i < antiModeCourses.size(); i++) {
-            teacherSections(antiModeCourses.get(i));
+        for (int i = 0; i < courses.size(); i++) {
+            teacherSections(courses.get(i));
         }
+        /*for (int i = 0; i < antiModeCourses.size(); i++) {
+            teacherSections(antiModeCourses.get(i));
+        }*/
         for (int i = 0; i < antiModeCourses.size(); i++) {
             assignStudentsToSection(antiModeCourses.get(i));
         }
@@ -457,11 +462,11 @@ public class SchedulingApp {
             }
             if (test){
                 returnList.add(courses.get(i));
-                //System.out.println(courses.get(i).getCourseCode());
             }
+            System.out.println("return "+returnList.size());
+            System.out.println("course "+ courses.size());
         }
-        //System.out.println("return "+ returnList.size());
-        //System.out.println("course "+ courses.size());
+
         return returnList;
     }
     //Create section objects for each section of the course
@@ -470,7 +475,7 @@ public class SchedulingApp {
         for (int i = 0; i < courses.size(); i++) {
             int total = (int)(Math.ceil(courses.get(i).getStudentsInCourse().size()/MAX));
             courses.get(i).setSections(total);
-            for (int j = 0; j < courses.get(i).getSections(); j++) {
+            for (int j = 0; j < total; j++) {
                 ArrayList<Student> fakeStudents = new ArrayList<Student>();
                 Sections section = new Sections(courses.get(i), 0, null, fakeStudents);
                 totalSections.add(section);
@@ -510,10 +515,13 @@ public class SchedulingApp {
     public void teacherSections(Courses course) {
         ArrayList<Sections> courseSections = new ArrayList<Sections>();
         //find the course's sections
-        courseSections = course.getSectionsOccuring();
+        for (int i = 0; i < course.getSectionsOccuring().size(); i++) {
+            courseSections.add(course.getSectionsOccuring().get(i));
+        }
         //keep track of teachers that can teach this course and their quialifications
         ArrayList<String> teacher = course.getTeachersTeachingCourse();
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
+        System.out.println(course.courseCode + ", " + course.getSections());
         for (int i = 0; i < teachers.size(); i++) {
             for (int j = 0; j < teachers.get(i).getQualified().size(); j++) {
                 if (teachers.get(i).getQualified().get(j).courseCode == course.courseCode) {
@@ -550,9 +558,19 @@ public class SchedulingApp {
                     }
                 }
                 //remove teachers on list of teachers to remove
-                for (int k = 0; k < remover.size(); k++) {
-                        freeList.remove(remover.get(k));
+            for (int j = 0; j < remover.size(); j++) {
+                for (int k = freeList.size()-1; k >= 0; k--) {
+                    if (remover.get(j).getIdentifier().equals(freeList.get(k).getIdentifier())) {
+                        freeList.remove(k);
+                        /*try {
+                            System.out.println(remover.get(j));
+                            System.out.println(freeList.get(k) + "\n");
+                        } catch (IndexOutOfBoundsException e) {
+
+                        }*/
+                    }
                 }
+            }
             freeList.trimToSize();
             if (freeList.size() != 0) {
                 Teacher first = freeList.get(0);
@@ -656,6 +674,7 @@ public class SchedulingApp {
                     ArrayList<Courses> newQualified = new ArrayList<Courses>();
                     newQualified.add(course);
                     Teacher newTeacher = new Teacher(newQualified, "New Teacher");
+                    qualifyList.add(newTeacher);
                     addedTeachers.add(newTeacher);
                     teachers.add(newTeacher);
                     newTeacher.addTeaching(courseSections.get(i));
