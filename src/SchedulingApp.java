@@ -785,8 +785,7 @@ public class SchedulingApp {
                                 //get the assigned classes, get the period of the j item of masterSections
                                 student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).removeStudent(student);
                                 student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod(), schedule.get(masterSections.get(j).getPeriod()));
-                                System.out.println(student.getAssigned());
-                                student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).addStudent(student);
+                                student.getAssigned().get(conflict.getSectionsOccuring().get(k).getPeriod()).getSectionsOccuring().get(k).addStudent(student);
                                 //Change the original period to be back to null
                                 student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j).getCourse());
                                 course.getSectionsOccuring().get(j).addStudent(student);

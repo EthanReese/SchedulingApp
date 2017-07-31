@@ -41,12 +41,19 @@ public class Student {
     }
 
     public void changePeriod(int index, Courses course){
-        for (int i = 0; i < assigned.size(); i++) {
-            if(assigned.get(i) == course){
-                assigned.remove(i);
+        for (int i = 0; i < this.assigned.size(); i++) {
+            if(this.assigned.get(i) == course){
+                this.assigned.remove(i);
             }
         }
-        assigned.set(index, course);
+        if(this.assigned.size() >= index) {
+        }
+        else{
+            for (int i = this.assigned.size(); i < index; i++) {
+                this.assigned.add(null);
+            }
+        }
+        this.assigned.set(index, course);
     }
 
     ArrayList<Courses> requested = new ArrayList<Courses>();
