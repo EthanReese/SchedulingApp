@@ -641,10 +641,10 @@ public class SchedulingApp {
             Student student = searchStudent(course.getStudentsInCourse().get(i));
             for (int j = 0; j < totalPeriods; j++) {
                 //Make sure that I don't get an index out of bounds exception, but check if something has already been put into the arraylist
-                Boolean test = true;
+                Boolean test = false;
                 try{
-                    if(student.getAssigned().get(j).equals(null)){
-                        test = false;
+                    if(!student.getSectionsAssigned().get(j).equals(null)){
+                        test = true;
                     }
                 }catch(IndexOutOfBoundsException e){
                     test = false;
@@ -653,11 +653,11 @@ public class SchedulingApp {
                 }
                 //If the student doesn't already have a class assigned during that period, then it will be true
                 if(!test){
-                    freePeriods[j] = true;
+                    freePeriods[student.getSectionsAssigned().get(j).getPeriod()] = true;
                 }
                 //Otherwise they are busy so they aren't free
                 else{
-                    freePeriods[j] = false;
+                    freePeriods[student.getSectionsAssigned().get(j).getPeriod()] = false;
                 }
             }
             //Go through and knock out any of the periods that the student isn't available
