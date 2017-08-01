@@ -13,7 +13,6 @@ import java.util.Scanner;
 
 /**
  * Created by Ethan Reese, Aletea VanVeldhuesen, and Josh Bromley on 7/24/17.
- * 7/27/17 13:33
  */
 
 
@@ -138,7 +137,6 @@ public class SchedulingApp {
             ow.write(studentOutput);
             ow.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             System.exit(0);
         }
@@ -148,33 +146,22 @@ public class SchedulingApp {
             ww = new PrintWriter(new FileWriter(new File("teacherOutput.txt")));
             //create the output string
             String teacherOutput = "";
-            ArrayList<Teacher> fired = new ArrayList<Teacher>();
             for (int i = 0; i < teachers.size(); i++) {
-                if (teachers.get(i).getTeaching().size() != 0) {
                 teacherOutput += teachers.get(i).identifier + ": ";
-                    for (int j = 0; j < totalPeriods; j++) {
-                        int period = j;
-                        for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
-                            if (teachers.get(i).getTeaching().get(k).getPeriod() == (j)) {
-                                teacherOutput += teachers.get(i).getTeaching().get(k).getCourse().getCourseCode() + ", ";
-                                period++;
-                            }
-                        }
-                        if (period == j) {
-                            teacherOutput += "Free, ";
+                for (int j = 0; j < totalPeriods; j++) {
+                    int period = j;
+                    for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
+                        if (teachers.get(i).getTeaching().get(k).getPeriod() == (j)) {
+                            teacherOutput += teachers.get(i).getTeaching().get(k).getCourse().getCourseCode() + ", ";
+                            period++;
                         }
                     }
-                    teacherOutput += "\n";
+                    if (period == j) {
+                        teacherOutput += "Free, ";
+                    }
                 }
-                else {
-                    fired.add(teachers.get(i));
-                }
+                teacherOutput += "\n";
             }
-            teacherOutput += "\nTeachers to be Fired: \n";
-            for (int i = 0; i < fired.size(); i++) {
-                teacherOutput += fired.get(i).getIdentifier() + "\n";
-            }
-
             //track how many New Teachers are added
             int totalNewTeachers = 0;
             for (int i = 0; i < teachers.size(); i++) {
@@ -191,8 +178,25 @@ public class SchedulingApp {
             e.printStackTrace();
             System.exit(0);
         }
-
-
+        PrintWriter xw;
+        try{
+            xw = new PrintWriter(new FileWriter(new File("superSectionOutput.txt")));
+            String superSectionOutput = "";
+            for(int i = 0; i < teachers.size(); i++){
+                for(int j = 0; j < teachers.get(i).getTeaching().size(); j++){
+                    superSectionOutput += teachers.get(i).getTeaching().get(j).getCourse().getCourseCode() + "," + (teachers.get(i).getTeaching().get(j).period+1) + "," + teachers.get(i).getIdentifier() + ",";
+                    for(int k = 0; k < teachers.get(i).getTeaching().get(j).getStudents().size(); k++){
+                        superSectionOutput += teachers.get(i).getTeaching().get(j).getStudents().get(k).getIdentifier() +",";
+                    }
+                    superSectionOutput += "\n";
+                }
+            }
+            xw.write(superSectionOutput);
+            xw.close();
+        }catch(IOException e){
+            e.printStackTrace();
+            System.exit(0);
+        }
     }
 
     public static void main(String[] args){
@@ -377,35 +381,22 @@ public class SchedulingApp {
     //for each course
     public void addPeriod(ArrayList<Courses> List) {
         //keep track of max number of courses in a period
-        int[] periodTracker = new int[totalPeriods];
-        int maxPeriods = (int)(Math.ceil(((double)totalSections.size()/(double)totalPeriods)));
+        int[] periodTracker = new int[totalPeriods + 1];
+        int maxPeriods = (int)(Math.ceil((totalSections.size()/totalPeriods)+.5));
         //get antiMode courses
         //Loop through the list of classes at the antimode that need to be assigned.
         for (int i = 0; i < List.size(); i++) {
             //determine how many sections of this class can be assigned to one period
-            int overlap = (int)(Math.ceil(((double)List.get(i).getSections()/(double)totalPeriods)));
-            int[] assigned = new int[totalPeriods];
+            int overlap = (int)(Math.ceil((List.get(i).getSections()/totalPeriods)+.5));
+            int[] assigned = new int[totalPeriods + 1];
             for (int j = 0; j < List.get(i).getSections(); j++) {
                 //assign a random period, and add it to the array keeping track of total classes in a period
-                int periodAssigned = random.nextInt(totalPeriods);
-                boolean thereIsFree = false;
-                for (int k = 0; k < totalPeriods; k++) {
-                    if (assigned[k] == 0 && k != periodAssigned && periodTracker[k] < maxPeriods) {
-                        thereIsFree = true;
-                    }
-                }
-                int takeoff = 0;
-                for (int k = 0; k < periodTracker.length; k++) {
-                    if (periodTracker[k] == maxPeriods) {
-                        takeoff++;
-                    }
-                    overlap = (int) (Math.ceil(((double) List.get(i).getSections() / (double) (totalPeriods - takeoff))));
-                }
+                int periodAssigned = (int)(Math.random()*(totalPeriods));
+                periodTracker[periodAssigned]++;
                 //make sure there aren't too many of this class in this period, and that is doesn't go over max periods
-                while (periodTracker[periodAssigned] == maxPeriods || assigned[periodAssigned] == overlap || (assigned[periodAssigned] != 0 && thereIsFree == true)) {
+                while (periodTracker[periodAssigned] == maxPeriods+1 || assigned[periodAssigned] == overlap) {
                     periodAssigned = random.nextInt(totalPeriods);
                 }
-                periodTracker[periodAssigned]++;
                 assigned[periodAssigned]++;
                 //Change the period in the array and change the period for the section
                 for (int k = 0; k < totalSections.size(); k++) {
@@ -494,50 +485,46 @@ public class SchedulingApp {
             else {
                 //for every busy teacher, if a different qualified teacher can teach their section, do so and assign busy teacher
                 while(courseSections.get(i).getTeacher() == null) {
-                    int amountBusy = busyTeachers.size();
                     if (i > 0) {
-                        Sections mainSection = courseSections.get(i);
                         for (int j = 0; j < i; j++) {
-                            Sections nextSection = courseSections.get(j);
                             boolean freeToTeach = true;
                             for (int k = 0; k < courseSections.get(j).getTeacher().getTeaching().size(); k++) {
-                                if (courseSections.get(j).getTeacher().getTeaching().get(k).getPeriod() == mainSection.getPeriod()) {
+                                if (courseSections.get(j).getTeacher().getTeaching().get(k).getPeriod() == courseSections.get(i).getPeriod()) {
                                     freeToTeach = false;
                                 }
                             }
                             if (freeToTeach == true) {
-                                for (int k = 0; k < amountBusy; k++) {
+                                for (int k = 0; k < busyTeachers.size(); k++) {
                                     boolean freeToSwap = true;
-                                    int teachingSize = busyTeachers.get(k).getTeaching().size();
-                                    for (int l = 0; l < teachingSize; l++) {
-                                        if (busyTeachers.get(k).getTeaching().get(l).getPeriod() == nextSection.getPeriod()) {
+                                    for (int l = 0; l < busyTeachers.get(k).getTeaching().size(); l++) {
+                                        if (busyTeachers.get(k).getTeaching().get(l).getPeriod() == courseSections.get(j).getPeriod()) {
                                             freeToSwap = false;
                                         }
                                     }
                                     if (freeToSwap == true) {
                                         //set new teacher for busy teacher's course and add to their teaching
                                         //assign busy teacher to section. Remove previous course from busyTeacher's teaching and replace.
-                                        Teacher swapTeacher = nextSection.getTeacher();
+                                        Teacher swapTeacher = courseSections.get(j).getTeacher();
                                         for (int n = 0; n < totalSections.size(); n++) {
-                                            if (totalSections.get(n) == mainSection) {
+                                            if (totalSections.get(n) == courseSections.get(i)) {
                                                 totalSections.get(n).setTheTeacher(courseSections.get(j).getTeacher());
                                             }
-                                            if(totalSections.get(n) == mainSection) {
+                                            if(totalSections.get(n) == courseSections.get(j)) {
                                                 totalSections.get(n).setTheTeacher(busyTeachers.get(k));
                                             }
                                         }
-                                        mainSection.setTheTeacher(swapTeacher);
-                                        swapTeacher.addTeaching(mainSection);
-                                        swapTeacher.getTeaching().remove(nextSection);
-                                        busyTeachers.get(k).addTeaching(nextSection);
-                                        nextSection.setTheTeacher(busyTeachers.get(k));
+                                        courseSections.get(i).setTheTeacher(swapTeacher);
+                                        swapTeacher.addTeaching(courseSections.get(i));
+                                        swapTeacher.getTeaching().remove(courseSections.get(j));
+                                        busyTeachers.get(k).addTeaching(courseSections.get(j));
+                                        courseSections.get(j).setTheTeacher(busyTeachers.get(k));
                                         break;
                                     }
                                 }
                             }
                         }
                     }
-                    for (int j = 0; j < amountBusy; j++) {
+                    for (int j = 0; j < busyTeachers.size(); j++) {
                         for (int k = 0; k < busyTeachers.get(j).getTeaching().size(); k++) {
                             if (busyTeachers.get(j).getTeaching().get(k).getPeriod() == courseSections.get(i).getPeriod()) {
                                Courses currentCourse = busyTeachers.get(j).getTeaching().get(k).getCourse();
@@ -747,6 +734,7 @@ public class SchedulingApp {
                     }
                     for (int j = 0; j < masterSections.size(); j++) {
                         Courses conflict = schedule.get(masterSections.get(j).getPeriod() );
+                        System.out.println(conflict);
                             for (int k = 0; k < conflict.getSectionsOccuring().size(); k++) {
                                 //If a student has a scheduling conflict
                                 //noinspection duplicates
@@ -855,7 +843,7 @@ public class SchedulingApp {
         Double a = averageGranted.stream().mapToDouble(i -> i).average().getAsDouble();
 
         //Score the algorithm on how many new teachers are hired as a percent of the teachers that exist
-        Double b = 1.0 - (double)newTeachers/teachers.size();
+        Double b = 1.0 - (double)newTeachers/(teachers.size()+newTeachers);
 
         score = (a + b)/2;
 
