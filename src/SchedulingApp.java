@@ -33,11 +33,11 @@ public class SchedulingApp {
 
     BufferedReader br = null;
     Scanner scanner = new Scanner(System.in);
-    ArrayList<Sections> totalSections = new ArrayList<Sections>();
-    ArrayList<Courses> courses = new ArrayList<Courses>();
-    ArrayList<Teacher> teachers = new ArrayList<Teacher>();
-    ArrayList<Teacher> addedTeachers = new ArrayList<Teacher>();
-    ArrayList<Student> students = new ArrayList<Student>();
+    ArrayList<Sections> totalSections = new ArrayList<>();
+    ArrayList<Courses> courses = new ArrayList<>();
+    ArrayList<Teacher> teachers = new ArrayList<>();
+    ArrayList<Teacher> addedTeachers = new ArrayList<>();
+    ArrayList<Student> students = new ArrayList<>();
     int MIN = 15;
     int MAX = 40;
     int totalPeriods = 8;
@@ -69,7 +69,7 @@ public class SchedulingApp {
         ArrayList<Schedule> schedules = new ArrayList<>();
 
 
-        for (int outerIndex = 0; outerIndex < 15; outerIndex++) {
+        for (int outerIndex = 0; outerIndex < 3; outerIndex++) {
             ArrayList<ArrayList<String>> forecastingTable  = readCSV(forecastingFile);
             ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
             ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
