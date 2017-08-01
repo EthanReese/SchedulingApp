@@ -23,7 +23,6 @@ public class SchedulingApp {
     //Create the swing interface elements
     JFrame frame = new JFrame();
     JPanel panel = new JPanel();
-
     JButton generateButton = new JButton("Generate Schedules");
     JLabel forecastLabel = new JLabel("Forecasting Database Path");
     JLabel teacherLabel = new JLabel("Teacher Database Path");
@@ -173,13 +172,15 @@ public class SchedulingApp {
                 System.exit(0);
             }
 
-            PrintWriter ww;
-            try {
-                ww = new PrintWriter(new FileWriter(new File("teacherOutput.txt")));
-                //create the output string
-                String teacherOutput = "";
-                for (int i = 0; i < teachers.size(); i++) {
-                    teacherOutput += teachers.get(i).identifier + ": ";
+        PrintWriter ww;
+        try {
+            ww = new PrintWriter(new FileWriter(new File("teacherOutput.txt")));
+            //create the output string
+            String teacherOutput = "";
+            ArrayList<Teacher> fired = new ArrayList<Teacher>();
+            for (int i = 0; i < teachers.size(); i++) {
+                if (teachers.get(i).getTeaching().size() != 0) {
+                teacherOutput += teachers.get(i).identifier + ": ";
                     for (int j = 0; j < totalPeriods; j++) {
                         int period = j;
                         for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
@@ -189,42 +190,39 @@ public class SchedulingApp {
                             }
                         }
                         if (period == j) {
-                            teacherOutput += "Free Period, ";
+                            teacherOutput += "Free, ";
                         }
                     }
                     teacherOutput += "\n";
                 }
-                //track how many New Teachers are added
-
-                teacherOutput += "\nTotal New Teachers: " + totalNewTeachers;
-                ww.write(teacherOutput);
-                ww.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                System.exit(0);
-            }
-
-
-            //find how many classes that were requested by students were actually assigned to them
-        /*int perfected = 0;
-        int total = 0;
-        for(int i = 0; i < students.size(); i++) {
-            for (int j = 0; j < students.get(i).requested.size(); j++) {
-                for (int k = 0; k < students.get(i).assigned.size(); k++) {
-                    if (students.get(i).requested.get(j).getCourseCode() == students.get(i).assigned.get(k).getCourseCode()) {
-                        perfected++;
-                        total++;
-                    }
-                    else {
-                        total++;
-                    }
+                else {
+                    fired.add(teachers.get(i));
                 }
             }
+            teacherOutput += "\nTeachers to be Fired: \n";
+            for (int i = 0; i < fired.size(); i++) {
+                teacherOutput += fired.get(i).getIdentifier() + "\n";
+            }
+
+            //track how many New Teachers are added
+            totalNewTeachers = 0;
+            for (int i = 0; i < teachers.size(); i++) {
+                if (teachers.get(i).identifier.equals("New Teacher")) {
+                    totalNewTeachers++;
+                }
+            }
+            teacherOutput += "\nTotal New Teachers: " + totalNewTeachers;
+            ww.write(teacherOutput);
+            ww.close();
+            System.out.println(score(students, totalNewTeachers));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            System.exit(0);
         }
-        double percent = (perfected / total)*100;
-        int roundPercent = (int)(percent);
-        System.out.println("Student Satisfaction = " + roundPercent);*/
+
+
+
 
     }
 
@@ -410,22 +408,32 @@ public class SchedulingApp {
     //for each course
     public void addPeriod(ArrayList<Courses> List) {
         //keep track of max number of courses in a period
-        int[] periodTracker = new int[totalPeriods + 1];
-        int maxPeriods = (int)(Math.ceil((totalSections.size()/totalPeriods)+.5));
+        int[] periodTracker = new int[totalPeriods];
+        System.out.println(totalSections.size());
+        int maxPeriods = (int)(Math.ceil(((double)totalSections.size()/(double)totalPeriods)));
+        System.out.println("maxPeriods " + maxPeriods);
         //get antiMode courses
         //Loop through the list of classes at the antimode that need to be assigned.
         for (int i = 0; i < List.size(); i++) {
+            System.out.println(List.get(i).getSections());
             //determine how many sections of this class can be assigned to one period
-            int overlap = (int)(Math.ceil((List.get(i).getSections()/totalPeriods)+.5));
-            int[] assigned = new int[totalPeriods + 1];
+            int overlap = (int)(Math.ceil(((double)List.get(i).getSections()/(double)totalPeriods)));
+            int[] assigned = new int[totalPeriods];
             for (int j = 0; j < List.get(i).getSections(); j++) {
                 //assign a random period, and add it to the array keeping track of total classes in a period
-                int periodAssigned = (int)(Math.random()*(totalPeriods));
-                periodTracker[periodAssigned]++;
-                //make sure there aren't too many of this class in this period, and that is doesn't go over max periods
-                while (periodTracker[periodAssigned] == maxPeriods+1 || assigned[periodAssigned] == overlap) {
-                    periodAssigned = random.nextInt(totalPeriods);
+                int periodAssigned = random.nextInt(totalPeriods);
+                boolean thereIsFree = false;
+                for (int k = 0; k < totalPeriods; k++) {
+                    if (assigned[k] == 0 && k != periodAssigned && periodTracker[k] < maxPeriods) {
+                        thereIsFree = true;
+                    }
                 }
+                //make sure there aren't too many of this class in this period, and that is doesn't go over max periods
+                while (periodTracker[periodAssigned] == maxPeriods+1 || assigned[periodAssigned] == overlap || (assigned[periodAssigned] != 0 && thereIsFree == true)) {
+                    periodAssigned = random.nextInt(totalPeriods);
+                    System.out.println("here");
+                }
+                periodTracker[periodAssigned]++;
                 assigned[periodAssigned]++;
                 //Change the period in the array and change the period for the section
                 for (int k = 0; k < totalSections.size(); k++) {
