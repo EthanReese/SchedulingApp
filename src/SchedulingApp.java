@@ -128,7 +128,7 @@ public class SchedulingApp {
                 studentOutput += students.get(i).getIdentifier() + ":\n";
                 for (int j = 1; j < totalPeriods+1; j++) {
                     try {
-                        studentOutput += students.get(i).getAssigned().get(j).getCourseCode() + ", \n";
+                        studentOutput += students.get(i).getSectionsAssigned().get(j).getCourse().getCourseCode() + ", \n";
                     }catch(NullPointerException e){
                         studentOutput += "Student was unable to be assigned to a course, \n";
                     }
@@ -804,6 +804,7 @@ public class SchedulingApp {
                             }
                         }
                         if(a == null){
+                            //We're fucked
                             continue OUTER;
                         }
                         //Add the student to a section and remove them from the previous course
@@ -826,25 +827,28 @@ public class SchedulingApp {
                 }
             }
             //Add the course to the student's schedule
-            ArrayList<Courses> studentSched = new ArrayList<Courses>(student.getAssigned());
+            ArrayList<Sections> studentSched = new ArrayList<Sections>();
             for (int j = 0; j < totalPeriods; j++) {
                 try{
+
                     studentSched.get(j);
                 }catch (IndexOutOfBoundsException e ){
                     studentSched.add(j, null);
                 }
             }
-            if(studentSched.size() <= sections.get(indexOfBestSection).getPeriod() ){
+            if(studentSched.size() < sections.get(indexOfBestSection).getPeriod() && freePeriods[sections.get(indexOfBestSection).getPeriod()] ){
+                freePeriods[sections.get(indexOfBestSection).getPeriod()] = false;
                 for (int j = studentSched.size(); j < indexOfBestSection; j++) {
                     studentSched.add(j, null);
                 }
-                studentSched.set(sections.get(indexOfBestSection).getPeriod() , sections.get(indexOfBestSection).getCourse());
+                studentSched.set(sections.get(indexOfBestSection).getPeriod() , sections.get(indexOfBestSection));
             }
-            else{
-                studentSched.set(sections.get(indexOfBestSection).getPeriod() , sections.get(indexOfBestSection).getCourse());
+            else if(freePeriods[sections.get(indexOfBestSection).getPeriod()]){
+                freePeriods[sections.get(indexOfBestSection).getPeriod()] = false;
+                studentSched.set(sections.get(indexOfBestSection).getPeriod() , sections.get(indexOfBestSection));
             }
-            student.setAssigned(studentSched);
 
+            student.setSectionsAssigned(studentSched);
             //Add a student to the section's list of studentsB
             sections.get(indexOfBestSection).addStudent(student);
         }

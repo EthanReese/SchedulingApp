@@ -58,6 +58,24 @@ public class Student {
 
     ArrayList<Courses> requested = new ArrayList<Courses>();
     ArrayList<Courses> assigned = new ArrayList<>();
+    ArrayList<Sections> sectionsAssigned = new ArrayList<>();
+
+    public ArrayList<Sections> getSectionsAssigned() {
+        return sectionsAssigned;
+    }
+
+    public void setSectionsAssigned(ArrayList<Sections> sectionsAssigned) {
+        if(sectionsAssigned.size()>=this.sectionsAssigned.size()) {
+            for (int i = this.sectionsAssigned.size(); i < sectionsAssigned.size() + 1; i++) {
+                this.sectionsAssigned.add(null);
+
+            }
+        }
+        for(int x = 0; x < sectionsAssigned.size(); x++){
+            this.sectionsAssigned.set(x, sectionsAssigned.get(x));
+        }
+    }
+
     String identifier;
     public Student(ArrayList<Courses> requested, String identifier){
 
