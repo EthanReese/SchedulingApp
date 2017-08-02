@@ -126,9 +126,9 @@ public class SchedulingApp {
             String studentOutput = "";
             for (int i = 0; i < students.size(); i++) {
                 studentOutput += students.get(i).getIdentifier() + ":\n";
-                for (int j = 1; j < totalPeriods+1; j++) {
+                for (int j = 0; j < totalPeriods; j++) {
                     try {
-                        studentOutput += students.get(i).getSectionsAssigned().get(j).getCourse().getCourseCode() + ", \n";
+                        studentOutput += students.get(i).getAssigned()[j].getCourse().getCourseCode() + ", \n";
                     }catch(NullPointerException e){
                         studentOutput += "Student was unable to be assigned to a course, \n";
                     }
@@ -289,7 +289,9 @@ public class SchedulingApp {
                 request.add(search(courses, forecastTable.get(i).get(j)));
             }
             request.remove(0);
-            students.add(new Student(request, id));
+            Student student = new Student(request, id);
+            students.add(student);
+            student.setTotalPeriods(totalPeriods);
             request.clear();
         }
 
@@ -350,6 +352,25 @@ public class SchedulingApp {
                 ArrayList<String> studentReassigned = new ArrayList<String>(courseList.get(i).getStudentsInCourse());
                 for (int j = 0; j < studentReassigned.size(); j++) {
                     int randCourse = random.nextInt(nonRequired.size());
+                    boolean duplicate = false;
+                    boolean still = false;
+                    while (duplicate == false) {
+                        for (int k = 0; k < students.size(); k++) {
+                            if (students.get(k).getIdentifier() == studentReassigned.get(j)) {
+                                for (int l = 0; l < students.get(k).getRequested().size(); l++) {
+                                    if (students.get(k).getRequested().get(l) == nonRequired.get(randCourse)) {
+                                        System.out.println("This was useful!");
+                                        randCourse = random.nextInt(nonRequired.size());
+                                        still = true;
+                                    }
+                                }
+                            }
+                        }
+                        if (still == false) {
+                            duplicate = true;
+                        }
+                        still = false;
+                    }
                     nonRequired.get(randCourse).addStudent(studentReassigned.get(j));
                 }
             }
@@ -530,7 +551,7 @@ public class SchedulingApp {
                                             freeToSwap = false;
                                         }
                                     }
-                                    if (freeToSwap == true) {
+                                    if (freeToSwap == true && busyTeachers.get(k).getTeaching().size() < (totalPeriods - busyTeachers.get(k).getFreePeriods())) {
                                         //set new teacher for busy teacher's course and add to their teaching
                                         //assign busy teacher to section. Remove previous course from busyTeacher's teaching and replace.
                                         Teacher swapTeacher = nextSection.getTeacher();
@@ -558,32 +579,34 @@ public class SchedulingApp {
                             if (busyTeachers.get(j).getTeaching().get(k).getPeriod() == courseSections.get(i).getPeriod()) {
                                Courses currentCourse = busyTeachers.get(j).getTeaching().get(k).getCourse();
                                 for (int l = 0; l < teachers.size(); l++) {
-                                    for (int m = 0; m < teachers.get(l).getQualified().size(); m++) {
-                                        if (teachers.get(l).getQualified().get(m) == currentCourse) {
-                                            boolean canTeach = true;
-                                            for (int n = 0; n < teachers.get(l).getTeaching().size(); n++) {
-                                                if(teachers.get(l).getTeaching().get(n).getPeriod() == courseSections.get(i).getPeriod()) {
-                                                    canTeach = false;
-                                                }
-                                            }
-                                            if (canTeach == true) {
-                                                //set new teacher for busy teacher's course and add to their teaching
-                                                //assign busy teacher to section. Remove previous course from busyTeacher's teaching and replace.
-                                                Sections teacherSection = busyTeachers.get(j).getTeaching().get(k);
-                                                for (int n = 0; n < totalSections.size(); n++) {
-                                                    if (totalSections.get(n) ==  busyTeachers.get(j).getTeaching().get(k)) {
-                                                        totalSections.get(n).setTheTeacher(teachers.get(l));
-                                                    }
-                                                    if(totalSections.get(n) == courseSections.get(i)) {
-                                                        totalSections.get(n).setTheTeacher(busyTeachers.get(j));
+                                    if(teachers.get(l) != busyTeachers.get(j)) {
+                                        for (int m = 0; m < teachers.get(l).getQualified().size(); m++) {
+                                            if (teachers.get(l).getQualified().get(m) == currentCourse) {
+                                                boolean canTeach = true;
+                                                for (int n = 0; n < teachers.get(l).getTeaching().size(); n++) {
+                                                    if (teachers.get(l).getTeaching().get(n).getPeriod() == courseSections.get(i).getPeriod()) {
+                                                        canTeach = false;
                                                     }
                                                 }
-                                                teacherSection.setTheTeacher(teachers.get(l));
-                                                courseSections.get(i).setTheTeacher(busyTeachers.get(j));
-                                                busyTeachers.get(j).getTeaching().remove(teacherSection);
-                                                busyTeachers.get(j).addTeaching(courseSections.get(i));
-                                                teachers.get(l).addTeaching(teacherSection);
-                                                break;
+                                                if (canTeach == true && teachers.get(l).getTeaching().size() < (totalPeriods-teachers.get(l).getFreePeriods())) {
+                                                    //set new teacher for busy teacher's course and add to their teaching
+                                                    //assign busy teacher to section. Remove previous course from busyTeacher's teaching and replace.
+                                                    Sections teacherSection = busyTeachers.get(j).getTeaching().get(k);
+                                                    for (int n = 0; n < totalSections.size(); n++) {
+                                                        if (totalSections.get(n) == busyTeachers.get(j).getTeaching().get(k)) {
+                                                            totalSections.get(n).setTheTeacher(teachers.get(l));
+                                                        }
+                                                        if (totalSections.get(n) == courseSections.get(i)) {
+                                                            totalSections.get(n).setTheTeacher(busyTeachers.get(j));
+                                                        }
+                                                    }
+                                                    teacherSection.setTheTeacher(teachers.get(l));
+                                                    courseSections.get(i).setTheTeacher(busyTeachers.get(j));
+                                                    busyTeachers.get(j).getTeaching().remove(teacherSection);
+                                                    busyTeachers.get(j).addTeaching(courseSections.get(i));
+                                                    teachers.get(l).addTeaching(teacherSection);
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
@@ -641,77 +664,98 @@ public class SchedulingApp {
             Student student = searchStudent(course.getStudentsInCourse().get(i));
             for (int j = 0; j < totalPeriods; j++) {
                 //Make sure that I don't get an index out of bounds exception, but check if something has already been put into the arraylist
-                Boolean test = false;
+                Boolean test = true;
                 try{
-                    if(!student.getSectionsAssigned().get(j).equals(null)){
-                        test = true;
+                    if(student.getAssigned()[j].equals(null)){
+                        test = false;
                     }
                 }catch(IndexOutOfBoundsException e){
                     test = false;
                 }catch(NullPointerException e){
                     test = false;
                 }
-                //If the student doesn't already have a class assigned during that period, then it will be true
+                //If the student doesn't already have a class assigned during that period, then it will be false
                 if(!test){
-                    freePeriods[student.getSectionsAssigned().get(j).getPeriod()] = true;
+                    freePeriods[j] = true;
                 }
                 //Otherwise they are busy so they aren't free
                 else{
-                    freePeriods[student.getSectionsAssigned().get(j).getPeriod()] = false;
+                    freePeriods[j] = false;
                 }
             }
             //Go through and knock out any of the periods that the student isn't available
             //System.out.println(sections.size());
-            for (int j = 0; j < sections.size(); j++) {
+            for (int j = sections.size()-1; j >= 0; j--) {
                 //Check whether or not the student is free during that period, and if they aren't knock it off of the list
                 if(!freePeriods[sections.get(j).getPeriod()]){
                     sections.remove(j);
                 }
             }
+            //  Squidward
+
+            //    ----
+            //   --|-|-
+            //    ----
+            //      |
+            //   ---|----
+            //      |
+            //     / \
+            //    /   \
+
             //First check to make sure the student is free for some sections and if they aren't try to reassign another class
             if(sections.size() == 0){
+                System.out.println("No Sections");
                 //If the course is required, first try to assign it to a different period
                 if(course.getRequried()){
                     //If there aren't any other similar periods free, then try to move a class that is in one of those periods to a different section
-                    ArrayList<Courses> schedule = student.getAssigned();
+                    Sections[] schedule = student.getAssigned();
                     for (int j = 0; j < masterSections.size(); j++) {
-                        Courses conflict = schedule.get(masterSections.get(j).getPeriod());
-                        for (int k = 0; k < conflict.getSectionsOccuring().size(); k++) {
+                        Sections conflict = schedule[masterSections.get(j).getPeriod()];
+                        for (int k = 0; k < conflict.getCourse().getSectionsOccuring().size(); k++) {
                             //noinspection Duplicates
-                            if(freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]){
+                            if(freePeriods[conflict.getCourse().getSectionsOccuring().get(k).getPeriod()]){
                                 //Change the period to be at one of the new free ones and remove the student from the previous period and add them into the new section
-                                student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).removeStudent(student);
-                                student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod(), schedule.get(masterSections.get(j).getPeriod()));
-                                student.getAssigned().get(masterSections.get(j).getPeriod() ).getSectionsOccuring().get(k).addStudent(student);
+                                conflict.getCourse().getSectionsOccuring().get(k).removeStudent(student);
+                                student.changePeriod(conflict.getCourse().getSectionsOccuring().get(k).getPeriod(), conflict);
+                                conflict.getCourse().getSectionsOccuring().get(k).addStudent(student);
                                 //Change the original period to be back to null
-                                student.changePeriod(masterSections.get(j).getPeriod() , masterSections.get(j).getCourse());
+                                student.changePeriod(masterSections.get(j).getPeriod() , masterSections.get(j));
                                 course.getSectionsOccuring().get(j).addStudent(student);
-                                freePeriods[conflict.getSectionsOccuring().get(k).getPeriod() ] = false;
+                                freePeriods[conflict.getCourse().getSectionsOccuring().get(k).getPeriod() ] = false;
+                                System.out.println("Swap A:");
+                                for (int l = 0; l < student.getAssigned().length; l++) {
+                                    try {
+                                        System.out.println(student.getAssigned()[l].getCourse().getCourseCode());
+                                    } catch(Exception e) {
+                                        System.out.println("Null");
+                                    }
+                                }
                                 continue OUTER;
                             }
                         }
                     }
                     //If it doesn't work out, then it needs to find a way to add a note into the student's final schedule that there was no possible way to fit both.
                     //Maybe try out changing around an elective in the schedule
-                    for (int j = 0; j < schedule.size(); j++) {
+                    for (int j = 0; j < schedule.length; j++) {
                         //If they have an elective in their schedule
-                        if(!schedule.get(j).getRequried()){
-                            //Loop through the possible sections of the course that isn't assigned
-                            for (int k = 0; k < masterSections.size(); k++) {
+                        try {
+                            if (!schedule[j].getCourse().getRequried()) {
+                                //Loop through the possible sections of the course that isn't assigned
+                                for (int k = 0; k < masterSections.size(); k++) {
                                     //Find a course that is available in one of the same periods as the students
                                     for (int l = 0; l < courses.size(); l++) {
                                         //As long as the course isn't required it can be assigned
-                                        if(!courses.get(l).getRequried()){
+                                        if (!courses.get(l).getRequried()) {
                                             for (int m = 0; m < courses.get(l).getSectionsOccuring().size(); m++) {
                                                 //If the student is free in that period, add them to that class and remove them from their previous class
-                                                if(freePeriods[courses.get(l).getSectionsOccuring().get(m).getPeriod()] && courses.get(l).getSectionsOccuring().get(m).getPeriod() != masterSections.get(k).getPeriod()){
-                                                    Courses oldElective = schedule.get(j);
+                                                if (freePeriods[courses.get(l).getSectionsOccuring().get(m).getPeriod()] && courses.get(l).getSectionsOccuring().get(m).getPeriod() != masterSections.get(k).getPeriod()) {
+                                                    Courses oldElective = schedule[j].getCourse();
                                                     Sections oldSection = masterSections.get(k);
                                                     //Loop through to figure out what section the student was originally in
                                                     CENTER:
-                                                    for (int n = 0; n < schedule.get(j).getSectionsOccuring().size(); n++) {
-                                                        for (int o = 0; o < schedule.get(j).getSectionsOccuring().get(n).getStudents().size(); o++) {
-                                                            if (schedule.get(j).getSectionsOccuring().get(n).getStudents().get(o) == student) {
+                                                    for (int n = 0; n < schedule[j].getCourse().getSectionsOccuring().size(); n++) {
+                                                        for (int o = 0; o < schedule[j].getCourse().getSectionsOccuring().get(n).getStudents().size(); o++) {
+                                                            if (schedule[j].getCourse().getSectionsOccuring().get(n).getStudents().get(o) == student) {
                                                                 oldSection = oldElective.getSectionsOccuring().get(n);
                                                                 break CENTER;
                                                             }
@@ -724,21 +768,28 @@ public class SchedulingApp {
                                                     //Remove the student from the original sections
                                                     oldSection.removeStudent(student);
                                                     //Remove the previous unrequired from the student's schedule
-                                                    student.removePeriod(oldSection.getPeriod() );
+                                                    student.removePeriod(oldSection.getPeriod());
                                                     //Remove the student from the previous unrequired course
                                                     oldElective.removeStudentFromCourse(student.getIdentifier());
 
                                                     //Add the student to the new course
                                                     newElective.addStudent(student.getIdentifier());
                                                     //Add the required course to the student's schedule
-                                                    student.setClass(reqSection.getPeriod(), required);
+                                                    student.setClass(reqSection.getPeriod(), reqSection);
                                                     //Add the student to the new required section
                                                     reqSection.addStudent(student);
                                                     //Add the new unrequired to the student's schedule
-                                                    student.setClass(newSection.getPeriod(), newElective);
+                                                    student.setClass(newSection.getPeriod(), newSection);
                                                     //Add the student to the new unrequired section
                                                     newSection.addStudent(student);
-
+                                                    System.out.println("Swap B:");
+                                                    for (int x = 0; x < student.getAssigned().length; x++) {
+                                                        try {
+                                                            System.out.println(student.getAssigned()[x].getCourse().getCourseCode());
+                                                        } catch (Exception e) {
+                                                            System.out.println("Null");
+                                                        }
+                                                    }
 
                                                     continue OUTER;
                                                 }
@@ -747,34 +798,39 @@ public class SchedulingApp {
                                     }
                                 }
                             }
+                        } catch(NullPointerException n) {
+                            System.out.println("NULL");
                         }
+                        }
+                        System.out.println("Didn't Work");
                     continue OUTER;
                 }
                 //However if the course isn't required
                 else{
                     //If that doesn't work try to move the student to free sections of the other courses they are taking
-                    ArrayList<Courses> schedule = student.getAssigned();
-                    for (int a = 0; a < totalPeriods; a++) {
-                        try {
-                            schedule.get(a);
-                        } catch(IndexOutOfBoundsException e) {
-                            schedule.add(null);
-                        }
-                    }
+                    Sections[] schedule = student.getAssigned();
                     for (int j = 0; j < masterSections.size(); j++) {
-                        Courses conflict = schedule.get(masterSections.get(j).getPeriod() );
-                            for (int k = 0; k < conflict.getSectionsOccuring().size(); k++) {
+                        Sections conflict = schedule[masterSections.get(j).getPeriod()];
+                            for (int k = 0; k < conflict.getCourse().getSectionsOccuring().size(); k++) {
                                 //If a student has a scheduling conflict
                                 //noinspection duplicates
-                                if (freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()]) {
+                                if (freePeriods[conflict.getCourse().getSectionsOccuring().get(k).getPeriod()]) {
                                     //get the assigned classes, get the period of the j item of masterSections
-                                    student.getAssigned().get(masterSections.get(j).getPeriod()).getSectionsOccuring().get(k).removeStudent(student);
-                                    student.changePeriod(conflict.getSectionsOccuring().get(k).getPeriod(), schedule.get(masterSections.get(j).getPeriod()));
-                                    student.getAssigned().get(conflict.getSectionsOccuring().get(k).getPeriod()).getSectionsOccuring().get(k).addStudent(student);
+                                    student.getAssigned()[masterSections.get(j).getPeriod()].getCourse().getSectionsOccuring().get(k).removeStudent(student);
+                                    student.changePeriod(conflict.getCourse().getSectionsOccuring().get(k).getPeriod(), schedule[masterSections.get(j).getPeriod()]);
+                                    student.getAssigned()[conflict.getCourse().getSectionsOccuring().get(k).getPeriod()].getCourse().getSectionsOccuring().get(k).addStudent(student);
                                     //Change the original period to be back to null
-                                    student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j).getCourse());
+                                    student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j));
                                     course.getSectionsOccuring().get(j).addStudent(student);
-                                    freePeriods[conflict.getSectionsOccuring().get(k).getPeriod()] = false;
+                                    freePeriods[conflict.getCourse().getSectionsOccuring().get(k).getPeriod()] = false;
+                                    System.out.println("Swap C:");
+                                    for (int l = 0; l < student.getAssigned().length; l++) {
+                                        try {
+                                            System.out.println(student.getAssigned()[l].getCourse().getCourseCode());
+                                        } catch(Exception e) {
+                                            System.out.println("Null");
+                                        }
+                                    }
                                     continue OUTER;
                                 }
                             }
@@ -785,18 +841,22 @@ public class SchedulingApp {
                         int mini = Integer.MAX_VALUE;
                         Courses a = null;
                         Sections b = null;
-                        for (int k = 0; k < courses.size(); k++) {
+                        for (int k = 0; k < totalSections.size(); k++) {
                             //First check to make sure the student isn't already taking the other course
-                            if(student.getAssigned().contains(courses.get(k))) {
-                                //If the course is the farthest away from needing another section so far then it needs to save it
-                                if ((courses.get(k).getStudentsInCourse().size() % MAX) < mini) {
-                                    //Then I need to check to make sure that the student actually has a free period that coincides with when the class is offered
-                                    for (int l = 0; l < courses.get(k).getSectionsOccuring().size(); l++) {
-                                        //If the student is free in a period when the course is offered then save that section as the best section to add the student to
-                                        if (freePeriods[courses.get(k).getSectionsOccuring().get(l).getPeriod()]) {
-                                            mini = courses.get(k).getSections();
-                                            a = courses.get(k);
-                                            b = courses.get(k).getSectionsOccuring().get(l);
+                            for (int j = 0; j < totalPeriods; j++) {
+                                if(student.getAssigned()[j] != null) {
+                                    if (student.getAssigned()[j].getCourse() == totalSections.get(k).getCourse()) {
+                                        //If the course is the farthest away from needing another section so far then it needs to save it
+                                        if ((totalSections.get(k).getCourse().getStudentsInCourse().size() % MAX) < mini) {
+                                            //Then I need to check to make sure that the student actually has a free period that coincides with when the class is offered
+                                            for (int l = 0; l < totalSections.get(k).getCourse().getSectionsOccuring().size(); l++) {
+                                                //If the student is free in a period when the course is offered then save that section as the best section to add the student to
+                                                if (freePeriods[totalSections.get(k).getCourse().getSectionsOccuring().get(l).getPeriod()]) {
+                                                    mini = totalSections.get(k).getCourse().getSections();
+                                                    a = totalSections.get(k).getCourse();
+                                                    b = totalSections.get(k);
+                                                }
+                                            }
                                         }
                                     }
 
@@ -804,14 +864,22 @@ public class SchedulingApp {
                             }
                         }
                         if(a == null){
-                            //We're fucked
+                            System.out.print("Couldn't really reassign...");
                             continue OUTER;
                         }
                         //Add the student to a section and remove them from the previous course
                         course.removeStudentFromCourse(student.identifier);
                         a.addStudent(student.identifier);
                         b.addStudent(student);
-                        student.changePeriod(b.getPeriod() , b.getCourse());
+                        student.changePeriod(b.getPeriod() , b);
+                    System.out.println("Swap D:");
+                    for (int l = 0; l < student.getAssigned().length; l++) {
+                        try {
+                            System.out.println(student.getAssigned()[l].getCourse().getCourseCode());
+                        } catch(Exception e) {
+                            System.out.println("Null");
+                        }
+                    }
                         continue OUTER;
                     }
                 }
@@ -826,29 +894,10 @@ public class SchedulingApp {
                     indexOfBestSection = j;
                 }
             }
+            //ADD MORE OF WHAT ETHAN HAD HERE???
             //Add the course to the student's schedule
-            ArrayList<Sections> studentSched = new ArrayList<Sections>();
-            for (int j = 0; j < totalPeriods; j++) {
-                try{
-
-                    studentSched.get(j);
-                }catch (IndexOutOfBoundsException e ){
-                    studentSched.add(j, null);
-                }
-            }
-            if(studentSched.size() < sections.get(indexOfBestSection).getPeriod() && freePeriods[sections.get(indexOfBestSection).getPeriod()] ){
-                freePeriods[sections.get(indexOfBestSection).getPeriod()] = false;
-                for (int j = studentSched.size(); j < indexOfBestSection; j++) {
-                    studentSched.add(j, null);
-                }
-                studentSched.set(sections.get(indexOfBestSection).getPeriod() , sections.get(indexOfBestSection));
-            }
-            else if(freePeriods[sections.get(indexOfBestSection).getPeriod()]){
-                freePeriods[sections.get(indexOfBestSection).getPeriod()] = false;
-                studentSched.set(sections.get(indexOfBestSection).getPeriod() , sections.get(indexOfBestSection));
-            }
-
-            student.setSectionsAssigned(studentSched);
+            student.addAssigned(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection));
+            freePeriods[sections.get(indexOfBestSection).getPeriod()] = false;
             //Add a student to the section's list of studentsB
             sections.get(indexOfBestSection).addStudent(student);
         }
@@ -862,9 +911,14 @@ public class SchedulingApp {
         for (int i = 0; i < testStudents.size(); i++) {
             Double number = 0.0;
             for (int j = 0; j < testStudents.get(i).getRequested().size(); j++) {
-                for (int k = 0; k < testStudents.get(i).getAssigned().size(); k++) {
-                    if(testStudents.get(i).getAssigned().get(k) == testStudents.get(i).getRequested().get(j)){
-                        ++number;
+                for (int k = 0; k < testStudents.get(i).getAssigned().length; k++) {
+                    if (testStudents.get(i).getAssigned()[k] == null) {
+
+                    }
+                    else {
+                        if (testStudents.get(i).getAssigned()[k].getCourse() == testStudents.get(i).getRequested().get(j)) {
+                            ++number;
+                        }
                     }
                 }
             }
