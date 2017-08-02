@@ -38,6 +38,7 @@ public class SchedulingApp {
     ArrayList<Teacher> teachers = new ArrayList<Teacher>();
     ArrayList<Teacher> addedTeachers = new ArrayList<Teacher>();
     ArrayList<Student> students = new ArrayList<Student>();
+    ArrayList<ArrayList<Sections>> schedule = new ArrayList<>();
     int MIN = 15;
     int MAX = 40;
     int totalPeriods = 8;
@@ -88,6 +89,8 @@ public class SchedulingApp {
         for (int i = 0; i < courses.size(); i++) {
             assignStudentsToSection(courses.get(i));
         }
+        makeSchedule();
+        correctScheduleErrors();
 
         PrintWriter pw;
         try {
@@ -128,11 +131,12 @@ public class SchedulingApp {
                 studentOutput += students.get(i).getIdentifier() + ":\n";
                 for (int j = 0; j < totalPeriods; j++) {
                     try {
-                        studentOutput += students.get(i).getAssigned()[j].getCourse().getCourseCode() + ", \n";
+                        studentOutput += students.get(i).getAssigned()[j].getCourse().getCourseCode() +"(" + students.get(i).getAssigned()[j].getTeacher().getIdentifier() + ")" + ",";
                     }catch(NullPointerException e){
-                        studentOutput += "Free Period, \n";
+                        studentOutput += "Free(000),";
                     }
                 }
+                studentOutput += "\n";
             }
             ow.write(studentOutput);
             ow.close();
@@ -194,14 +198,15 @@ public class SchedulingApp {
         try{
             xw = new PrintWriter(new FileWriter(new File("superSectionOutput.txt")));
             String superSectionOutput = "";
-            for(int i = 0; i < teachers.size(); i++){
-                for(int j = 0; j < teachers.get(i).getTeaching().size(); j++){
-                    superSectionOutput += teachers.get(i).getTeaching().get(j).getCourse().getCourseCode() + "," + (teachers.get(i).getTeaching().get(j).period+1) + "," + teachers.get(i).getIdentifier() + ",";
-                    for(int k = 0; k < teachers.get(i).getTeaching().get(j).getStudents().size(); k++){
-                        superSectionOutput += teachers.get(i).getTeaching().get(j).getStudents().get(k).getIdentifier() +",";
+            for(int i = 0; i < totalPeriods; i++){
+                for(int j = 0; j < schedule.get(i).size(); j++){
+                    superSectionOutput += schedule.get(i).get(j).getCourse().getCourseCode() + "," + (schedule.get(i).get(j).getTeacher().getIdentifier()) + "," + (schedule.get(i).get(j).getPeriod()+1);
+                    for(int k = 0; k < schedule.get(i).get(j).getStudents().size(); k++){
+                        superSectionOutput += "," + schedule.get(i).get(j).getStudents().get(k).getIdentifier();
                     }
                     superSectionOutput += "\n";
                 }
+                superSectionOutput += "\n";
             }
             xw.write(superSectionOutput);
             xw.close();
@@ -1059,6 +1064,36 @@ public class SchedulingApp {
             }
         }
         studentReassign(student);
+    }
+
+    public void makeSchedule(){
+        int period;
+        for(int i = 0; i < totalSections.size(); i++){
+            schedule.add(new ArrayList<Sections>());
+        }
+        for (int i = 0; i < totalSections.size(); i++){
+           period = totalSections.get(i).getPeriod();
+           schedule.get(period).add(totalSections.get(i));
+        }
+    }
+    public void correctScheduleErrors(){
+        boolean free = true;
+        for(int i = 0; i < students.size(); i++) {
+            for (int j = 0; j < totalPeriods; j++) {
+                for (int k = 0; k < schedule.get(j).size(); k++) {
+                    for (int l = 0; l < schedule.get(j).get(k).getStudents().size(); l++) {
+                        if (schedule.get(j).get(k).getStudents().get(l).getIdentifier().equals(students.get(i).getIdentifier()) && free) {
+                            free = false;
+
+                        } else if (schedule.get(j).get(k).getStudents().get(l).getIdentifier().equals(students.get(i).getIdentifier()) && !free) {
+                            schedule.get(j).get(k).removeStudent(students.get(i));
+                        }
+
+                    }
+                    break;
+                }
+            }
+        }
     }
 
 }
