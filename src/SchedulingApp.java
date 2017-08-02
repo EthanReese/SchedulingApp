@@ -654,6 +654,19 @@ public class SchedulingApp {
     public void assignStudentsToSection(Courses course){
         //Loop through all the students in a course
         OUTER:
+        //       Buttons
+        //
+        //      |||||||||
+        //     / *  _  * \
+        //     \_________/
+        //      ___| |____
+        //     // |  . | \\
+        //    ||  |  . |  ||
+        //    ||  |  . |  ||
+        //        / /\ \
+        //       / /  \ \
+        //      / /    \ \
+
         for (int i = 0; i < course.getStudentsInCourse().size(); i++) {
             //Find the arraylist of sections that are available to the student
 
@@ -736,6 +749,43 @@ public class SchedulingApp {
                             }
                         }
                     }
+                    for (int j = 0; j < masterSections.size(); j++) {
+                        Sections conflict = schedule[masterSections.get(j).getPeriod()];
+                        if(masterSections.get(j).getStudents().size() < MAX && !conflict.getCourse().getRequried()) {
+                                //Change the period to be at one of the new free ones and remove the student from the previous period and add them into the new section
+                                conflict.removeStudent(student);
+                                //Change the original period to be back to null
+                                student.changePeriod(masterSections.get(j).getPeriod(), masterSections.get(j));
+                                masterSections.get(j).addStudent(student);
+                                System.out.println("Swap E:");
+                                System.out.println(course.getCourseCode());
+                                System.out.println(conflict.getCourse().getCourseCode());
+                                studentReassign(student);
+                            for (int x = 0; x < totalPeriods; x++) {
+                                //Make sure that I don't get an index out of bounds exception, but check if something has already been put into the arraylist
+                                Boolean test = true;
+                                try{
+                                    if(student.getAssigned()[x].equals(null)){
+                                        test = false;
+                                    }
+                                }catch(IndexOutOfBoundsException e){
+                                    test = false;
+                                }catch(NullPointerException e){
+                                    test = false;
+                                }
+                                //If the student doesn't already have a class assigned during that period, then it will be false
+                                if(!test){
+                                    freePeriods[x] = true;
+                                }
+                                //Otherwise they are busy so they aren't free
+                                else{
+                                    freePeriods[x] = false;
+                                }
+                            }
+                                continue OUTER;
+                        }
+                    }
+
                     // Dancing Ethan
                     //     _____
                     //    / O O \
@@ -960,6 +1010,55 @@ public class SchedulingApp {
         score = (a + b)/2;
 
         return score;
+    }
+
+    public void studentReassign(Student student) {
+        ArrayList<Sections> freeSections = new ArrayList<Sections>();
+        for (int i = 0; i < totalSections.size(); i++) {
+            boolean isAssigned = false;
+            for (int j = 0; j < student.getAssigned().length; j++) {
+                if(student.getAssigned()[j] != null) {
+                    if (student.getAssigned()[j].getCourse() == totalSections.get(i).getCourse()) {
+                        isAssigned = true;
+                    }
+                }
+            }
+            if(totalSections.get(i).getCourse().getRequried() == true && student.getAssigned()[totalSections.get(i).getPeriod()] == null
+                     && isAssigned == false) {
+                freeSections.add(totalSections.get(i));
+            }
+        }
+        if (freeSections.size() != 0) {
+            int newSections = random.nextInt(freeSections.size());
+            student.getAssigned()[freeSections.get(newSections).getPeriod()] = freeSections.get(newSections);
+            freeSections.get(newSections).addStudent(student);
+            return;
+        }
+    }
+
+    public void reassignRequired(ArrayList<Student> students, Courses course) {
+        for (int i = 0; i < students.size(); i++) {
+            for (int j = 0; j < course.getSectionsOccuring().size(); j++) {
+                if(!students.get(i).getAssigned()[course.getSectionsOccuring().get(j).getPeriod()].getCourse().getRequried()) {
+                    reassignElective(students.get(i), students.get(i).getAssigned()[course.getSectionsOccuring().get(j).getPeriod()].getCourse());
+                    students.get(i).getAssigned()[course.getSectionsOccuring().get(j).getPeriod()] = course.getSectionsOccuring().get(j);
+                    course.getSectionsOccuring().get(j).addStudent(students.get(i));
+                    break;
+                }
+            }
+        }
+        System.out.println("Reassign Didn't Work");
+    }
+
+    public void reassignElective(Student student, Courses course) {
+        for (int i = 0; i < course.getSectionsOccuring().size(); i++) {
+            if(student.getAssigned()[course.getSectionsOccuring().get(i).getPeriod()] == null) {
+                student.getAssigned()[course.getSectionsOccuring().get(i).getPeriod()] = course.getSectionsOccuring().get(i);
+                course.getSectionsOccuring().get(i).addStudent(student);
+                return;
+            }
+        }
+        studentReassign(student);
     }
 
 }
