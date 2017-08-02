@@ -16,19 +16,13 @@ public class Student {
         }
     }
 
-    public ArrayList<Courses> getAssigned() {
+    public Sections[] getAssigned() {
         return assigned;
     }
 
-    public void setAssigned(ArrayList<Courses> assigned) {
-        if(assigned.size()>=this.assigned.size()) {
-            for (int i = this.assigned.size(); i < assigned.size() + 1; i++) {
-                this.assigned.add(null);
-
-            }
-        }
-        for(int x = 0; x < assigned.size(); x++){
-            this.assigned.set(x, assigned.get(x));
+    public void setAssigned(Sections[] assigned) {
+        for(int x = 0; x < assigned.length; x++){
+            this.assigned[x] = assigned[x];
         }
     }
 
@@ -40,42 +34,26 @@ public class Student {
         this.identifier = identifier;
     }
 
-    public void changePeriod(int index, Courses course){
-        for (int i = 0; i < this.assigned.size(); i++) {
-            if(this.assigned.get(i) == course){
-                this.assigned.remove(i);
+    public void changePeriod(int index, Sections course){
+        for (int i = 0; i < this.assigned.length; i++) {
+            if(this.assigned[i] == course){
+                this.assigned[i] = null;
             }
         }
-        if(this.assigned.size() >= index) {
-        }
-        else{
-            for (int i = this.assigned.size(); i < index + 1; i++) {
-                this.assigned.add(null);
-            }
-        }
-        this.assigned.set(index, course);
+        this.assigned[index] = course;
     }
 
+    public void addAssigned(int index, Sections newSections) {
+        assigned[index] = newSections;
+    }
+
+    public void setTotalPeriods(int period) {
+        periods = period;
+    }
+
+    int periods = 8;
     ArrayList<Courses> requested = new ArrayList<Courses>();
-    ArrayList<Courses> assigned = new ArrayList<>();
-    ArrayList<Sections> sectionsAssigned = new ArrayList<>();
-
-    public ArrayList<Sections> getSectionsAssigned() {
-        return sectionsAssigned;
-    }
-
-    public void setSectionsAssigned(ArrayList<Sections> sectionsAssigned) {
-        if(sectionsAssigned.size()>=this.sectionsAssigned.size()) {
-            for (int i = this.sectionsAssigned.size(); i < sectionsAssigned.size() + 1; i++) {
-                this.sectionsAssigned.add(null);
-
-            }
-        }
-        for(int x = 0; x < sectionsAssigned.size(); x++){
-            this.sectionsAssigned.set(x, sectionsAssigned.get(x));
-        }
-    }
-
+    Sections[] assigned = new Sections[periods];
     String identifier;
     public Student(ArrayList<Courses> requested, String identifier){
 
@@ -86,12 +64,12 @@ public class Student {
 
 
     }
-    public void setClass(int period, Courses course){
-        this.assigned.set(period, course);
+    public void setClass(int period, Sections course){
+        this.assigned[period] = course;
     }
 
 
     public void removePeriod(int period){
-        this.assigned.set(period, null);
+        this.assigned[period] =  null;
     }
 }

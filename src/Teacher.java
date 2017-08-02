@@ -44,7 +44,7 @@ public class Teacher {
         return freePeriods;
     }
 
-    int freePeriods = 0;
+    int freePeriods = 1;
     ArrayList<Courses> qualified = new ArrayList<Courses>();
     ArrayList<Sections> teaching = new ArrayList<Sections>();
     String identifier;
