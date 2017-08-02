@@ -1105,6 +1105,11 @@ public class SchedulingApp {
                 }
                 for(int j = 0; j < offenders.size(); j++){
                     totalSections.get(i).removeStudent(offenders.get(j));
+                    for(int k = 0; k < totalPeriods; k++){
+                        if(offenders.get(j).getAssigned()[k] == totalSections.get(i)){
+                            offenders.get(j).getAssigned()[k] = null;
+                        }
+                    }
                 }
             }
             offenders.clear();
