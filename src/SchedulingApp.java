@@ -1096,4 +1096,19 @@ public class SchedulingApp {
         }
     }
 
+    public void overflowStudents(){
+        ArrayList<Student> offenders = new ArrayList<Student>();
+        for (int i = 0; i < totalSections.size(); i++){
+            if(totalSections.get(i).getStudents().size() > MAX){
+                for(int j = MAX; j < totalSections.get(i).getStudents().size(); j++){
+                    offenders.add(totalSections.get(i).getStudents().get(j));
+                }
+                for(int j = 0; j < offenders.size(); j++){
+                    totalSections.get(i).removeStudent(offenders.get(j));
+                }
+            }
+            offenders.clear();
+        }
+    }
+
 }
