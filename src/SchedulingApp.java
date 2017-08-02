@@ -130,7 +130,7 @@ public class SchedulingApp {
                     try {
                         studentOutput += students.get(i).getAssigned()[j].getCourse().getCourseCode() + ", \n";
                     }catch(NullPointerException e){
-                        studentOutput += "Student was unable to be assigned to a course, \n";
+                        studentOutput += "Free Period, \n";
                     }
                 }
             }
@@ -413,16 +413,20 @@ public class SchedulingApp {
 
     //for each course
     public void addPeriod(ArrayList<Courses> List) {
+        ArrayList<Courses> List2 = new ArrayList<Courses>();
+        for (int i = List.size()-1; i >= 0; i--) {
+            List2.add(List.get(i));
+        }
         //keep track of max number of courses in a period
         int[] periodTracker = new int[totalPeriods];
         int maxPeriods = (int)(Math.ceil(((double)totalSections.size()/(double)totalPeriods)));
         //get antiMode courses
         //Loop through the list of classes at the antimode that need to be assigned.
-        for (int i = 0; i < List.size(); i++) {
+        for (int i = 0; i < List2.size(); i++) {
             //determine how many sections of this class can be assigned to one period
-            int overlap = (int)(Math.ceil(((double)List.get(i).getSections()/(double)totalPeriods)));
+            int overlap = (int)(Math.ceil(((double)List2.get(i).getSections()/(double)totalPeriods)));
             int[] assigned = new int[totalPeriods];
-            for (int j = 0; j < List.get(i).getSections(); j++) {
+            for (int j = 0; j < List2.get(i).getSections(); j++) {
                 //assign a random period, and add it to the array keeping track of total classes in a period
                 int periodAssigned = random.nextInt(totalPeriods);
                 boolean thereIsFree = false;
@@ -436,7 +440,7 @@ public class SchedulingApp {
                     if (periodTracker[k] == maxPeriods) {
                         takeoff++;
                     }
-                    overlap = (int) (Math.ceil(((double) List.get(i).getSections() / (double) (totalPeriods - takeoff))));
+                    overlap = (int) (Math.ceil(((double) List2.get(i).getSections() / (double) (totalPeriods - takeoff))));
                 }
                 //make sure there aren't too many of this class in this period, and that is doesn't go over max periods
                 while (periodTracker[periodAssigned] == maxPeriods || assigned[periodAssigned] == overlap || (assigned[periodAssigned] != 0 && thereIsFree == true)) {
@@ -446,11 +450,11 @@ public class SchedulingApp {
                 assigned[periodAssigned]++;
                 //Change the period in the array and change the period for the section
                 for (int k = 0; k < totalSections.size(); k++) {
-                    if (totalSections.get(k) == List.get(i).getSectionsOccuring().get(j)) {
+                    if (totalSections.get(k) == List2.get(i).getSectionsOccuring().get(j)) {
                         totalSections.get(k).setThePeriod(periodAssigned);
                     }
                 }
-                List.get(i).getSectionsOccuring().get(j).setThePeriod(periodAssigned);
+                List2.get(i).getSectionsOccuring().get(j).setThePeriod(periodAssigned);
             }
         }
     }
@@ -713,7 +717,7 @@ public class SchedulingApp {
                         Sections conflict = schedule[masterSections.get(j).getPeriod()];
                         for (int k = 0; k < conflict.getCourse().getSectionsOccuring().size(); k++) {
                             //noinspection Duplicates
-                            if(freePeriods[conflict.getCourse().getSectionsOccuring().get(k).getPeriod()]){
+                            if(freePeriods[conflict.getCourse().getSectionsOccuring().get(k).getPeriod()] && conflict.getCourse().getSectionsOccuring().get(k).getStudents().size() < MAX){
                                 //Change the period to be at one of the new free ones and remove the student from the previous period and add them into the new section
                                 conflict.getCourse().getSectionsOccuring().get(k).removeStudent(student);
                                 student.changePeriod(conflict.getCourse().getSectionsOccuring().get(k).getPeriod(), conflict);
@@ -734,6 +738,17 @@ public class SchedulingApp {
                             }
                         }
                     }
+                    //    EThan
+                    //    _____
+                    //   / O O \
+                    //   \     /
+                    //    ----- /
+                    //      || /
+                    //   \  ||/
+                    //    \/||
+                    //     //\\
+                    //    //  \\
+                    //   //    \\
                     //If it doesn't work out, then it needs to find a way to add a note into the student's final schedule that there was no possible way to fit both.
                     //Maybe try out changing around an elective in the schedule
                     for (int j = 0; j < schedule.length; j++) {
@@ -748,7 +763,8 @@ public class SchedulingApp {
                                         if (!courses.get(l).getRequried()) {
                                             for (int m = 0; m < courses.get(l).getSectionsOccuring().size(); m++) {
                                                 //If the student is free in that period, add them to that class and remove them from their previous class
-                                                if (freePeriods[courses.get(l).getSectionsOccuring().get(m).getPeriod()] && courses.get(l).getSectionsOccuring().get(m).getPeriod() != masterSections.get(k).getPeriod()) {
+                                                if (freePeriods[courses.get(l).getSectionsOccuring().get(m).getPeriod()] && courses.get(l).getSectionsOccuring().get(m).getPeriod() != masterSections.get(k).getPeriod()
+                                                         && courses.get(l).getSectionsOccuring().get(m).getStudents().size() < MAX) {
                                                     Courses oldElective = schedule[j].getCourse();
                                                     Sections oldSection = masterSections.get(k);
                                                     //Loop through to figure out what section the student was originally in
@@ -814,7 +830,7 @@ public class SchedulingApp {
                             for (int k = 0; k < conflict.getCourse().getSectionsOccuring().size(); k++) {
                                 //If a student has a scheduling conflict
                                 //noinspection duplicates
-                                if (freePeriods[conflict.getCourse().getSectionsOccuring().get(k).getPeriod()]) {
+                                if (freePeriods[conflict.getCourse().getSectionsOccuring().get(k).getPeriod()] && conflict.getCourse().getSectionsOccuring().get(k).getStudents().size() < MAX) {
                                     //get the assigned classes, get the period of the j item of masterSections
                                     student.getAssigned()[masterSections.get(j).getPeriod()].getCourse().getSectionsOccuring().get(k).removeStudent(student);
                                     student.changePeriod(conflict.getCourse().getSectionsOccuring().get(k).getPeriod(), schedule[masterSections.get(j).getPeriod()]);
@@ -885,7 +901,7 @@ public class SchedulingApp {
                 }
 
             //Now the student is free for all the sections in the list, so it puts them in the section with the fewest people
-            int minCourseCount = Integer.MAX_VALUE;
+            int minCourseCount = MAX;
             int indexOfBestSection = 0;
             //Loop through all of the sections and find the number of students in them
             for (int j = 0; j < sections.size(); j++) {
@@ -894,6 +910,18 @@ public class SchedulingApp {
                     indexOfBestSection = j;
                 }
             }
+            //     Box Head
+            //
+            //      -----
+            //     | .  . |
+            //     |  ~   |
+            //       -----
+            //        |
+            //        |/\
+            //      \/|
+            //       /\
+            //      /  \
+            //
             //ADD MORE OF WHAT ETHAN HAD HERE???
             //Add the course to the student's schedule
             student.addAssigned(sections.get(indexOfBestSection).getPeriod(), sections.get(indexOfBestSection));
