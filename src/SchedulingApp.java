@@ -1401,9 +1401,51 @@ public class SchedulingApp {
     public void reassignTeachers() {
         for (int i = 0; i < teachers.size(); i++) {
             for (int j = 0; j < teachers.size(); j++) {
-                boolean takeAll = true;
-                for (int t = 0; t < teachers.get(j).getTeaching().size(); t++) {
-                    //if(teachers.get(j).getTeaching().get(j))
+                if (teachers.get(i).getIdentifier() == "New Teacher" && teachers.get(j).getIdentifier() != "New Teacher") {
+                    if (teachers.get(j).getTeaching().size() != 0 && teachers.get(i).getTeaching().size() != 0) {
+                        boolean takeAll = true;
+                        for (int t = 0; t < teachers.get(i).getTeaching().size(); t++) {
+                            if (!teachers.get(j).isQualified(teachers.get(i).getTeaching().get(t).getCourse())) {
+                                takeAll = false;
+                            }
+                            for (int k = 0; k < teachers.get(j).getTeaching().size(); k++) {
+                                if (teachers.get(i).getTeaching().get(t).getPeriod() == teachers.get(j).getTeaching().get(k).getPeriod()) {
+                                    takeAll = false;
+                                }
+                            }
+                        }
+                        if (takeAll == true && (teachers.get(j).getTeaching().size() + teachers.get(i).getTeaching().size()) <= (totalPeriods - teachers.get(j).getFreePeriods())) {
+                            for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
+                                Sections section = teachers.get(i).getTeaching().get(k);
+                                teachers.get(j).getTeaching().add(section);
+                                section.setTheTeacher(teachers.get(j));
+                            }
+                            teachers.get(i).getTeaching().clear();
+                        }
+                    }
+                }
+                else {
+                    if (teachers.get(j).getTeaching().size() != 0 && teachers.get(i).getTeaching().size() != 0) {
+                        boolean takeAll = true;
+                        for (int t = 0; t < teachers.get(j).getTeaching().size(); t++) {
+                            if (!teachers.get(i).isQualified(teachers.get(j).getTeaching().get(t).getCourse())) {
+                                takeAll = false;
+                            }
+                            for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
+                                if (teachers.get(j).getTeaching().get(t).getPeriod() == teachers.get(i).getTeaching().get(k).getPeriod()) {
+                                    takeAll = false;
+                                }
+                            }
+                        }
+                        if (takeAll == true && (teachers.get(i).getTeaching().size() + teachers.get(j).getTeaching().size()) <= (totalPeriods - teachers.get(i).getFreePeriods())) {
+                            for (int k = 0; k < teachers.get(j).getTeaching().size(); k++) {
+                                Sections section = teachers.get(j).getTeaching().get(k);
+                                teachers.get(i).getTeaching().add(section);
+                                section.setTheTeacher(teachers.get(i));
+                            }
+                            teachers.get(j).getTeaching().clear();
+                        }
+                    }
                 }
             }
         }
