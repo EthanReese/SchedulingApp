@@ -372,8 +372,12 @@ public class SchedulingApp {
         for (int i = 0; i < students.size(); i++) {
             for (int j = 0; j < students.get(i).getRequested().size(); j++) {
                 for (int k = 0; k < courses.size(); k++) {
-                    if (courses.get(k).getCourseCode() == students.get(i).getRequested().get(j).getCourseCode()) {
-                        courses.get(k).addStudent(students.get(i).getIdentifier());
+                    try {
+                        if (courses.get(k).getCourseCode() == students.get(i).getRequested().get(j).getCourseCode()) {
+                            courses.get(k).addStudent(students.get(i).getIdentifier());
+                        }
+                    }catch(NullPointerException e){
+                        System.out.println("Null");
                     }
                 }
             }
@@ -384,7 +388,11 @@ public class SchedulingApp {
     public void teachingClasses(ArrayList<Teacher> teachers, ArrayList<Courses> courses) {
         for (int i = 0; i < teachers.size(); i++) {
             for (int j = 1; j < teachers.get(i).getQualified().size(); j++) {
-                search(courses, teachers.get(i).getQualified().get(j).getCourseCode()).addTeacher(teachers.get(i).getIdentifier());
+                try {
+                    search(courses, teachers.get(i).getQualified().get(j).getCourseCode()).addTeacher(teachers.get(i).getIdentifier());
+                }catch(NullPointerException e){
+
+                }
             }
         }
     }
@@ -398,7 +406,6 @@ public class SchedulingApp {
             }
         }
         //if there is no match, return nothing
-
         return null;
     }
 
