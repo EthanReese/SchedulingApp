@@ -151,6 +151,7 @@ public class SchedulingApp {
                 splitMax(totalSections.get(i), swapStudents);
             }
         }
+        reassignTeachers();
         makeSchedule();
 
         PrintWriter pw;
@@ -559,7 +560,7 @@ public class SchedulingApp {
                     remover.add(freeList.get(j));
                 }
                 //if the teacher has exceeded their class limit, remove them
-                if (freeList.get(j).getTeaching().size() >= (totalPeriods - freeList.get(j).freePeriods)) {
+                if (freeList.get(j).getTeaching().size() >= (totalPeriods - freeList.get(j).getFreePeriods())) {
                     remover.add(freeList.get(j));
                 }
                 //if the teacher is already teaching this period, remove them
@@ -586,7 +587,13 @@ public class SchedulingApp {
                 Teacher first = freeList.get(0);
                 int smallestIndex = 0;
                 for (int j = 1; j < freeList.size(); j++) {
-                    if (freeList.get(j).qualified.size() < first.qualified.size() && !freeList.get(j).getIdentifier().equals("New Teacher")) {
+                    if (freeList.get(j).qualified.size() == first.qualified.size()) {
+                        if(freeList.get(j).getTeaching().size() > first.getTeaching().size()) {
+                            first = freeList.get(j);
+                            smallestIndex = j;
+                        }
+                    }
+                    else if (freeList.get(j).qualified.size() < first.qualified.size() && !freeList.get(j).getIdentifier().equals("New Teacher")) {
                         first = freeList.get(j);
                         smallestIndex = j;
                     }
@@ -687,16 +694,25 @@ public class SchedulingApp {
                     }
                     break;
                 }
+                // The Dancing Queen
+                //     ________
+                //    / ______ \
+                //   / | o  o | \
+                //   \ |  __  | /
+                //   / |______| \
+                //   \ ___||___ /
+                //    //|    |\\  //
+                //   // |    | \\//
+                //   \\ |____|
+                //    \\/ /\ \
+                //     / /  \ \
+                //    / /    \ \
+
                 if (courseSections.get(i).getTeacher() == null) {
                     ArrayList<Courses> newQualified = new ArrayList<Courses>();
                     newQualified.add(course);
                     Teacher newTeacher = new Teacher(newQualified, "New Teacher");
                     qualifyList.add(newTeacher);
-                    for (int j = 0; j < qualifyList.size(); j++) {
-                        if(qualifyList.get(j).getIdentifier() == "New Teacher") {
-                            System.out.println("Added");
-                        }
-                    }
                     addedTeachers.add(newTeacher);
                     teachers.add(newTeacher);
                     newTeacher.addTeaching(courseSections.get(i));
@@ -1254,6 +1270,11 @@ public class SchedulingApp {
         }
     }
 
+
+    //this program will reassign all the students in a required class with less than the minimum number of students
+    //hopefully, we will be able to place each student into this required class elsewhere
+    //otherwise, they get a random elective (which has rarely happened)
+    //then, this section will be deleted
     public void reassignReqBelowMin(ArrayList<Student> studentList, Sections section) {
         int room = 0;
         for (int i = 0; i < section.getCourse().getSectionsOccuring().size(); i++) {
@@ -1327,6 +1348,8 @@ public class SchedulingApp {
             }
     }
 
+
+    //this method will take sections above the maximum number of students, and will split it into two sections
     public void splitMax(Sections section, ArrayList<Student> students) {
         Sections newSection = new Sections(section.getCourse(), section.getPeriod(), null, students);
         for (int i = 0; i < students.size(); i++) {
@@ -1338,6 +1361,9 @@ public class SchedulingApp {
                 if(teachers.get(i).getQualified().get(j) == newSection.getCourse()) {
                     free = true;
                 }
+            }
+            if(teachers.get(i).getTeaching().size() == totalPeriods-teachers.get(i).getFreePeriods()) {
+                free = false;
             }
             for (int j = 0; j < teachers.get(i).getTeaching().size(); j++) {
                 if(teachers.get(i).getTeaching().get(j).getPeriod() == newSection.getPeriod()) {
@@ -1360,6 +1386,19 @@ public class SchedulingApp {
             newTeacher.addTeaching(newSection);
             newSection.setTheTeacher(newTeacher);
             totalSections.add(newSection);
+        }
+    }
+
+    //this method will try and cut down the number of teachers
+    //if two teacher's schedules can be combined into one, do it, and remove one of the teachers
+    public void reassignTeachers() {
+        for (int i = 0; i < teachers.size(); i++) {
+            for (int j = 0; j < teachers.size(); j++) {
+                boolean takeAll = true;
+                for (int t = 0; t < teachers.get(j).getTeaching().size(); t++) {
+                    //if(teachers.get(j).getTeaching().get(j))
+                }
+            }
         }
     }
 
