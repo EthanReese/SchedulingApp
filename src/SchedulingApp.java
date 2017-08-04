@@ -137,6 +137,8 @@ public class SchedulingApp {
                     reassignReqBelowMin(reassignReq, totalSections.get(i));
                 }
             }
+        }
+        for (int i = totalSections.size()-1; i >= 0; i--) {
             if(totalSections.get(i).getStudents().size() > MAX) {
                 //System.out.println(totalSections.get(i).getCourse().getCourseCode() + ", " + totalSections.get(i).getPeriod());
                 ArrayList<Student> swapStudents = new ArrayList<Student>();
@@ -233,13 +235,15 @@ public class SchedulingApp {
             }
             teacherOutput += "\nTeachers to be Fired: \n";
             for (int i = 0; i < fired.size(); i++) {
-                teacherOutput += fired.get(i).getIdentifier() + "\n";
+                if(fired.get(i).getIdentifier() != "New Teacher") {
+                    teacherOutput += fired.get(i).getIdentifier() + "\n";
+                }
             }
 
             //track how many New Teachers are added
             int totalNewTeachers = 0;
             for (int i = 0; i < teachers.size(); i++) {
-                if (teachers.get(i).identifier.equals("New Teacher")) {
+                if (teachers.get(i).identifier.equals("New Teacher") && teachers.get(i).getTeaching().size() > 0) {
                     totalNewTeachers++;
                 }
             }
@@ -533,15 +537,15 @@ public class SchedulingApp {
         }
         //keep track of teachers that can teach this course and their qualifications
         ArrayList<String> teacher = course.getTeachersTeachingCourse();
+        //for each section, assign a teacher that is qualified and free
         ArrayList<Teacher> qualifyList = new ArrayList<Teacher>();
-        for (int i = 0; i < teachers.size(); i++) {
-            for (int j = 0; j < teachers.get(i).getQualified().size(); j++) {
-                if (teachers.get(i).getQualified().get(j).courseCode == course.courseCode) {
-                    qualifyList.add(teachers.get(i));
+        for (int x = 0; x < teachers.size(); x++) {
+            for (int j = 0; j < teachers.get(x).getQualified().size(); j++) {
+                if (teachers.get(x).getQualified().get(j).getCourseCode() == course.getCourseCode()) {
+                    qualifyList.add(teachers.get(x));
                 }
             }
         }
-        //for each section, assign a teacher that is qualified and free
         for (int i = 0; i < courseSections.size(); i++) {
             //close qualifylist, and get rid of non-free teachers for this section
             ArrayList<Teacher> freeList = new ArrayList<Teacher>();
@@ -688,6 +692,11 @@ public class SchedulingApp {
                     newQualified.add(course);
                     Teacher newTeacher = new Teacher(newQualified, "New Teacher");
                     qualifyList.add(newTeacher);
+                    for (int j = 0; j < qualifyList.size(); j++) {
+                        if(qualifyList.get(j).getIdentifier() == "New Teacher") {
+                            System.out.println("Added");
+                        }
+                    }
                     addedTeachers.add(newTeacher);
                     teachers.add(newTeacher);
                     newTeacher.addTeaching(courseSections.get(i));
@@ -1254,12 +1263,6 @@ public class SchedulingApp {
                 }
             }
         }
-        if (room < studentList.size()) {
-            //NOOOOO CLUE. Try reassigning required courses again???
-            //this will probably happen
-            //findReassign();
-        }
-        else {
             //get rid of this course, and put everyone in the other sections!
             //fairly certain... this actually won't happen considering how sections are made
             for (int i = 0; i < studentList.size(); i++) {
@@ -1268,20 +1271,60 @@ public class SchedulingApp {
             }
             reassignRequired(studentList, section.getCourse(), section);
             if(section.getStudents().size() > 0) {
-                for (int i = 0; i <section.getStudents().size() ; i++) {
+                for (int i = 0; i < section.getStudents().size() ; i++) {
                     section.getStudents().get(i).getAssigned()[section.getPeriod()] = null;
-                    studentReassign(section.getStudents().get(i));
+                    for (int j = 0; j < section.getCourse().getSectionsOccuring().size(); j++) {
+                        if(section.getCourse().getSectionsOccuring().get(j) != section) {
+                            if(section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()] == null) {
+                                section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()] = section.getCourse().getSectionsOccuring().get(j);
+                                section.getCourse().getSectionsOccuring().get(j).addStudent(section.getStudents().get(i));
+                                break;
+                            }
+                            else if (!section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].getCourse().getRequried()) {
+                                reassignElective(section.getStudents().get(i), section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].getCourse());
+                                section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()] = section.getCourse().getSectionsOccuring().get(j);
+                                section.getCourse().getSectionsOccuring().get(j).addStudent(section.getStudents().get(i));
+                                break;
+                            }
+                        }
+                    }
+                    if(section.getStudents().get(i).getAssigned()[section.getPeriod()] == null) {
+                        for (int j = 0; j < section.getCourse().getSectionsOccuring().size(); j++) {
+                            if(section.getCourse().getSectionsOccuring().get(j) != section) {
+                                if (section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].getCourse().getRequried()) {
+                                    if (reassignSecondRequired(section.getStudents().get(i),
+                                    section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].getCourse(),
+                                    section.getPeriod()) == true) {
+                                        if (section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()] != null) {
+                                            Courses elective = section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].getCourse();
+                                            section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].removeStudent(section.getStudents().get(i));
+                                            section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()] = section.getCourse().getSectionsOccuring().get(j);
+                                            section.getCourse().getSectionsOccuring().get(j).addStudent(section.getStudents().get(i));
+                                            reassignElective(section.getStudents().get(i), elective);
+                                            break;
+                                        }
+                                        section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()] = section.getCourse().getSectionsOccuring().get(j);
+                                        section.getCourse().getSectionsOccuring().get(j).addStudent(section.getStudents().get(i));
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(section.getStudents().get(i).getAssigned()[section.getPeriod()] == null) {
+                        studentReassign(section.getStudents().get(i));
+                        System.out.println("failure to assign");
+                    }
                     section.getStudents().remove(section.getStudents().get(i));
-                    System.out.println("failure to assign");
                 }
             }
             section.getTeacher().getTeaching().remove(section);
             for (int i = 0; i < totalSections.size(); i++) {
                 if(totalSections.get(i) == section) {
+                    totalSections.get(i).getTeacher().getTeaching().remove(totalSections.get(i));
                     totalSections.remove(i);
                 }
             }
-        }
     }
 
     public void splitMax(Sections section, ArrayList<Student> students) {
@@ -1290,26 +1333,33 @@ public class SchedulingApp {
             students.get(i).getAssigned()[section.getPeriod()] = section;
         }
         for (int i = 0; i < teachers.size(); i++) {
-            boolean free = true;
+            boolean free = false;
+            for (int j = 0; j < teachers.get(i).getQualified().size(); j++) {
+                if(teachers.get(i).getQualified().get(j) == newSection.getCourse()) {
+                    free = true;
+                }
+            }
             for (int j = 0; j < teachers.get(i).getTeaching().size(); j++) {
                 if(teachers.get(i).getTeaching().get(j).getPeriod() == newSection.getPeriod()) {
                     free = false;
                 }
             }
             if(free == true) {
-                teachers.get(i).addTeaching(section);
+                teachers.get(i).addTeaching(newSection);
                 newSection.setTheTeacher(teachers.get(i));
+                totalSections.add(newSection);
                 break;
             }
         }
         if(newSection.getTeacher() == null) {
             ArrayList<Courses> newQualified = new ArrayList<Courses>();
-            newQualified.add(section.getCourse());
+            newQualified.add(newSection.getCourse());
             Teacher newTeacher = new Teacher(newQualified, "New Teacher");
             addedTeachers.add(newTeacher);
             teachers.add(newTeacher);
-            newTeacher.addTeaching(section);
-            section.setTheTeacher(newTeacher);
+            newTeacher.addTeaching(newSection);
+            newSection.setTheTeacher(newTeacher);
+            totalSections.add(newSection);
         }
     }
 
