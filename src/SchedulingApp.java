@@ -156,7 +156,6 @@ public class SchedulingApp {
                         totalSections.get(j).getStudents().size() != 0 &&
                         totalSections.get(i).getStudents().size() != 0) {
                     emptySections.add(totalSections.get(j));
-
                     combineSections(totalSections.get(i), totalSections.get(j));
                 }
             }
@@ -211,7 +210,7 @@ public class SchedulingApp {
         }
         reassignTeachers();
         makeSchedule();
-for (int i = 0; i < teachers.size(); i++) {
+        for (int i = 0; i < teachers.size(); i++) {
                 if (teachers.get(i).getIdentifier().equals("New Teacher") && teachers.get(i).getTeaching().size() > 0) {
                     totalNewTeachers++;
                 }
@@ -225,6 +224,12 @@ for (int i = 0; i < teachers.size(); i++) {
             schedule.setScore(score(students, totalNewTeachers));
             schedule.setNewTeachers(totalNewTeachers);
             schedules.add(schedule);
+            teachers.clear();
+            addedTeachers.clear();
+            totalSections.clear();
+            courses.clear();
+            students.clear();
+            totalNewTeachers = 0;
         }
         //Loop through all of the schedules that are created and find the one with the highest score
         Double maxScore = Double.MIN_VALUE;
@@ -235,7 +240,6 @@ for (int i = 0; i < teachers.size(); i++) {
                 bestSchedule = schedules.get(i);
             }
         }
-        //Set everything to the best schedule's version
         teachers = bestSchedule.getTeachers();
         addedTeachers = bestSchedule.getAddedTeachers();
         totalSections = bestSchedule.getSections();
@@ -345,7 +349,6 @@ for (int i = 0; i < teachers.size(); i++) {
             String superSectionOutput = "Course, Teacher, Period, Student 1, Student 2, Student 3,...\n";
             for (int i = 0; i < totalPeriods; i++) {
                 for (int j = 0; j < schedule.get(i).size(); j++) {
-                    System.out.println(schedule.get(i).get(j).getTeacher());
                     superSectionOutput += schedule.get(i).get(j).getCourse().getCourseCode() + "," + (schedule.get(i).get(j).getTeacher().getIdentifier()) + "," + (schedule.get(i).get(j).getPeriod() + 1);
                     for (int k = 0; k < schedule.get(i).get(j).getStudents().size(); k++) {
                         superSectionOutput += "," + schedule.get(i).get(j).getStudents().get(k).getIdentifier();
@@ -434,7 +437,6 @@ for (int i = 0; i < teachers.size(); i++) {
         for (int i = 0; i < teacherTable.size(); i++) {
             for (int j = 1; j < teacherTable.get(i).size(); j++) {
                 qualified.add(search(courses, teacherTable.get(i).get(j)));
-
             }
             teachers.add(new Teacher(qualified, teacherTable.get(i).get(0)));
             ArrayList<Sections> teaching = new ArrayList<Sections>();
@@ -1403,14 +1405,6 @@ for (int i = 0; i < teachers.size(); i++) {
     //otherwise, they get a random elective (which has rarely happened)
     //then, this section will be deleted
     public void reassignReqBelowMin(ArrayList<Student> studentList, Sections section) {
-        int room = 0;
-        for (int i = 0; i < section.getCourse().getSectionsOccuring().size(); i++) {
-            if (section.getCourse().getSectionsOccuring().get(i).getStudents().size() < MAX) {
-                for (int j = 0; j < section.getCourse().getSectionsOccuring().get(i).getStudents().size(); j++) {
-                    room++;
-                }
-            }
-        }
             //get rid of this course, and put everyone in the other sections!
             //fairly certain... this actually won't happen considering how sections are made
             for (int i = 0; i < studentList.size(); i++) {
@@ -1438,11 +1432,11 @@ for (int i = 0; i < teachers.size(); i++) {
                     }
                     if(section.getStudents().get(i).getAssigned()[section.getPeriod()] == null) {
                         for (int j = 0; j < section.getCourse().getSectionsOccuring().size(); j++) {
-                            if(section.getCourse().getSectionsOccuring().get(j) != section) {
+                            if (section.getCourse().getSectionsOccuring().get(j) != section) {
                                 if (section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].getCourse().getRequried()) {
                                     if (reassignSecondRequired(section.getStudents().get(i),
-                                    section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].getCourse(),
-                                    section.getPeriod()) == true) {
+                                            section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].getCourse(),
+                                            section.getPeriod()) == true) {
                                         if (section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()] != null) {
                                             Courses elective = section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].getCourse();
                                             section.getStudents().get(i).getAssigned()[section.getCourse().getSectionsOccuring().get(j).getPeriod()].removeStudent(section.getStudents().get(i));
@@ -1459,6 +1453,9 @@ for (int i = 0; i < teachers.size(); i++) {
                             }
                         }
                     }
+                    //this means none of the sections are in elective slots, all in required slots
+                    //and, they cannot reassign any other required courses
+                    //maybe, try to reassign required courses blocking other required courses? Will that work at all?
                     if(section.getStudents().get(i).getAssigned()[section.getPeriod()] == null) {
                         studentReassign(section.getStudents().get(i));
                         System.out.println("failure to assign");
@@ -1573,14 +1570,10 @@ for (int i = 0; i < teachers.size(); i++) {
     }
 
     public void combineSections(Sections one, Sections two) {
-        ArrayList<Student> addStudents = new ArrayList<Student>();
         for (int i = 0; i < two.getStudents().size(); i++) {
-            addStudents.add(two.getStudents().get(i));
+            one.addStudent(two.getStudents().get(i));
         }
-        for (int i = 0; i < addStudents.size(); i++) {
-            one.addStudent(addStudents.get(i));
-            two.removeStudent(addStudents.get(i));
-        }
+        two.getStudents().clear();
         two.getTeacher().getTeaching().remove(two);
         two.setTheTeacher(null);
     }
