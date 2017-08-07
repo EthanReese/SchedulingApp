@@ -48,6 +48,12 @@ public class SchedulingApp {
     public static int setFinalPeriods = 0;
     public static int finalFreePeriods = 0;
     int totalNewTeachers = 0;
+    String forecastingFile;
+    String teacherFile;
+    String courseFile;
+    ArrayList<ArrayList<String>> forecastingTable;
+    ArrayList<ArrayList<String>> teacherTable;
+    ArrayList<ArrayList<String>> courseTable;
 
     public SchedulingApp() {
         //Potentially do this as some kind of GUI
@@ -60,29 +66,48 @@ public class SchedulingApp {
         String teacherFile = scanner.nextLine();
         System.out.println("Please input the path of the file with the course list.");
         String courseFile = scanner.nextLine();
-        System.out.println("What is the maximum number of students in each class");
-        String maximum = scanner.nextLine();
-        MAX = Integer.parseInt(maximum);
-        while(MAX < 10) {
-            System.out.println("Please enter a valid maximum that is at least 10.");
+        String maximum;
+        Boolean proceed = true;
+        //Make sure the user put in a proper number for their input
+        INPUT:
+        while(MAX < 10 || proceed) {
+            System.out.println("Enter a maximum number of students in each course that is at least 10");
             maximum = scanner.nextLine();
-            MAX = Integer.parseInt(maximum);
+            try {
+                MAX = Integer.parseInt(maximum);
+            }catch (NumberFormatException e){
+                proceed = true;
+                continue INPUT;
+            }
+            proceed = false;
         }
-        System.out.println("What is the minimum number of students in each class");
-        String minimum = scanner.nextLine();
-        MIN = Integer.parseInt(minimum);
-        while(MIN < 5) {
-            System.out.println("Please enter a valid minumum that is at least 5.");
+        proceed = true;
+        String minimum;
+        //Check to make sure the input is an integer and it fits the constraints
+        CHECK:
+        while(MIN < 5||proceed||MIN>=(MAX/2)+1) {
+            System.out.println("Enter a minimum number of students in each course that is greater than 5");
             minimum = scanner.nextLine();
-            MIN = Integer.parseInt(minimum);
+            try {
+                MIN = Integer.parseInt(minimum);
+            }catch (NumberFormatException e){
+                proceed = true;
+                continue CHECK;
+            }
+            proceed = false;
         }
-        System.out.println("How many periods does your school offer?");
-        String periodNumber = scanner.nextLine();
-        totalPeriods = Integer.parseInt(periodNumber);
-        while(totalPeriods < 5 || totalPeriods > 10) {
-            System.out.println("Please enter a valid number of periods (5-9)");
+        proceed = true;
+        String periodNumber;
+        while(totalPeriods < 5 || totalPeriods > 10|| proceed) {
+            System.out.println("How many periods does your school offer? (5-10)");
             periodNumber = scanner.nextLine();
-            totalPeriods = Integer.parseInt(periodNumber);
+            try {
+                totalPeriods = Integer.parseInt(periodNumber);
+            }catch (NumberFormatException e){
+                proceed = true;
+                continue;
+            }
+            proceed = false;
         }
         setFinalPeriods = totalPeriods;
         System.out.println("What is the minimum number of free periods for a teacher?");
@@ -95,9 +120,9 @@ public class SchedulingApp {
         }
 
         //Call the functions corresponding to each individual file
-        ArrayList<ArrayList<String>> forecastingTable = readCSV(forecastingFile);
-        ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
-        ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
+        forecastingTable = readCSV(forecastingFile);
+        teacherTable = readCSV(teacherFile);
+        courseTable = readCSV(courseFile);
         //Run the following part a few times
         for (int c = 0; c < 3; c++) {
             //Convert the files into the proper types of objects
@@ -138,8 +163,7 @@ public class SchedulingApp {
         }
         for (int i = 0; i < emptySections.size(); i++) {
             totalSections.remove(emptySections.get(i));
-        }
-        findReassign();
+        }findReassign();
         for (int i = 0; i < students.size(); i++) {
             for (int j = 0; j < students.get(i).getAssigned().length; j++) {
                 if(students.get(i).getAssigned()[j] == null) {
@@ -161,8 +185,8 @@ public class SchedulingApp {
                     }
                     totalSections.get(i).getTeacher().getTeaching().remove(totalSections.get(i));
                     totalSections.remove(i);
-                }
-                else {
+
+                }else {
                     ArrayList<Student> reassignReq = new ArrayList<Student>();
                     for (int j = 0; j < totalSections.get(i).getStudents().size(); j++) {
                         reassignReq.add(totalSections.get(i).getStudents().get(j));
@@ -180,15 +204,14 @@ public class SchedulingApp {
                     swapStudents.add(totalSections.get(i).getStudents().get(j));
                     totalSections.get(i).getStudents().get(j).getAssigned()[totalSections.get(i).getPeriod()] = null;
                 }
-                for (int j = 0; j < swapStudents.size(); j++) {
-                    totalSections.get(i).removeStudent(swapStudents.get(j));
+                for (int j = 0; j < swapStudents.size(); j++) {    totalSections.get(i).removeStudent(swapStudents.get(j));
                 }
                 splitMax(totalSections.get(i), swapStudents);
             }
         }
         reassignTeachers();
         makeSchedule();
-            for (int i = 0; i < teachers.size(); i++) {
+for (int i = 0; i < teachers.size(); i++) {
                 if (teachers.get(i).getIdentifier().equals("New Teacher") && teachers.get(i).getTeaching().size() > 0) {
                     totalNewTeachers++;
                 }
@@ -215,7 +238,7 @@ public class SchedulingApp {
         //Set everything to the best schedule's version
         teachers = bestSchedule.getTeachers();
         addedTeachers = bestSchedule.getAddedTeachers();
-        totalSections = (ArrayList<Sections>)bestSchedule.getSections().clone();
+        totalSections = bestSchedule.getSections();
         courses = bestSchedule.getCourses();
         students = bestSchedule.getStudents();
         totalNewTeachers = bestSchedule.getNewTeachers();
@@ -244,7 +267,6 @@ public class SchedulingApp {
             pw.write(sectionsOutput);
             pw.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             System.exit(0);
         }
@@ -360,8 +382,23 @@ public class SchedulingApp {
             }
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            //Todo: Tell the user to input a new forecasting file
+            System.out.println("There is no file located at the path " + filePath);
+                if(String.valueOf(forecastingFile) == String.valueOf(filePath)){
+                    System.out.println("Please enter a new forecasting file.");
+                    String input  = scanner.nextLine();
+                    forecastingTable = readCSV(input);
+                }
+                else if(teacherFile == filePath) {
+                    System.out.println("Please enter a new teacher file.");
+                    String input = scanner.nextLine();
+                    teacherTable = readCSV(input);
+                }
+                else if(courseFile == filePath) {
+                    System.out.println("Please enter a valid courses file.");
+                    String input = scanner.nextLine();
+                    courseTable = readCSV(input);
+                }
+
         } catch (IOException e) {
             e.printStackTrace();
             //idk how the user is supposed to fix that
@@ -1119,7 +1156,7 @@ public class SchedulingApp {
 
     //Score the result on a variety of factors
     public Double score(ArrayList<Student> testStudents, int newTeachers) {
-        Double score = 0.0;
+        Double score;
         //Score the algorithm on how many students got the classes they wanted
         ArrayList<Double> averageGranted = new ArrayList<Double>();
         for (int i = 0; i < testStudents.size(); i++) {
@@ -1172,7 +1209,7 @@ public class SchedulingApp {
                 }
             }
             if (totalSections.get(i).getCourse().getRequried() == false && student.getAssigned()[totalSections.get(i).getPeriod()] == null
-                    && isAssigned == false) {
+                    && !isAssigned) {
                 freeSections.add(totalSections.get(i));
             }
         }
