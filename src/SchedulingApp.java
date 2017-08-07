@@ -48,6 +48,7 @@ public class SchedulingApp {
     public static int setFinalPeriods = 0;
     public static int finalFreePeriods = 0;
     int totalNewTeachers = 0;
+    boolean failureToAssign = false;
     String forecastingFile;
     String teacherFile;
     String courseFile;
@@ -230,6 +231,7 @@ public class SchedulingApp {
             courses.clear();
             students.clear();
             totalNewTeachers = 0;
+            failureToAssign = false;
         }
         //Loop through all of the schedules that are created and find the one with the highest score
         Double maxScore = Double.MIN_VALUE;
@@ -246,6 +248,11 @@ public class SchedulingApp {
         courses = bestSchedule.getCourses();
         students = bestSchedule.getStudents();
         totalNewTeachers = bestSchedule.getNewTeachers();
+        if(bestSchedule.getTeachers() == null || bestSchedule.getAddedTeachers() == null ||
+                bestSchedule.getSections() == null) {
+            System.out.println("No generated schedules have scored high enough. Please try again.");
+            System.exit(0);
+        }
         PrintWriter pw;
         try {
             pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
@@ -1186,12 +1193,8 @@ public class SchedulingApp {
         score = (a + b) / 2;
 
         //Double check to make sure that students have been assigned to all classes
-        for (int i = 0; i < testStudents.size(); i++) {
-            for (int j = 0; j < testStudents.get(i).getAssigned().length; j++) {
-                if(testStudents.get(i).getAssigned()[j] == null){
-                    return 0.0;
-                }
-            }
+        if (failureToAssign == true) {
+            return 0.0;
         }
 
         return score;
@@ -1383,7 +1386,11 @@ public class SchedulingApp {
                     reassigned.clear();
                     counter = 0;
                     for (int j = 0; j < count; j++) {
-                        reassigned.add(totalSections.get(i).getStudents().get(j));
+                        try {
+                            reassigned.add(totalSections.get(i).getStudents().get(j));
+                        } catch(Exception e) {
+
+                        }
                     }
                     for (int j = reassigned.size()-1; j >= 0; j--) {
                         totalSections.get(i).getStudents().get(j).getAssigned()[totalSections.get(i).getPeriod()] = null;
@@ -1459,6 +1466,7 @@ public class SchedulingApp {
                     if(section.getStudents().get(i).getAssigned()[section.getPeriod()] == null) {
                         studentReassign(section.getStudents().get(i));
                         System.out.println("failure to assign");
+                        failureToAssign = true;
                     }
                     section.getStudents().remove(section.getStudents().get(i));
                 }
