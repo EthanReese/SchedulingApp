@@ -143,7 +143,7 @@ public class SchedulingApp {
                 //System.out.println(totalSections.get(i).getCourse().getCourseCode() + ", " + totalSections.get(i).getPeriod());
                 ArrayList<Student> swapStudents = new ArrayList<Student>();
                 int half = (int)(totalSections.get(i).getStudents().size() / 2);
-                for (int j = totalSections.get(i).getStudents().size()-1; j >= half; j--) {
+                for (int j = totalSections.get(i).getStudents().size()-2; j >= half; j--) {
                     swapStudents.add(totalSections.get(i).getStudents().get(j));
                     totalSections.get(i).getStudents().get(j).getAssigned()[totalSections.get(i).getPeriod()] = null;
                     totalSections.get(i).removeStudent(totalSections.get(i).getStudents().get(j));
@@ -377,7 +377,7 @@ public class SchedulingApp {
                             courses.get(k).addStudent(students.get(i).getIdentifier());
                         }
                     }catch(NullPointerException e){
-                        System.out.println("Null");
+                        System.out.println(students.get(i).getIdentifier() + "," + j);
                     }
                 }
             }

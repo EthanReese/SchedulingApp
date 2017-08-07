@@ -1,6 +1,6 @@
 1001,true,1
 2707,true,1
-0842CE,true,0.5
+0842CE,true,1
 1730A,true,1
 2301,true,1
 2031CC,true,1
