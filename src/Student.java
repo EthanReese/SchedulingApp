@@ -44,14 +44,14 @@ public class Student {
     }
 
     public void addAssigned(int index, Sections newSections) {
-        assigned[index] = newSections;
+        this.assigned[index] = newSections;
     }
 
     public void setTotalPeriods(int period) {
         periods = period;
     }
 
-    int periods = 8;
+    int periods = SchedulingApp.setFinalPeriods;
     ArrayList<Courses> requested = new ArrayList<Courses>();
     Sections[] assigned = new Sections[periods];
     String identifier;
