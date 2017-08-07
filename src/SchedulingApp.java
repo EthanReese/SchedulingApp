@@ -1144,7 +1144,7 @@ public class SchedulingApp {
         //Score the algorithm on how many new teachers are hired as a percent of the teachers that exist
         Double b = 1.0 - (double) newTeachers / (teachers.size() + newTeachers);
 
-        score = (a + b) / 2;
+        score = (a + a + b) / 3;
 
         //Double check to make sure that students have been assigned to all classes
         for (int i = 0; i < testStudents.size(); i++) {
