@@ -298,6 +298,22 @@ public class SchedulingApp {
                 }
                 studentOutput += "\n";
             }
+            int perfect = 0;
+            for (int i = 0; i < students.size(); i++) {
+                for (int j = 0; j < students.get(i).getRequested().size(); j++) {
+                    for (int k = 0; k < students.get(i).getAssigned().length; k++) {
+                        if (students.get(i).getAssigned()[k] == null) {
+                            System.out.println("?");
+                        }
+                        else if(students.get(i).getAssigned()[k].getCourse().getCourseCode() == students.get(i).getRequested().get(j).getCourseCode()) {
+                            perfect++;
+                            break;
+                        }
+                    }
+                }
+            }
+            double totalPerfect = ((double)perfect / ((double)students.size()*totalPeriods))*100.0;
+            studentOutput += "Student Satisfaction: " + totalPerfect + "%";
             ow.write(studentOutput);
             ow.close();
         } catch (IOException e) {
@@ -1300,6 +1316,7 @@ public class SchedulingApp {
             if (assigned == false) {
                 section.addStudent(students.get(i));
                 if(students.get(i).getAssigned()[section.getPeriod()] != null) {
+                    failureToAssign = true;
                     System.out.println("Error");
                 }
                 students.get(i).getAssigned()[section.getPeriod()] = section;
