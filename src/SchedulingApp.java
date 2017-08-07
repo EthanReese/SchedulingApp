@@ -76,7 +76,7 @@ public class SchedulingApp {
         System.out.println("How many periods does your school offer?");
         String periodNumber = scanner.nextLine();
         totalPeriods = Integer.parseInt(periodNumber);
-        while(totalPeriods < 5 || totalPeriods > 9) {
+        while(totalPeriods < 5 || totalPeriods > 10) {
             System.out.println("Please enter a valid number of periods (5-9)");
             periodNumber = scanner.nextLine();
             totalPeriods = Integer.parseInt(periodNumber);
@@ -358,7 +358,7 @@ public class SchedulingApp {
                 request.add(search(courses, forecastTable.get(i).get(j)));
             }
             request.remove(0);
-            Student student = new Student(request, id);
+            Student student = new Student(request, id, totalPeriods);
             students.add(student);
             student.setTotalPeriods(totalPeriods);
             request.clear();

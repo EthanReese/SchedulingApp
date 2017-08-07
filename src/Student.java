@@ -55,7 +55,7 @@ public class Student {
     ArrayList<Courses> requested = new ArrayList<Courses>();
     Sections[] assigned = new Sections[periods];
     String identifier;
-    public Student(ArrayList<Courses> requested, String identifier){
+    public Student(ArrayList<Courses> requested, String identifier, int periods){
 
         for(int i = 0; i < requested.size(); i++){
             this.requested.add(requested.get(i));
@@ -64,6 +64,7 @@ public class Student {
 
 
     }
+
     public void setClass(int period, Sections course){
         this.assigned[period] = course;
     }
