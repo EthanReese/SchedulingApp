@@ -39,12 +39,14 @@ public class SchedulingApp {
     ArrayList<Teacher> addedTeachers = new ArrayList<Teacher>();
     ArrayList<Student> students = new ArrayList<Student>();
     ArrayList<ArrayList<Sections>> schedule = new ArrayList<>();
+    ArrayList<Schedule> schedules = new ArrayList<>();
     int MIN = 15;
     int MAX = 40;
     int totalPeriods = 8;
     int counter = 0;
     Random random = new Random();
     public static int setFinalPeriods = 0;
+    int totalNewTeachers = 0;
 
     public SchedulingApp() {
         //Potentially do this as some kind of GUI
@@ -87,73 +89,103 @@ public class SchedulingApp {
         ArrayList<ArrayList<String>> forecastingTable = readCSV(forecastingFile);
         ArrayList<ArrayList<String>> teacherTable = readCSV(teacherFile);
         ArrayList<ArrayList<String>> courseTable = readCSV(courseFile);
-        //Convert the files into the proper types of objects
-        classes(courseTable);
-        teacherCreation(teacherTable);
-        requestedClasses(forecastingTable, courses);
-        //Run all of our actual functions that do stuff
-        setClassList();
-        reassign(courses);
-        teachingClasses(teachers, courses);
-        addSections();
-        courses = BubbleSort(courses);
+        //Run the following part a few times
+        for (int c = 0; c < 3; c++) {
+            //Convert the files into the proper types of objects
+            classes(courseTable);
+            teacherCreation(teacherTable);
+            requestedClasses(forecastingTable, courses);
+            //Run all of our actual functions that do stuff
+            setClassList();
+            reassign(courses);
+            teachingClasses(teachers, courses);
+            addSections();
+            courses = BubbleSort(courses);
 
 
-        addPeriod(courses);
-        for (int i = 0; i < courses.size(); i++) {
-            teacherSections(courses.get(i));
-        }
-        for (int i = 0; i < courses.size(); i++) {
-            assignStudentsToSection(courses.get(i));
-        }
-        findReassign();
-        for (int i = 0; i < students.size(); i++) {
-            for (int j = 0; j < students.get(i).getAssigned().length; j++) {
-                if(students.get(i).getAssigned()[j] == null) {
-                    studentReassign(students.get(i));
-                }
+            addPeriod(courses);
+            for (int i = 0; i < courses.size(); i++) {
+                teacherSections(courses.get(i));
             }
-        }
-        for (int i = totalSections.size()-1; i >= 0; i--) {
-            if (totalSections.get(i).getStudents().size() < MIN) {
-                if(totalSections.get(i).getStudents().size() == 0) {
-                    totalSections.get(i).getTeacher().getTeaching().remove(totalSections.get(i));
-                    totalSections.remove(i);
-                }
-                else if(totalSections.get(i).getCourse().getRequried() == false) {
-                    for (int j = 0; j < totalSections.get(i).getStudents().size(); j++) {
-                        Student student = totalSections.get(i).getStudents().get(j);
-                        student.getAssigned()[totalSections.get(i).getPeriod()] = null;
-                        studentReassign(student);
+            for (int i = 0; i < courses.size(); i++) {
+                assignStudentsToSection(courses.get(i));
+            }
+            findReassign();
+            for (int i = 0; i < students.size(); i++) {
+                for (int j = 0; j < students.get(i).getAssigned().length; j++) {
+                    if (students.get(i).getAssigned()[j] == null) {
+                        studentReassign(students.get(i));
                     }
-                    totalSections.get(i).getTeacher().getTeaching().remove(totalSections.get(i));
-                    totalSections.remove(i);
                 }
-                else {
-                    ArrayList<Student> reassignReq = new ArrayList<Student>();
-                    for (int j = 0; j < totalSections.get(i).getStudents().size(); j++) {
-                        reassignReq.add(totalSections.get(i).getStudents().get(j));
+            }
+            for (int i = totalSections.size() - 1; i >= 0; i--) {
+                if (totalSections.get(i).getStudents().size() < MIN) {
+                    if (totalSections.get(i).getStudents().size() == 0) {
+                        totalSections.get(i).getTeacher().getTeaching().remove(totalSections.get(i));
+                        totalSections.remove(i);
+                    } else if (totalSections.get(i).getCourse().getRequried() == false) {
+                        for (int j = 0; j < totalSections.get(i).getStudents().size(); j++) {
+                            Student student = totalSections.get(i).getStudents().get(j);
+                            student.getAssigned()[totalSections.get(i).getPeriod()] = null;
+                            studentReassign(student);
+                        }
+                        totalSections.get(i).getTeacher().getTeaching().remove(totalSections.get(i));
+                        totalSections.remove(i);
+                    } else {
+                        ArrayList<Student> reassignReq = new ArrayList<Student>();
+                        for (int j = 0; j < totalSections.get(i).getStudents().size(); j++) {
+                            reassignReq.add(totalSections.get(i).getStudents().get(j));
+                        }
+                        reassignReqBelowMin(reassignReq, totalSections.get(i));
                     }
-                    reassignReqBelowMin(reassignReq, totalSections.get(i));
                 }
             }
-        }
-        for (int i = totalSections.size()-1; i >= 0; i--) {
-            if(totalSections.get(i).getStudents().size() > MAX) {
-                //System.out.println(totalSections.get(i).getCourse().getCourseCode() + ", " + totalSections.get(i).getPeriod());
-                ArrayList<Student> swapStudents = new ArrayList<Student>();
-                int half = (int)(totalSections.get(i).getStudents().size() / 2);
-                for (int j = totalSections.get(i).getStudents().size()-1; j >= half; j--) {
-                    swapStudents.add(totalSections.get(i).getStudents().get(j));
-                    totalSections.get(i).getStudents().get(j).getAssigned()[totalSections.get(i).getPeriod()] = null;
-                    totalSections.get(i).removeStudent(totalSections.get(i).getStudents().get(j));
+            for (int i = totalSections.size() - 1; i >= 0; i--) {
+                if (totalSections.get(i).getStudents().size() > MAX) {
+                    //System.out.println(totalSections.get(i).getCourse().getCourseCode() + ", " + totalSections.get(i).getPeriod());
+                    ArrayList<Student> swapStudents = new ArrayList<Student>();
+                    int half = (int) (totalSections.get(i).getStudents().size() / 2);
+                    for (int j = totalSections.get(i).getStudents().size() - 1; j >= half; j--) {
+                        swapStudents.add(totalSections.get(i).getStudents().get(j));
+                        totalSections.get(i).getStudents().get(j).getAssigned()[totalSections.get(i).getPeriod()] = null;
+                        totalSections.get(i).removeStudent(totalSections.get(i).getStudents().get(j));
+                    }
+                    splitMax(totalSections.get(i), swapStudents);
                 }
-                splitMax(totalSections.get(i), swapStudents);
+            }
+            reassignTeachers();
+            makeSchedule();
+            for (int i = 0; i < teachers.size(); i++) {
+                if (teachers.get(i).getIdentifier().equals("New Teacher") && teachers.get(i).getTeaching().size() > 0) {
+                    totalNewTeachers++;
+                }
+            }
+            Schedule schedule = new Schedule();
+            schedule.setTeachers(teachers);
+            schedule.setAddedTeachers(addedTeachers);
+            schedule.setSections(totalSections);
+            schedule.setCourses(courses);
+            schedule.setStudents(students);
+            schedule.setScore(score(students, totalNewTeachers));
+            schedule.setNewTeachers(totalNewTeachers);
+            schedules.add(schedule);
+        }
+        //Loop through all of the schedules that are created and find the one with the highest score
+        Double maxScore = Double.MIN_VALUE;
+        Schedule bestSchedule = new Schedule();
+        for (int i = 0; i < schedules.size(); i++) {
+            if(schedules.get(i).getScore()>maxScore){
+                maxScore = schedules.get(i).getScore();
+                bestSchedule = schedules.get(i);
             }
         }
-        reassignTeachers();
-        makeSchedule();
-
+        //Set everything to the best schedule's version
+        teachers = bestSchedule.getTeachers();
+        addedTeachers = bestSchedule.getAddedTeachers();
+        totalSections = (ArrayList<Sections>)bestSchedule.getSections().clone();
+        courses = bestSchedule.getCourses();
+        students = bestSchedule.getStudents();
+        totalNewTeachers = bestSchedule.getNewTeachers();
         PrintWriter pw;
         try {
             pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
@@ -242,16 +274,11 @@ public class SchedulingApp {
             }
 
             //track how many New Teachers are added
-            int totalNewTeachers = 0;
-            for (int i = 0; i < teachers.size(); i++) {
-                if (teachers.get(i).identifier.equals("New Teacher") && teachers.get(i).getTeaching().size() > 0) {
-                    totalNewTeachers++;
-                }
-            }
+
             teacherOutput += "\nTotal New Teachers: " + totalNewTeachers;
             ww.write(teacherOutput);
             ww.close();
-            System.out.println(score(students, totalNewTeachers));
+            System.out.println(maxScore);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1072,6 +1099,15 @@ public class SchedulingApp {
 
         score = (a + b) / 2;
 
+        //Double check to make sure that students have been assigned to all classes
+        for (int i = 0; i < testStudents.size(); i++) {
+            for (int j = 0; j < testStudents.get(i).getAssigned().length; j++) {
+                if(testStudents.get(i).getAssigned()[j] == null){
+                    return 0.0;
+                }
+            }
+        }
+
         return score;
     }
 
@@ -1398,6 +1434,7 @@ public class SchedulingApp {
 
     //this method will try and cut down the number of teachers
     //if two teacher's schedules can be combined into one, do it, and remove one of the teachers
+
     public void reassignTeachers() {
         for (int i = 0; i < teachers.size(); i++) {
             for (int j = 0; j < teachers.size(); j++) {

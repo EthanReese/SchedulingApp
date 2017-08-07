@@ -10,7 +10,7 @@ public class Schedule {
     }
 
     public void setCourses(ArrayList<Courses> courses) {
-        this.courses = courses;
+        this.courses = (ArrayList<Courses>)courses.clone();
     }
 
     public ArrayList<Student> getStudents() {
@@ -18,7 +18,7 @@ public class Schedule {
     }
 
     public void setStudents(ArrayList<Student> students) {
-        this.students = students;
+        this.students = (ArrayList<Student>)students.clone();
     }
 
     public ArrayList<Teacher> getTeachers() {
@@ -26,7 +26,7 @@ public class Schedule {
     }
 
     public void setTeachers(ArrayList<Teacher> teachers) {
-        this.teachers = teachers;
+        this.teachers = (ArrayList<Teacher>)teachers.clone();
     }
 
     public double getScore() {
@@ -42,13 +42,23 @@ public class Schedule {
     }
 
     public void setSections(ArrayList<Sections> sections) {
-        this.sections = sections;
+        this.sections = (ArrayList<Sections>)sections.clone();
     }
 
     ArrayList<Teacher> teachers;
     double score;
     ArrayList<Sections> sections;
     int newTeachers;
+
+    public ArrayList<Teacher> getAddedTeachers() {
+        return addedTeachers;
+    }
+
+    public void setAddedTeachers(ArrayList<Teacher> addedTeachers) {
+        this.addedTeachers = (ArrayList<Teacher>)addedTeachers.clone();
+    }
+
+    ArrayList<Teacher> addedTeachers;
 
     public int getNewTeachers() {
         return newTeachers;
@@ -58,13 +68,8 @@ public class Schedule {
         this.newTeachers = newTeachers;
     }
 
-    public Schedule(ArrayList<Courses> courses, ArrayList<Student> students, ArrayList<Teacher> teachers, double score, ArrayList<Sections> section, int newTeachers){
-        this.courses = new ArrayList<>(courses);
-        this.students = new ArrayList<>(students);
-        this.teachers = new ArrayList<>(teachers);
-        this.score  = score;
-        this.newTeachers = newTeachers;
-        this.sections = new ArrayList<>(section);
+    public Schedule(){
+
     }
 
 
