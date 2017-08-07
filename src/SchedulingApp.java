@@ -46,6 +46,7 @@ public class SchedulingApp {
     int counter = 0;
     Random random = new Random();
     public static int setFinalPeriods = 0;
+    public static int finalFreePeriods = 0;
     int totalNewTeachers = 0;
 
     public SchedulingApp() {
@@ -84,6 +85,14 @@ public class SchedulingApp {
             totalPeriods = Integer.parseInt(periodNumber);
         }
         setFinalPeriods = totalPeriods;
+        System.out.println("What is the minimum number of free periods for a teacher?");
+        String freePeriodNumber = scanner.nextLine();
+        finalFreePeriods = Integer.parseInt(freePeriodNumber);
+        while (finalFreePeriods > totalPeriods-1) {
+            System.out.println("This number of free periods is invalid, please try again.");
+            freePeriodNumber = scanner.nextLine();
+            finalFreePeriods = Integer.parseInt(freePeriodNumber);
+        }
 
         //Call the functions corresponding to each individual file
         ArrayList<ArrayList<String>> forecastingTable = readCSV(forecastingFile);
@@ -109,6 +118,26 @@ public class SchedulingApp {
         }
         for (int i = 0; i < courses.size(); i++) {
             assignStudentsToSection(courses.get(i));
+        }
+        //run through the total sections, and if two can combine, combine them
+        ArrayList<Sections> emptySections = new ArrayList<Sections>();
+        for (int i = 0; i < totalSections.size(); i++) {
+            for (int j = 0; j < totalSections.size(); j++) {
+                if(totalSections.get(i) != totalSections.get(j) &&
+                        totalSections.get(i).getPeriod() == totalSections.get(j).getPeriod() &&
+                        totalSections.get(i).getCourse() == totalSections.get(j).getCourse() &&
+                        totalSections.get(i).getStudents().size() <= MAX/2 &&
+                        totalSections.get(j).getStudents().size() <= MAX/2 &&
+                        totalSections.get(j).getStudents().size() != 0 &&
+                        totalSections.get(i).getStudents().size() != 0) {
+                    emptySections.add(totalSections.get(j));
+
+                    combineSections(totalSections.get(i), totalSections.get(j));
+                }
+            }
+        }
+        for (int i = 0; i < emptySections.size(); i++) {
+            totalSections.remove(emptySections.get(i));
         }
         findReassign();
         for (int i = 0; i < students.size(); i++) {
@@ -147,17 +176,19 @@ public class SchedulingApp {
                 //System.out.println(totalSections.get(i).getCourse().getCourseCode() + ", " + totalSections.get(i).getPeriod());
                 ArrayList<Student> swapStudents = new ArrayList<Student>();
                 int half = (int)(totalSections.get(i).getStudents().size() / 2);
-                for (int j = totalSections.get(i).getStudents().size()-2; j >= half; j--) {
+                for (int j = totalSections.get(i).getStudents().size()-1; j >= half; j--) {
                     swapStudents.add(totalSections.get(i).getStudents().get(j));
                     totalSections.get(i).getStudents().get(j).getAssigned()[totalSections.get(i).getPeriod()] = null;
-                    totalSections.get(i).removeStudent(totalSections.get(i).getStudents().get(j));
+                }
+                for (int j = 0; j < swapStudents.size(); j++) {
+                    totalSections.get(i).removeStudent(swapStudents.get(j));
                 }
                 splitMax(totalSections.get(i), swapStudents);
             }
         }
         reassignTeachers();
         makeSchedule();
-for (int i = 0; i < teachers.size(); i++) {
+            for (int i = 0; i < teachers.size(); i++) {
                 if (teachers.get(i).getIdentifier().equals("New Teacher") && teachers.get(i).getTeaching().size() > 0) {
                     totalNewTeachers++;
                 }
@@ -292,6 +323,7 @@ for (int i = 0; i < teachers.size(); i++) {
             String superSectionOutput = "Course, Teacher, Period, Student 1, Student 2, Student 3,...\n";
             for (int i = 0; i < totalPeriods; i++) {
                 for (int j = 0; j < schedule.get(i).size(); j++) {
+                    System.out.println(schedule.get(i).get(j).getTeacher());
                     superSectionOutput += schedule.get(i).get(j).getCourse().getCourseCode() + "," + (schedule.get(i).get(j).getTeacher().getIdentifier()) + "," + (schedule.get(i).get(j).getPeriod() + 1);
                     for (int k = 0; k < schedule.get(i).get(j).getStudents().size(); k++) {
                         superSectionOutput += "," + schedule.get(i).get(j).getStudents().get(k).getIdentifier();
@@ -977,6 +1009,19 @@ for (int i = 0; i < teachers.size(); i++) {
                     }
                     continue OUTER;
                 }
+                //  Skater Dude
+                //
+                //    \\\\\\\
+                //    | -  - |
+                //    |   o  |
+                //     __||__
+                //   //|    |\\
+                //  // |    | ||
+                // //  |____| ||
+                //     //  \\
+                //    //    \\
+                //   //      \\
+
                 //However if the course isn't required
                 else {
                     //If that doesn't work try to move the student to free sections of the other courses they are taking
@@ -1488,6 +1533,19 @@ for (int i = 0; i < teachers.size(); i++) {
                 }
             }
         }
+    }
+
+    public void combineSections(Sections one, Sections two) {
+        ArrayList<Student> addStudents = new ArrayList<Student>();
+        for (int i = 0; i < two.getStudents().size(); i++) {
+            addStudents.add(two.getStudents().get(i));
+        }
+        for (int i = 0; i < addStudents.size(); i++) {
+            one.addStudent(addStudents.get(i));
+            two.removeStudent(addStudents.get(i));
+        }
+        two.getTeacher().getTeaching().remove(two);
+        two.setTheTeacher(null);
     }
 
 
