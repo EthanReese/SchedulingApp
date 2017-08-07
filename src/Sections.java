@@ -68,7 +68,6 @@ public class Sections {
         this.teacher = teacher;
         for(int i = 0; i < students.size(); i++){
             this.students.add(i,students.get(i));
-
         }
     }
 

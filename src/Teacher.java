@@ -14,6 +14,15 @@ public class Teacher {
         }
     }
 
+    public boolean isQualified(Courses course) {
+        for (int i = 0; i < this.qualified.size(); i++) {
+            if (this.qualified.get(i) == course) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public ArrayList<Sections> getTeaching() {
         return teaching;
     }
