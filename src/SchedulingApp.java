@@ -38,7 +38,7 @@ public class SchedulingApp {
     ArrayList<Teacher> teachers = new ArrayList<Teacher>();
     ArrayList<Teacher> addedTeachers = new ArrayList<Teacher>();
     ArrayList<Student> students = new ArrayList<Student>();
-    ArrayList<ArrayList<Sections>> schedule = new ArrayList<>();
+    ArrayList<ArrayList<Sections>> twodschedule = new ArrayList<>();
     ArrayList<Schedule> schedules = new ArrayList<>();
     int MIN = 15;
     int MAX = 40;
@@ -370,12 +370,10 @@ public class SchedulingApp {
             xw = new PrintWriter(new FileWriter(new File("superSectionOutput.txt")));
             String superSectionOutput = "Course, Teacher, Period, Student 1, Student 2, Student 3,...\n";
             for (int i = 0; i < totalPeriods; i++) {
-                for (int j = 0; j < schedule.get(i).size(); j++) {
-                    System.out.println(schedule.get(i).get(j).getTeacher().getIdentifier());
-                    //For each section print out each student
-                    superSectionOutput += schedule.get(i).get(j).getCourse().getCourseCode() + "," + (schedule.get(i).get(j).getTeacher().getIdentifier()) + "," + (schedule.get(i).get(j).getPeriod() + 1);
-                    for (int k = 0; k < schedule.get(i).get(j).getStudents().size(); k++) {
-                        superSectionOutput += "," + schedule.get(i).get(j).getStudents().get(k).getIdentifier();
+                for (int j = 0; j < twodschedule.get(i).size(); j++) {
+                    superSectionOutput += twodschedule.get(i).get(j).getCourse().getCourseCode() + "," + (twodschedule.get(i).get(j).getTeacher().getIdentifier()) + "," + (twodschedule.get(i).get(j).getPeriod() + 1);
+                    for (int k = 0; k < twodschedule.get(i).get(j).getStudents().size(); k++) {
+                        superSectionOutput += "," + twodschedule.get(i).get(j).getStudents().get(k).getIdentifier();
                     }
                     superSectionOutput += "\n";
                 }
@@ -1219,8 +1217,21 @@ public class SchedulingApp {
 
     //this reassigns a student to a random non-required course
     public void studentReassign(Student student) {
+        ArrayList<Courses> freeCourses = new ArrayList<Courses>();
         ArrayList<Sections> freeSections = new ArrayList<Sections>();
         //makes sure the student is not already taking the course
+        if(student.getRequested().size() > totalPeriods) {
+            for (int i = totalPeriods; i < student.getRequested().size(); i++) {
+                freeCourses.add(student.getRequested().get(i));
+            }
+            for(int i = 0; i < freeCourses.size(); i++){
+                for(int j = 0; j < freeCourses.get(i).getSectionsOccuring().size(); j++){
+                    if(student.getAssigned()[freeCourses.get(i).getSectionsOccuring().get(j).getPeriod()] == null){
+                        student.getAssigned()[freeCourses.get(i).getSectionsOccuring().get(j).getPeriod()] = freeCourses.get(i).getSectionsOccuring().get(j);
+                    }
+                }
+            }
+        }
         for (int i = 0; i < totalSections.size(); i++) {
             boolean isAssigned = false;
             for (int j = 0; j < student.getAssigned().length; j++) {
@@ -1230,8 +1241,7 @@ public class SchedulingApp {
                     }
                 }
             }
-            if (totalSections.get(i).getCourse().getRequried() == false && student.getAssigned()[totalSections.get(i).getPeriod()] == null
-                    && !isAssigned) {
+            if (totalSections.get(i).getCourse().getRequried() == false && student.getAssigned()[totalSections.get(i).getPeriod()] == null && !isAssigned) {
                 freeSections.add(totalSections.get(i));
             }
         }
@@ -1244,6 +1254,7 @@ public class SchedulingApp {
             freeSections.get(newSections).addStudent(student);
             return;
         }
+
     }
 
     //   Disco Daz
@@ -1361,15 +1372,12 @@ public class SchedulingApp {
 
     public void makeSchedule() {
         int period;
-        for (int i = 0; i < totalPeriods; i++) {
-            schedule.add(new ArrayList<>());
+        for (int i = 0; i < totalSections.size(); i++) {
+            twodschedule.add(new ArrayList<Sections>());
         }
         for (int i = 0; i < totalSections.size(); i++) {
             period = totalSections.get(i).getPeriod();
-            schedule.get(period).add(totalSections.get(i));
-            if(totalSections.get(i).getTeacher() == null){
-                System.out.println(totalSections.get(i));
-            }
+            twodschedule.get(period).add(totalSections.get(i));
         }
     }
     //     Bubbles
