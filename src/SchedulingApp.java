@@ -59,9 +59,9 @@ public class SchedulingApp implements ActionListener{
     ArrayList<Student> students = new ArrayList<Student>();
     ArrayList<ArrayList<Sections>> twodschedule = new ArrayList<>();
     ArrayList<Schedule> schedules = new ArrayList<>();
-    int MIN = 15;
-    int MAX = 40;
-    int totalPeriods = 8;
+    int MIN;
+    int MAX;
+    int totalPeriods;
     int counter = 0;
     Random random = new Random();
     public static int setFinalPeriods = 0;
@@ -1443,6 +1443,7 @@ public class SchedulingApp implements ActionListener{
                 JOptionPane.showMessageDialog(null, "Please enter a number between 5 and 10 for the total periods.");
                 return;
             }
+            setFinalPeriods = totalPeriods;
             //Maximum students in the class
             try{
                 MAX = Integer.parseInt(maxStudentsInput.getText());
@@ -1482,7 +1483,7 @@ public class SchedulingApp implements ActionListener{
 
 
 
-            //TODO:Make sure the function stops for real when it hits an error in the reading the CSV
+            //TODO:Make sure this function stops for real when it hits an error in the reading the CSV
             //Call the functions corresponding to each individual file
             forecastingTable = readCSV(forecastingFile);
             teacherTable = readCSV(teacherFile);

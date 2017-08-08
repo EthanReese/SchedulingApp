@@ -52,7 +52,7 @@ public class Student {
     }
 
     int periods = SchedulingApp.setFinalPeriods;
-    ArrayList<Courses> requested = new ArrayList<Courses>();
+    ArrayList<Courses> requested = new ArrayList<>();
     Sections[] assigned = new Sections[periods];
     String identifier;
     public Student(ArrayList<Courses> requested, String identifier, int periods){
