@@ -35,5 +35,5 @@ dperez,1201A,1201B,1201C,1201D
 erozendaal,1905A,1905B,1905H
 apark,11153,0833
 dmacdicken,1715AP
-generic1,1122CT
-generic2,1113AAF
+generic1,1122CT,0833
+generic2,1113AAF,1113BP,0833

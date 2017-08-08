@@ -64,7 +64,7 @@ public class SchedulingApp implements ActionListener{
     int totalPeriods;
     int counter = 0;
     Random random = new Random();
-    public static int setFinalPeriods = 0;
+    public static int setFinalPeriods = 8;
     public static int finalFreePeriods = 0;
     int totalNewTeachers = 0;
     boolean failureToAssign = false;
@@ -1054,7 +1054,7 @@ public class SchedulingApp implements ActionListener{
                 section.addStudent(students.get(i));
                 if(students.get(i).getAssigned()[section.getPeriod()] != null) {
                     failureToAssign = true;
-                    //System.out.println("Error");
+                    System.out.println("Error");
                 }
                 students.get(i).getAssigned()[section.getPeriod()] = section;
                 counter++;
@@ -1095,14 +1095,14 @@ public class SchedulingApp implements ActionListener{
         studentReassign(student);
     }
 
-    public void makeSchedule() {
+    public void makeSchedule(ArrayList<Sections> sectionList) {
         int period;
-        for (int i = 0; i < totalSections.size(); i++) {
+        for (int i = 0; i < sectionList.size(); i++) {
             twodschedule.add(new ArrayList<Sections>());
         }
-        for (int i = 0; i < totalSections.size(); i++) {
-            period = totalSections.get(i).getPeriod();
-            twodschedule.get(period).add(totalSections.get(i));
+        for (int i = 0; i < sectionList.size(); i++) {
+            period = sectionList.get(i).getPeriod();
+            twodschedule.get(period).add(sectionList.get(i));
         }
     }
     //     Bubbles
@@ -1574,7 +1574,7 @@ public class SchedulingApp implements ActionListener{
                     }
                 }
                 reassignTeachers();
-                makeSchedule();
+                makeSchedule(totalSections);
                 for (int i = 0; i < teachers.size(); i++) {
                     if (teachers.get(i).getIdentifier().equals("New Teacher") && teachers.get(i).getTeaching().size() > 0) {
                         totalNewTeachers++;
@@ -1618,6 +1618,7 @@ public class SchedulingApp implements ActionListener{
                 System.exit(0);
             }
             //TODO: Make a save dialog for the output files
+            makeSchedule(bestSchedule.getSections());
             PrintWriter pw;
             try {
                 pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
