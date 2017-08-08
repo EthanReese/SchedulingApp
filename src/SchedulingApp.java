@@ -261,7 +261,7 @@ public class SchedulingApp {
             for (int i = 0; i < totalPeriods; i++) {
                 ArrayList<Sections> sectionSchedule = new ArrayList<Sections>();
                 for (int j = 0; j < totalSections.size(); j++) {
-                    if (totalSections.get(j).period == i) {
+                    if (totalSections.get(j).getPeriod() == i) {
                         sectionSchedule.add(totalSections.get(j));
                     }
                 }
@@ -362,7 +362,6 @@ public class SchedulingApp {
             ww.close();
             System.out.println(maxScore);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             System.exit(0);
         }
@@ -372,6 +371,8 @@ public class SchedulingApp {
             String superSectionOutput = "Course, Teacher, Period, Student 1, Student 2, Student 3,...\n";
             for (int i = 0; i < totalPeriods; i++) {
                 for (int j = 0; j < schedule.get(i).size(); j++) {
+                    System.out.println(schedule.get(i).get(j).getTeacher().getIdentifier());
+                    //For each section print out each student
                     superSectionOutput += schedule.get(i).get(j).getCourse().getCourseCode() + "," + (schedule.get(i).get(j).getTeacher().getIdentifier()) + "," + (schedule.get(i).get(j).getPeriod() + 1);
                     for (int k = 0; k < schedule.get(i).get(j).getStudents().size(); k++) {
                         superSectionOutput += "," + schedule.get(i).get(j).getStudents().get(k).getIdentifier();
@@ -599,10 +600,10 @@ public class SchedulingApp {
     public void addSections() {
         //for each course, for each section, create a new section for that course
         for (int i = 0; i < courses.size(); i++) {
-            int total = (int) (Math.ceil((double) courses.get(i).getStudentsInCourse().size() / (double) MAX));
+            int total = (int) (Math.ceil((double) courses.get(i).getStudentsInCourse().size() / (double) (MAX)));
             courses.get(i).setSections(total);
             for (int j = 0; j < total; j++) {
-                ArrayList<Student> fakeStudents = new ArrayList<Student>();
+                ArrayList<Student> fakeStudents = new ArrayList<>();
                 Sections section = new Sections(courses.get(i), 0, null, fakeStudents);
                 totalSections.add(section);
                 courses.get(i).addSection(section);
@@ -1360,12 +1361,15 @@ public class SchedulingApp {
 
     public void makeSchedule() {
         int period;
-        for (int i = 0; i < totalSections.size(); i++) {
-            schedule.add(new ArrayList<Sections>());
+        for (int i = 0; i < totalPeriods; i++) {
+            schedule.add(new ArrayList<>());
         }
         for (int i = 0; i < totalSections.size(); i++) {
             period = totalSections.get(i).getPeriod();
             schedule.get(period).add(totalSections.get(i));
+            if(totalSections.get(i).getTeacher() == null){
+                System.out.println(totalSections.get(i));
+            }
         }
     }
     //     Bubbles
@@ -1392,6 +1396,7 @@ public class SchedulingApp {
                     reassigned.add(totalSections.get(i).getStudents().get(j));
                 }
                 for (int j = reassigned.size()-1; j >= 0; j--) {
+                    //System.out.println(totalSections.get(i));
                     totalSections.get(i).getStudents().get(j).getAssigned()[totalSections.get(i).getPeriod()] = null;
                     totalSections.get(i).removeStudent(totalSections.get(i).getStudents().get(j));
                 }
@@ -1403,6 +1408,8 @@ public class SchedulingApp {
                     reassigned.clear();
                     counter = 0;
                     for (int j = 0; j < count; j++) {
+                        //System.out.println(totalSections.get(i));
+                        reassigned.add(totalSections.get(i).getStudents().get(j));
                         try {
                             reassigned.add(totalSections.get(i).getStudents().get(j));
                         } catch(Exception e) {
