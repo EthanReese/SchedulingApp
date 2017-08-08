@@ -1,5 +1,8 @@
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -17,7 +20,7 @@ import java.util.Scanner;
 
 
 
-public class SchedulingApp {
+public class SchedulingApp implements ActionListener{
 
     //Create the swing interface elements
     JFrame frame = new JFrame();
@@ -26,9 +29,25 @@ public class SchedulingApp {
     JLabel forecastLabel = new JLabel("Forecasting Database Path");
     JLabel teacherLabel = new JLabel("Teacher Database Path");
     JLabel courseLabel = new JLabel("Course Database Path");
+    JLabel periodLabel = new JLabel("Number of periods");
+    JLabel maxStudentsInCourse = new JLabel("Maximum Students in Course");
+    JLabel minStudentsInCourse = new JLabel("Minimum Students in the Course");
+    JLabel freePeriodLabel = new JLabel("Minimum free periods per teacher");
     JTextField forecastInput = new JTextField();
     JTextField teacherInput = new JTextField();
     JTextField courseInput = new JTextField();
+    JTextField periodInput = new JTextField();
+    JTextField maxStudentsInput = new JTextField();
+    JTextField minStudentsInput = new JTextField();
+    JTextField freePeriodInput = new JTextField();
+    JButton selectForecast = new JButton("Open File");
+    JButton selectTeacher = new JButton("Open File");
+    JButton selectCourse = new JButton("Open File");
+    final JFileChooser fc = new JFileChooser();
+
+    private Container north = new Container();
+    private Container south = new Container();
+
 
     BufferedReader br = null;
     Scanner scanner = new Scanner(System.in);
@@ -49,369 +68,62 @@ public class SchedulingApp {
     public static int finalFreePeriods = 0;
     int totalNewTeachers = 0;
     boolean failureToAssign = false;
-    String forecastingFile;
-    String teacherFile;
-    String courseFile;
+    File forecastingFile;
+    File teacherFile;
+    File courseFile;
     ArrayList<ArrayList<String>> forecastingTable;
     ArrayList<ArrayList<String>> teacherTable;
     ArrayList<ArrayList<String>> courseTable;
 
     public SchedulingApp() {
+        frame.setSize(1000, 400);
+        frame.setLayout(new BorderLayout());
+        north.setLayout(new GridLayout(3,3));
+        north.add(forecastLabel);
+        north.add(forecastInput);
+        north.add(selectForecast);
+        north.add(teacherLabel);
+        north.add(teacherInput);
+        north.add(selectTeacher);
+        north.add(courseLabel);
+        north.add(courseInput);
+        north.add(selectCourse);
+        selectForecast.addActionListener(this);
+        selectTeacher.addActionListener(this);
+        selectCourse.addActionListener(this);
+
+        generateButton.addActionListener(this);
+
+
+        south.setLayout(new GridLayout(2,4));
+        south.add(periodLabel);
+        south.add(maxStudentsInCourse);
+        south.add(minStudentsInCourse);
+        south.add(freePeriodLabel);
+        south.add(periodInput);
+        south.add(maxStudentsInput);
+        south.add(minStudentsInput);
+        south.add(freePeriodInput);
+
+
+        frame.add(generateButton, BorderLayout.CENTER);
+        frame.add(south, BorderLayout.SOUTH);
+        frame.add(north, BorderLayout.NORTH);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
+
         //Potentially do this as some kind of GUI
 
 
-        //Prompt the user for input of the files and assign the paths to strings
-        System.out.println("Please input the path of the file with the forecasting options.");
-        String forecastingFile = scanner.nextLine();
-        System.out.println("Please input the path of the file with a teacher list and qualifications.");
-        String teacherFile = scanner.nextLine();
-        System.out.println("Please input the path of the file with the course list.");
-        String courseFile = scanner.nextLine();
-        String maximum;
-        Boolean proceed = true;
-        //Make sure the user put in a proper number for their input
-        INPUT:
-        while(MAX < 10 || proceed) {
-            System.out.println("Enter a maximum number of students in each course that is at least 10");
-            maximum = scanner.nextLine();
-            try {
-                MAX = Integer.parseInt(maximum);
-            }catch (NumberFormatException e){
-                proceed = true;
-                continue INPUT;
-            }
-            proceed = false;
-        }
-        proceed = true;
-        String minimum;
-        //Check to make sure the input is an integer and it fits the constraints
-        CHECK:
-        while(MIN < 5||proceed) {
-            System.out.println("Enter a minimum number of students in each course that is greater than 5 and does not exceed half of the maximum");
-            minimum = scanner.nextLine();
-            try {
-                MIN = Integer.parseInt(minimum);
-            }catch (NumberFormatException e){
-                proceed = true;
-                continue CHECK;
-            }
-            proceed = false;
-        }
-        proceed = true;
-        String periodNumber;
-        while(totalPeriods < 5 || totalPeriods > 10|| proceed) {
-            System.out.println("How many periods does your school offer? (5-10)");
-            periodNumber = scanner.nextLine();
-            try {
-                totalPeriods = Integer.parseInt(periodNumber);
-            }catch (NumberFormatException e){
-                proceed = true;
-                continue;
-            }
-            proceed = false;
-        }
-        setFinalPeriods = totalPeriods;
-        System.out.println("What is the minimum number of free periods for a teacher?");
-        String freePeriodNumber = scanner.nextLine();
-        finalFreePeriods = Integer.parseInt(freePeriodNumber);
-        while (finalFreePeriods > totalPeriods-1) {
-            System.out.println("This number of free periods is invalid, please try again.");
-            freePeriodNumber = scanner.nextLine();
-            finalFreePeriods = Integer.parseInt(freePeriodNumber);
-        }
 
-        //Call the functions corresponding to each individual file
-        forecastingTable = readCSV(forecastingFile);
-        teacherTable = readCSV(teacherFile);
-        courseTable = readCSV(courseFile);
-        //Run the following part a few times
-        for (int c = 0; c < 3; c++) {
-            //Convert the files into the proper types of objects
-            classes(courseTable);
-            teacherCreation(teacherTable);
-            requestedClasses(forecastingTable, courses);
-            //Run all of our actual functions that do stuff
-            setClassList();
-            reassign(courses);
-            teachingClasses(teachers, courses);
-            addSections();
-            courses = BubbleSort(courses);
-
-
-        addPeriod(courses);
-        for (int i = 0; i < courses.size(); i++) {
-            teacherSections(courses.get(i));
-        }
-        for (int i = 0; i < courses.size(); i++) {
-            assignStudentsToSection(courses.get(i));
-        }
-        //run through the total sections, and if two can combine, combine them
-        ArrayList<Sections> emptySections = new ArrayList<Sections>();
-        for (int i = 0; i < totalSections.size(); i++) {
-            for (int j = 0; j < totalSections.size(); j++) {
-                if(totalSections.get(i) != totalSections.get(j) &&
-                        totalSections.get(i).getPeriod() == totalSections.get(j).getPeriod() &&
-                        totalSections.get(i).getCourse() == totalSections.get(j).getCourse() &&
-                        totalSections.get(i).getStudents().size() <= MAX/2 &&
-                        totalSections.get(j).getStudents().size() <= MAX/2 &&
-                        totalSections.get(j).getStudents().size() != 0 &&
-                        totalSections.get(i).getStudents().size() != 0) {
-                    emptySections.add(totalSections.get(j));
-                    combineSections(totalSections.get(i), totalSections.get(j));
-                }
-            }
-        }
-        for (int i = 0; i < emptySections.size(); i++) {
-            totalSections.remove(emptySections.get(i));
-        }
-            for (int i = 0; i < students.size(); i++) {
-                for (int j = 0; j < students.get(i).getAssigned().length; j++) {
-                    if(students.get(i).getAssigned()[j] == null) {
-                        studentReassign(students.get(i));
-                    }
-                }
-            }
-        findReassign();
-        for (int i = totalSections.size()-1; i >= 0; i--) {
-            if (totalSections.get(i).getStudents().size() < MIN) {
-                if(totalSections.get(i).getStudents().size() == 0) {
-                    totalSections.get(i).getTeacher().getTeaching().remove(totalSections.get(i));
-                    totalSections.remove(i);
-                }
-                else if(totalSections.get(i).getCourse().getRequried() == false) {
-                    //this was an infinate for loop: fix this
-                    int forloop = totalSections.get(i).getStudents().size();
-                    Sections minSection = totalSections.get(i);
-                    for (int j = forloop-1; j >= 0; j--) {
-                        Student student = minSection.getStudents().get(j);
-                        student.getAssigned()[minSection.getPeriod()] = null;
-                        for (int k = 0; k < totalSections.size(); k++) {
-                            if (totalSections.get(k).getPeriod() == minSection.getPeriod() &&
-                                    totalSections.get(k).getCourse().getRequried() == false &&
-                                    totalSections.get(k) != minSection) {
-                                student.getAssigned()[totalSections.get(i).getPeriod()] = totalSections.get(k);
-                                totalSections.get(k).addStudent(student);
-                            }
-                        }
-                    }
-                    minSection.getStudents().clear();
-                    totalSections.get(i).getTeacher().getTeaching().remove(totalSections.get(i));
-                    totalSections.remove(i);
-                }
-                else {
-                    ArrayList<Student> reassignReq = new ArrayList<Student>();
-                    for (int j = 0; j < totalSections.get(i).getStudents().size(); j++) {
-                        reassignReq.add(totalSections.get(i).getStudents().get(j));
-                    }
-                    reassignReqBelowMin(reassignReq, totalSections.get(i));
-                }
-            }
-        }
-        for (int i = totalSections.size()-1; i >= 0; i--) {
-            if(totalSections.get(i).getStudents().size() > MAX) {
-                //System.out.println(totalSections.get(i).getCourse().getCourseCode() + ", " + totalSections.get(i).getPeriod());
-                ArrayList<Student> swapStudents = new ArrayList<Student>();
-                int half = (int)(totalSections.get(i).getStudents().size() / 2);
-                for (int j = totalSections.get(i).getStudents().size()-1; j >= half; j--) {
-                    swapStudents.add(totalSections.get(i).getStudents().get(j));
-                    totalSections.get(i).getStudents().get(j).getAssigned()[totalSections.get(i).getPeriod()] = null;
-                }
-                for (int j = 0; j < swapStudents.size(); j++) {    totalSections.get(i).removeStudent(swapStudents.get(j));
-                }
-                splitMax(totalSections.get(i), swapStudents);
-            }
-            /*else if (totalSections.get(i).getStudents().size() > MAX && (double)(totalSections.get(i).getStudents().size()/2) < MIN) {
-                System.out.print(".");
-            }*/
-        }
-        reassignTeachers();
-        makeSchedule();
-        for (int i = 0; i < teachers.size(); i++) {
-                if (teachers.get(i).getIdentifier().equals("New Teacher") && teachers.get(i).getTeaching().size() > 0) {
-                    totalNewTeachers++;
-                }
-            }
-            Schedule schedule = new Schedule();
-            schedule.setTeachers(teachers);
-            schedule.setAddedTeachers(addedTeachers);
-            schedule.setSections(totalSections);
-            schedule.setCourses(courses);
-            schedule.setStudents(students);
-            schedule.setScore(score(students, totalNewTeachers));
-            schedule.setNewTeachers(totalNewTeachers);
-            schedules.add(schedule);
-            teachers.clear();
-            addedTeachers.clear();
-            totalSections.clear();
-            courses.clear();
-            students.clear();
-            totalNewTeachers = 0;
-            failureToAssign = false;
-        }
-        //Loop through all of the schedules that are created and find the one with the highest score
-        Double maxScore = Double.MIN_VALUE;
-        Schedule bestSchedule = new Schedule();
-        for (int i = 0; i < schedules.size(); i++) {
-            if(schedules.get(i).getScore()>maxScore){
-                maxScore = schedules.get(i).getScore();
-                bestSchedule = schedules.get(i);
-            }
-        }
-        teachers = bestSchedule.getTeachers();
-        addedTeachers = bestSchedule.getAddedTeachers();
-        totalSections = bestSchedule.getSections();
-        courses = bestSchedule.getCourses();
-        students = bestSchedule.getStudents();
-        totalNewTeachers = bestSchedule.getNewTeachers();
-        if(bestSchedule.getTeachers() == null || bestSchedule.getAddedTeachers() == null ||
-                bestSchedule.getSections() == null) {
-            System.out.println("No generated schedules have scored high enough. Please try again.");
-            System.exit(0);
-        }
-        PrintWriter pw;
-        try {
-            pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
-            //create the output string
-            String sectionsOutput = "Course, Teacher, # of Students\n";
-            for (int i = 0; i < totalPeriods; i++) {
-                ArrayList<Sections> sectionSchedule = new ArrayList<Sections>();
-                for (int j = 0; j < totalSections.size(); j++) {
-                    if (totalSections.get(j).getPeriod() == i) {
-                        sectionSchedule.add(totalSections.get(j));
-                    }
-                }
-                sectionsOutput += "Period: " + (i + 1) + "\n";
-                //Loop through all of the sections that have been scheduled and find what period they are occurring.
-                for (int j = 0; j < sectionSchedule.size(); j++) {
-                    try {
-                        sectionsOutput += sectionSchedule.get(j).getCourse().getCourseCode() + ", " + sectionSchedule.get(j).getTeacher().getIdentifier() + ", " + sectionSchedule.get(j).getStudents().size() + " students" + "\n";
-                    } catch (NullPointerException n) {
-
-                    }
-                }
-            }
-            pw.write(sectionsOutput);
-            pw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
-        PrintWriter ow;
-        try {
-            ow = new PrintWriter(new FileWriter(new File("studentOutput.txt")));
-            //create the output string
-            //IS STUDENT ASSIGNMENT IN ORDER???? That's what this assumes.
-            String studentOutput = "Student, Per. 1(teacher), Per. 2(teacher), ...\n";
-            for (int i = 0; i < students.size(); i++) {
-                studentOutput += students.get(i).getIdentifier() + ":\n";
-                for (int j = 0; j < totalPeriods; j++) {
-                    try {
-                        studentOutput += students.get(i).getAssigned()[j].getCourse().getCourseCode() + "(" + students.get(i).getAssigned()[j].getTeacher().getIdentifier()+ ")";
-                    } catch (NullPointerException e) {
-                        try {
-                            System.out.println(students.get(i).getAssigned()[j].getTeacher().getIdentifier());
-                        } catch(NullPointerException n) {
-                            System.out.println("Null, " + j + ", " + students.get(i).getAssigned()[j].getCourse().getCourseCode());
-                        }
-                        studentOutput += "Free,";
-                    }
-                }
-                studentOutput += "\n";
-            }
-            int perfect = 0;
-            for (int i = 0; i < students.size(); i++) {
-                for (int j = 0; j < students.get(i).getRequested().size(); j++) {
-                    for (int k = 0; k < students.get(i).getAssigned().length; k++) {
-                        if (students.get(i).getAssigned()[k] == null) {
-                            System.out.println("?");
-                        }
-                        else if(students.get(i).getAssigned()[k].getCourse().getCourseCode() == students.get(i).getRequested().get(j).getCourseCode()) {
-                            perfect++;
-                            break;
-                        }
-                    }
-                }
-            }
-            double totalPerfect = ((double)perfect / ((double)students.size()*totalPeriods))*100.0;
-            studentOutput += "Student Satisfaction: " + totalPerfect + "%";
-            ow.write(studentOutput);
-            ow.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.exit(0);
-        }
-
-        PrintWriter ww;
-        try {
-            ww = new PrintWriter(new FileWriter(new File("teacherOutput.txt")));
-            //create the output string
-            String teacherOutput = "Teacher,Per. 1, Per. 2, ...\n";
-            ArrayList<Teacher> fired = new ArrayList<Teacher>();
-            for (int i = 0; i < teachers.size(); i++) {
-                if (teachers.get(i).getTeaching().size() != 0) {
-                    teacherOutput += teachers.get(i).identifier + ": ";
-                    for (int j = 0; j < totalPeriods; j++) {
-                        int period = j;
-                        for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
-                            if (teachers.get(i).getTeaching().get(k).getPeriod() == (j)) {
-                                teacherOutput += teachers.get(i).getTeaching().get(k).getCourse().getCourseCode() + ", ";
-                                period++;
-                            }
-                        }
-                        if (period == j) {
-                            teacherOutput += "Free, ";
-                        }
-                    }
-                    teacherOutput += "\n";
-                } else {
-                    fired.add(teachers.get(i));
-                }
-            }
-            teacherOutput += "\nTeachers to be Fired: \n";
-            for (int i = 0; i < fired.size(); i++) {
-                if(fired.get(i).getIdentifier() != "New Teacher") {
-                    teacherOutput += fired.get(i).getIdentifier() + "\n";
-                }
-            }
-
-            //track how many New Teachers are added
-
-            teacherOutput += "\nTotal New Teachers: " + totalNewTeachers;
-            ww.write(teacherOutput);
-            ww.close();
-            System.out.println(maxScore);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
-        PrintWriter xw;
-        try {
-            xw = new PrintWriter(new FileWriter(new File("superSectionOutput.txt")));
-            String superSectionOutput = "Course, Teacher, Period, Student 1, Student 2, Student 3,...\n";
-            for (int i = 0; i < totalPeriods; i++) {
-                for (int j = 0; j < twodschedule.get(i).size(); j++) {
-                    superSectionOutput += twodschedule.get(i).get(j).getCourse().getCourseCode() + "," + (twodschedule.get(i).get(j).getTeacher().getIdentifier()) + "," + (twodschedule.get(i).get(j).getPeriod() + 1);
-                    for (int k = 0; k < twodschedule.get(i).get(j).getStudents().size(); k++) {
-                        superSectionOutput += "," + twodschedule.get(i).get(j).getStudents().get(k).getIdentifier();
-                    }
-                    superSectionOutput += "\n";
-                }
-                superSectionOutput += "\n";
-            }
-            xw.write(superSectionOutput);
-            xw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
     }
 
     public static void main(String[] args) {
         new SchedulingApp();
     }
 
-    public ArrayList<ArrayList<String>> readCSV(String filePath) {
+    public ArrayList<ArrayList<String>> readCSV(File filePath) {
         //Make a proper arraylist to return
         ArrayList<ArrayList<String>> returnList = new ArrayList<ArrayList<String>>();
         int counter = 0;
@@ -423,25 +135,19 @@ public class SchedulingApp {
             while ((line = br.readLine()) != null) {
                 ArrayList<String> tempList = new ArrayList<>(Arrays.asList((line).split(",")));
                 returnList.add(counter, tempList);
-                counter ++;
+                ++counter;
             }
 
         } catch (FileNotFoundException e) {
             System.out.println("There is no file located at the path " + filePath);
                 if(String.valueOf(forecastingFile) == String.valueOf(filePath)){
-                    System.out.println("Please enter a new forecasting file.");
-                    String input  = scanner.nextLine();
-                    forecastingTable = readCSV(input);
+                    JOptionPane.showMessageDialog(null, "Please enter a new forecasting file and restart the program");
                 }
                 else if(teacherFile == filePath) {
-                    System.out.println("Please enter a new teacher file.");
-                    String input = scanner.nextLine();
-                    teacherTable = readCSV(input);
+                    JOptionPane.showMessageDialog(null, "Please enter a new teacher file.");
                 }
                 else if(courseFile == filePath) {
-                    System.out.println("Please enter a valid courses file.");
-                    String input = scanner.nextLine();
-                    courseTable = readCSV(input);
+                    JOptionPane.showMessageDialog(null, "Please enter a valid courses file.");
                 }
 
         } catch (IOException e) {
@@ -466,8 +172,7 @@ public class SchedulingApp {
             if (courseTable.get(i).get(1).equals("true")) {
                 isRequired = true;
             }
-            Double credit = Double.parseDouble(courseTable.get(i).get(2));
-            Courses course = new Courses(name, isRequired, credit);
+            Courses course = new Courses(name, isRequired);
             courses.add(course);
         }
     }
@@ -519,7 +224,7 @@ public class SchedulingApp {
                             courses.get(k).addStudent(students.get(i).getIdentifier());
                         }
                     }catch(NullPointerException e){
-                        System.out.println("Null");
+                        //System.out.println("Null");
                     }
                 }
             }
@@ -881,7 +586,7 @@ public class SchedulingApp {
             }
         }
         //If the student doesn't exist then its an error so this is a debug comment
-        System.out.println("A search was made for a student that doesn't exist.");
+        //System.out.println("A search was made for a student that doesn't exist.");
         return null;
     }
 
@@ -1349,7 +1054,7 @@ public class SchedulingApp {
                 section.addStudent(students.get(i));
                 if(students.get(i).getAssigned()[section.getPeriod()] != null) {
                     failureToAssign = true;
-                    System.out.println("Error");
+                    //System.out.println("Error");
                 }
                 students.get(i).getAssigned()[section.getPeriod()] = section;
                 counter++;
@@ -1683,4 +1388,366 @@ public class SchedulingApp {
     }
 
 
+    @Override
+    public void actionPerformed(ActionEvent ex) {
+        //If the user presses the button to get a forcasting file
+        if(ex.getSource() == selectForecast){
+            int returnVal = fc.showOpenDialog(null);
+            //Then it needs to pop up the picker and once a value is picked it needs to remember that value and write it into the jtextentry
+            if(returnVal == JFileChooser.APPROVE_OPTION){
+                forecastingFile = fc.getSelectedFile();
+                forecastInput.setText(forecastingFile.getAbsolutePath());
+            }
+        }
+        else if(ex.getSource() == selectTeacher){
+            int returnVal = fc.showOpenDialog(null);
+
+            if(returnVal == JFileChooser.APPROVE_OPTION){
+                teacherFile = fc.getSelectedFile();
+                teacherInput.setText(teacherFile.getAbsolutePath());
+            }
+        }
+        else if(ex.getSource() == selectCourse){
+            int returnVal = fc.showOpenDialog(null);
+
+            if(returnVal == JFileChooser.APPROVE_OPTION){
+                courseFile = fc.getSelectedFile();
+                courseInput.setText(courseFile.getAbsolutePath());
+            }
+        }
+        //Otherwise, we're going to need to run the whole program to generate.
+        else if(ex.getSource() == generateButton){
+            //Validate file inputs, if it isn't already defined, check the input
+            if(forecastingFile == null){
+                String k = forecastInput.getText();
+                forecastingFile = new File(k);
+            }
+            if(teacherFile == null){
+                String k = teacherInput.getText();
+                teacherFile = new File(k);
+            }
+            if(courseFile == null){
+                String k = courseInput.getText();
+                courseFile = new File(k);
+            }
+            //Take in the ancillary inputs, and validate them to make sure they work right
+            //Period input
+            try {
+                totalPeriods = Integer.parseInt(periodInput.getText());
+            }catch(NumberFormatException e){
+                JOptionPane.showMessageDialog(null, "Please enter a valid Integer for your number of periods.");
+                return;
+            }
+            //If the period input isn't a number that we want it to be than make them enter a new one
+            if(totalPeriods>10 || totalPeriods<5){
+                JOptionPane.showMessageDialog(null, "Please enter a number between 5 and 10 for the total periods.");
+                return;
+            }
+            //Maximum students in the class
+            try{
+                MAX = Integer.parseInt(maxStudentsInput.getText());
+            }catch(NumberFormatException e){
+                JOptionPane.showMessageDialog(null, "Please enter a valid Integer for your maximum students in course.");
+                return;
+            }
+            //Make sure the max is above 10
+            if(MAX<10){
+                JOptionPane.showMessageDialog(null, "Please enter a number above 10 for your max students in section.");
+                return;
+            }
+
+            //Minimum students in a section
+            try {
+                MIN = Integer.parseInt(minStudentsInput.getText());
+            }catch(NumberFormatException e){
+                JOptionPane.showMessageDialog(null, "Please enter a valid integer for your minimum number of students in section");
+                return;
+            }
+            //Make sure the minimum is also less than half of the minimum
+            if(MIN<5 || MIN>((MAX/2)+1)){
+                JOptionPane.showMessageDialog(null, "Please enter a number that is above 5 and less than half of the maximum students for your minimum students");
+                return;
+            }
+
+            //Check on the free periods input
+            try{
+                finalFreePeriods = Integer.parseInt(freePeriodInput.getText());
+            }catch(NumberFormatException e){
+                JOptionPane.showMessageDialog(null, "Please enter a valid integer for your minimum teacher free periods");
+            }
+            //Make sure the input for teacher free periods is reasonable
+            if(finalFreePeriods>totalPeriods-1){
+                JOptionPane.showMessageDialog(null, "Please enter a number for minimum teacher free periods that is at least 2 less than the maximum periods");
+            }
+
+
+
+            //TODO:Make sure the function stops for real when it hits an error in the reading the CSV
+            //Call the functions corresponding to each individual file
+            forecastingTable = readCSV(forecastingFile);
+            teacherTable = readCSV(teacherFile);
+            courseTable = readCSV(courseFile);
+            //Run the following part a few times
+            for (int c = 0; c < 3; c++) {
+                //Convert the files into the proper types of objects
+                classes(courseTable);
+                teacherCreation(teacherTable);
+                requestedClasses(forecastingTable, courses);
+                //Run all of our actual functions that do stuff
+                setClassList();
+                reassign(courses);
+                teachingClasses(teachers, courses);
+                addSections();
+                courses = BubbleSort(courses);
+
+
+                addPeriod(courses);
+                for (int i = 0; i < courses.size(); i++) {
+                    teacherSections(courses.get(i));
+                }
+                for (int i = 0; i < courses.size(); i++) {
+                    assignStudentsToSection(courses.get(i));
+                }
+                //run through the total sections, and if two can combine, combine them
+                ArrayList<Sections> emptySections = new ArrayList<Sections>();
+                for (int i = 0; i < totalSections.size(); i++) {
+                    for (int j = 0; j < totalSections.size(); j++) {
+                        if(totalSections.get(i) != totalSections.get(j) &&
+                                totalSections.get(i).getPeriod() == totalSections.get(j).getPeriod() &&
+                                totalSections.get(i).getCourse() == totalSections.get(j).getCourse() &&
+                                totalSections.get(i).getStudents().size() <= MAX/2 &&
+                                totalSections.get(j).getStudents().size() <= MAX/2 &&
+                                totalSections.get(j).getStudents().size() != 0 &&
+                                totalSections.get(i).getStudents().size() != 0) {
+                            emptySections.add(totalSections.get(j));
+                            combineSections(totalSections.get(i), totalSections.get(j));
+                        }
+                    }
+                }
+                for (int i = 0; i < emptySections.size(); i++) {
+                    totalSections.remove(emptySections.get(i));
+                }findReassign();
+                for (int i = 0; i < students.size(); i++) {
+                    for (int j = 0; j < students.get(i).getAssigned().length; j++) {
+                        if(students.get(i).getAssigned()[j] == null) {
+                            studentReassign(students.get(i));
+                        }
+                    }
+                }
+                for (int i = totalSections.size()-1; i >= 0; i--) {
+                    if (totalSections.get(i).getStudents().size() < MIN) {
+                        if(totalSections.get(i).getStudents().size() == 0) {
+                            totalSections.get(i).getTeacher().getTeaching().remove(totalSections.get(i));
+                            totalSections.remove(i);
+                        }
+                        else if(totalSections.get(i).getCourse().getRequried() == false) {
+                            for (int j = 0; j < totalSections.get(i).getStudents().size(); j++) {
+                                Student student = totalSections.get(i).getStudents().get(j);
+                                student.getAssigned()[totalSections.get(i).getPeriod()] = null;
+                                studentReassign(student);
+                            }
+                            totalSections.get(i).getTeacher().getTeaching().remove(totalSections.get(i));
+                            totalSections.remove(i);
+
+                        }else {
+                            ArrayList<Student> reassignReq = new ArrayList<Student>();
+                            for (int j = 0; j < totalSections.get(i).getStudents().size(); j++) {
+                                reassignReq.add(totalSections.get(i).getStudents().get(j));
+                            }
+                            reassignReqBelowMin(reassignReq, totalSections.get(i));
+                        }
+                    }
+                }
+                for (int i = totalSections.size()-1; i >= 0; i--) {
+                    if(totalSections.get(i).getStudents().size() > MAX) {
+                        //System.out.println(totalSections.get(i).getCourse().getCourseCode() + ", " + totalSections.get(i).getPeriod());
+                        ArrayList<Student> swapStudents = new ArrayList<Student>();
+                        int half = (int)(totalSections.get(i).getStudents().size() / 2);
+                        for (int j = totalSections.get(i).getStudents().size()-1; j >= half; j--) {
+                            swapStudents.add(totalSections.get(i).getStudents().get(j));
+                            totalSections.get(i).getStudents().get(j).getAssigned()[totalSections.get(i).getPeriod()] = null;
+                        }
+                        for (int j = 0; j < swapStudents.size(); j++) {    totalSections.get(i).removeStudent(swapStudents.get(j));
+                        }
+                        splitMax(totalSections.get(i), swapStudents);
+                    }
+                }
+                reassignTeachers();
+                makeSchedule();
+                for (int i = 0; i < teachers.size(); i++) {
+                    if (teachers.get(i).getIdentifier().equals("New Teacher") && teachers.get(i).getTeaching().size() > 0) {
+                        totalNewTeachers++;
+                    }
+                }
+                Schedule schedule = new Schedule();
+                schedule.setTeachers(teachers);
+                schedule.setAddedTeachers(addedTeachers);
+                schedule.setSections(totalSections);
+                schedule.setCourses(courses);
+                schedule.setStudents(students);
+                schedule.setScore(score(students, totalNewTeachers));
+                schedule.setNewTeachers(totalNewTeachers);
+                schedules.add(schedule);
+                teachers.clear();
+                addedTeachers.clear();
+                totalSections.clear();
+                courses.clear();
+                students.clear();
+                totalNewTeachers = 0;
+                failureToAssign = false;
+            }
+            //Loop through all of the schedules that are created and find the one with the highest score
+            Double maxScore = Double.MIN_VALUE;
+            Schedule bestSchedule = new Schedule();
+            for (int i = 0; i < schedules.size(); i++) {
+                if(schedules.get(i).getScore()>maxScore){
+                    maxScore = schedules.get(i).getScore();
+                    bestSchedule = schedules.get(i);
+                }
+            }
+            teachers = bestSchedule.getTeachers();
+            addedTeachers = bestSchedule.getAddedTeachers();
+            totalSections = bestSchedule.getSections();
+            courses = bestSchedule.getCourses();
+            students = bestSchedule.getStudents();
+            totalNewTeachers = bestSchedule.getNewTeachers();
+            if(bestSchedule.getTeachers() == null || bestSchedule.getAddedTeachers() == null ||
+                    bestSchedule.getSections() == null) {
+                JOptionPane.showMessageDialog(null, "There was an internal error. Try running the program again with the same inputs.");
+                System.exit(0);
+            }
+            //TODO: Make a save dialog for the output files
+            PrintWriter pw;
+            try {
+                pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
+                //create the output string
+                String sectionsOutput = "Course, Teacher, # of Students\n";
+                for (int i = 0; i < totalPeriods; i++) {
+                    ArrayList<Sections> sectionSchedule = new ArrayList<Sections>();
+                    for (int j = 0; j < totalSections.size(); j++) {
+                        if (totalSections.get(j).getPeriod() == i) {
+                            sectionSchedule.add(totalSections.get(j));
+                        }
+                    }
+                    sectionsOutput += "Period: " + (i + 1) + "\n";
+                    //Loop through all of the sections that have been scheduled and find what period they are occurring.
+                    for (int j = 0; j < sectionSchedule.size(); j++) {
+                        try {
+                            sectionsOutput += sectionSchedule.get(j).getCourse().getCourseCode() + ", " + sectionSchedule.get(j).getTeacher().getIdentifier() + ", " + sectionSchedule.get(j).getStudents().size() + " students" + "\n";
+                        } catch (NullPointerException n) {
+
+                        }
+                    }
+                }
+                pw.write(sectionsOutput);
+                pw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+            PrintWriter ow;
+            try {
+                ow = new PrintWriter(new FileWriter(new File("studentOutput.txt")));
+                //create the output string
+                //IS STUDENT ASSIGNMENT IN ORDER???? That's what this assumes.
+                String studentOutput = "Student, Per. 1(teacher), Per. 2(teacher), ...\n";
+                for (int i = 0; i < students.size(); i++) {
+                    studentOutput += students.get(i).getIdentifier() + ":\n";
+                    for (int j = 0; j < totalPeriods; j++) {
+                        try {
+                            studentOutput += students.get(i).getAssigned()[j].getCourse().getCourseCode() + "(" + students.get(i).getAssigned()[j].getTeacher().getIdentifier()+ ")";
+                        } catch (NullPointerException e) {
+                            studentOutput += "Free,";
+                        }
+                    }
+                    studentOutput += "\n";
+                }
+                int perfect = 0;
+                for (int i = 0; i < students.size(); i++) {
+                    for (int j = 0; j < students.get(i).getRequested().size(); j++) {
+                        for (int k = 0; k < students.get(i).getAssigned().length; k++) {
+                            if (students.get(i).getAssigned()[k] == null) {
+                                //System.out.println("?");
+                            }
+                            else if(students.get(i).getAssigned()[k].getCourse().getCourseCode() == students.get(i).getRequested().get(j).getCourseCode()) {
+                                perfect++;
+                                break;
+                            }
+                        }
+                    }
+                }
+                double totalPerfect = ((double)perfect / ((double)students.size()*totalPeriods))*100.0;
+                studentOutput += "Student Satisfaction: " + totalPerfect + "%";
+                ow.write(studentOutput);
+                ow.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+
+            PrintWriter ww;
+            try {
+                ww = new PrintWriter(new FileWriter(new File("teacherOutput.txt")));
+                //create the output string
+                String teacherOutput = "Teacher,Per. 1, Per. 2, ...\n";
+                ArrayList<Teacher> fired = new ArrayList<Teacher>();
+                for (int i = 0; i < teachers.size(); i++) {
+                    if (teachers.get(i).getTeaching().size() != 0) {
+                        teacherOutput += teachers.get(i).identifier + ": ";
+                        for (int j = 0; j < totalPeriods; j++) {
+                            int period = j;
+                            for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
+                                if (teachers.get(i).getTeaching().get(k).getPeriod() == (j)) {
+                                    teacherOutput += teachers.get(i).getTeaching().get(k).getCourse().getCourseCode() + ", ";
+                                    period++;
+                                }
+                            }
+                            if (period == j) {
+                                teacherOutput += "Free, ";
+                            }
+                        }
+                        teacherOutput += "\n";
+                    } else {
+                        fired.add(teachers.get(i));
+                    }
+                }
+                teacherOutput += "\nTeachers to be Fired: \n";
+                for (int i = 0; i < fired.size(); i++) {
+                    if(fired.get(i).getIdentifier() != "New Teacher") {
+                        teacherOutput += fired.get(i).getIdentifier() + "\n";
+                    }
+                }
+
+                //track how many New Teachers are added
+
+                teacherOutput += "\nTotal New Teachers: " + totalNewTeachers;
+                ww.write(teacherOutput);
+                ww.close();
+                System.out.println(maxScore);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+            PrintWriter xw;
+            try {
+                xw = new PrintWriter(new FileWriter(new File("superSectionOutput.txt")));
+                String superSectionOutput = "Course, Teacher, Period, Student 1, Student 2, Student 3,...\n";
+                for (int i = 0; i < totalPeriods; i++) {
+                    for (int j = 0; j < twodschedule.get(i).size(); j++) {
+                        superSectionOutput += twodschedule.get(i).get(j).getCourse().getCourseCode() + "," + (twodschedule.get(i).get(j).getTeacher().getIdentifier()) + "," + (twodschedule.get(i).get(j).getPeriod() + 1);
+                        for (int k = 0; k < twodschedule.get(i).get(j).getStudents().size(); k++) {
+                            superSectionOutput += "," + twodschedule.get(i).get(j).getStudents().get(k).getIdentifier();
+                        }
+                        superSectionOutput += "\n";
+                    }
+                    superSectionOutput += "\n";
+                }
+                xw.write(superSectionOutput);
+                xw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+        }
+    }
 }

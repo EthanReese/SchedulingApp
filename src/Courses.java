@@ -78,10 +78,9 @@ public class Courses {
     ArrayList<String> teachersTeachingCourse = new ArrayList<String>();
     ArrayList<Sections> sections = new ArrayList<>();
 
-    public Courses(String codeInput, Boolean requiredInput, Double creditInput){
+    public Courses(String codeInput, Boolean requiredInput){
         this.courseCode = codeInput;
         this.requried = requiredInput;
-        this.creditAmount = creditInput;
     }
 
     public void addStudent(String studentName){
