@@ -164,6 +164,13 @@ public class SchedulingApp {
         for (int i = 0; i < emptySections.size(); i++) {
             totalSections.remove(emptySections.get(i));
         }
+            for (int i = 0; i < students.size(); i++) {
+                for (int j = 0; j < students.get(i).getAssigned().length; j++) {
+                    if(students.get(i).getAssigned()[j] == null) {
+                        studentReassign(students.get(i));
+                    }
+                }
+            }
         findReassign();
         for (int i = totalSections.size()-1; i >= 0; i--) {
             if (totalSections.get(i).getStudents().size() < MIN) {
@@ -216,13 +223,6 @@ public class SchedulingApp {
             /*else if (totalSections.get(i).getStudents().size() > MAX && (double)(totalSections.get(i).getStudents().size()/2) < MIN) {
                 System.out.print(".");
             }*/
-        }
-        for (int i = 0; i < students.size(); i++) {
-                for (int j = 0; j < students.get(i).getAssigned().length; j++) {
-                    if(students.get(i).getAssigned()[j] == null) {
-                        studentReassign(students.get(i));
-                    }
-                }
         }
         reassignTeachers();
         makeSchedule();
