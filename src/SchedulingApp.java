@@ -983,7 +983,9 @@ public class SchedulingApp implements ActionListener{
                     }
                 }
             }
-            if (totalSections.get(i).getCourse().getRequried() == false && student.getAssigned()[totalSections.get(i).getPeriod()] == null && !isAssigned) {
+            if (totalSections.get(i).getCourse().getRequried() == false
+                    && totalSections.get(i).getStudents().size() >= MIN-1
+                    && student.getAssigned()[totalSections.get(i).getPeriod()] == null && !isAssigned) {
                 freeSections.add(totalSections.get(i));
             }
         }
@@ -1195,6 +1197,7 @@ public class SchedulingApp implements ActionListener{
             reassignRequired(studentList, section.getCourse(), section);
             if(section.getStudents().size() > 0) {
                 for (int i = 0; i < section.getStudents().size() ; i++) {
+                    boolean breaker = false;
                     Student student = section.getStudents().get(i);
                     student.getAssigned()[section.getPeriod()] = null;
                     for (int j = 0; j < section.getCourse().getSectionsOccuring().size(); j++) {
@@ -1239,7 +1242,7 @@ public class SchedulingApp implements ActionListener{
                     if(student.getAssigned()[section.getPeriod()] == null) {
                         for (int j = 0; j < section.getCourse().getSectionsOccuring().size(); j++) {
                             Sections otherFirstSection = section.getCourse().getSectionsOccuring().get(j);
-                            boolean breaker = false;
+                            breaker = false;
                             if (otherFirstSection != section) {
                                 if (student.getAssigned()[otherFirstSection.getPeriod()].getCourse().getRequried()) {
                                     Courses requiredCourseOne = student.getAssigned()[otherFirstSection.getPeriod()].getCourse();
@@ -1300,8 +1303,10 @@ public class SchedulingApp implements ActionListener{
 
     //this method will take sections above the maximum number of students, and will split it into two sections
     public void splitMax(Sections section, ArrayList<Student> students) {
-        Sections newSection = new Sections(section.getCourse(), section.getPeriod(), null, students);
+        ArrayList<Student> newStudents = new ArrayList<Student>();
+        Sections newSection = new Sections(section.getCourse(), section.getPeriod(), null, newStudents);
         for (int i = 0; i < students.size(); i++) {
+            newSection.addStudent(students.get(i));
             students.get(i).getAssigned()[section.getPeriod()] = section;
         }
         for (int i = 0; i < teachers.size(); i++) {
@@ -1745,7 +1750,12 @@ public class SchedulingApp implements ActionListener{
                 ArrayList<Teacher> fired = new ArrayList<Teacher>();
                 for (int i = 0; i < teachers.size(); i++) {
                     if (teachers.get(i).getTeaching().size() != 0) {
-                        teacherOutput += teachers.get(i).identifier + ": ";
+                        if(teachers.get(i).identifier == "New Teacher") {
+                            teacherOutput += "New " + teachers.get(i).getQualified().get(0).getCourseCode() + ": ";
+                        }
+                        else {
+                            teacherOutput += teachers.get(i).identifier + ": ";
+                        }
                         for (int j = 0; j < totalPeriods; j++) {
                             int period = j;
                             for (int k = 0; k < teachers.get(i).getTeaching().size(); k++) {
@@ -1775,7 +1785,7 @@ public class SchedulingApp implements ActionListener{
                 teacherOutput += "\nTotal New Teachers: " + totalNewTeachers;
                 ww.write(teacherOutput);
                 ww.close();
-                System.out.println(maxScore);
+                System.out.println("Score: " + maxScore);
             } catch (IOException e) {
                 e.printStackTrace();
                 System.exit(0);
