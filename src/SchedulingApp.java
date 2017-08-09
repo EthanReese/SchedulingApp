@@ -930,7 +930,7 @@ public class SchedulingApp implements ActionListener{
         //Score the algorithm on how many new teachers are hired as a percent of the teachers that exist
         Double b = 1.0 - (double) newTeachers / (teachers.size() + newTeachers);
 
-        score = (a + b) / 2;
+        score = (a + a + b) / 3;
 
         //Double check to make sure that students have been assigned to all classes
         if (failureToAssign == true) {
@@ -1097,7 +1097,7 @@ public class SchedulingApp implements ActionListener{
 
     public void makeSchedule(ArrayList<Sections> sectionList) {
         int period;
-        for (int i = 0; i < sectionList.size(); i++) {
+        for (int i = 0; i < setFinalPeriods; i++) {
             twodschedule.add(new ArrayList<Sections>());
         }
         for (int i = 0; i < sectionList.size(); i++) {
@@ -1594,6 +1594,7 @@ public class SchedulingApp implements ActionListener{
                 totalSections.clear();
                 courses.clear();
                 students.clear();
+                twodschedule.clear();
                 totalNewTeachers = 0;
                 failureToAssign = false;
             }
@@ -1612,13 +1613,13 @@ public class SchedulingApp implements ActionListener{
             courses = bestSchedule.getCourses();
             students = bestSchedule.getStudents();
             totalNewTeachers = bestSchedule.getNewTeachers();
+            makeSchedule(totalSections);
             if(bestSchedule.getTeachers() == null || bestSchedule.getAddedTeachers() == null ||
                     bestSchedule.getSections() == null) {
                 JOptionPane.showMessageDialog(null, "There was an internal error. Try running the program again with the same inputs.");
                 System.exit(0);
             }
             //TODO: Make a save dialog for the output files
-            makeSchedule(bestSchedule.getSections());
             PrintWriter pw;
             try {
                 pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
@@ -1732,7 +1733,7 @@ public class SchedulingApp implements ActionListener{
             }
             PrintWriter xw;
             try {
-                xw = new PrintWriter(new FileWriter(new File("superSectionOutput.txt")));
+                xw = new PrintWriter(new FileWriter(new File("classListOutput.txt")));
                 String superSectionOutput = "Course, Teacher, Period, Student 1, Student 2, Student 3,...\n";
                 for (int i = 0; i < totalPeriods; i++) {
                     for (int j = 0; j < twodschedule.get(i).size(); j++) {

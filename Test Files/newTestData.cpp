@@ -52,10 +52,10 @@ int main(){
         myFile << freshmanClasses[7] << ",";
         myFile << freshmanClasses[rand()%4+8] << ",";
         do{
-            a = rand()%8+12;
-            b = rand()%8+12;
-            c = rand()%8+12;
-            d = rand()%8+12;
+            a = rand()%6+14;
+            b = rand()%6+14;
+            c = rand()%6+14;
+            d = rand()%6+14;
         }while(a == b || a == c || a == d || b == c || b== d || c == d);
 
         myFile << freshmanClasses[a] << "," << freshmanClasses[b] << "," << freshmanClasses[c] << "," << freshmanClasses[d] << endl;
@@ -104,10 +104,10 @@ int main(){
         myFile << sophomoreClasses[6] << ",";
         myFile << sophomoreClasses[rand()%4+7] << ",";
         do{
-            a = rand()%12+11;
-            b = rand()%12+11;
-            c = rand()%12+11;
-            d = rand()%12+11;
+            a = rand()%10+13;
+            b = rand()%10+13;
+            c = rand()%10+13;
+            d = rand()%10+13;
         }while(a == b || a == c || a == d || b == c || b== d || c == d);
 
         myFile << sophomoreClasses[a] << "," << sophomoreClasses[b] << "," << sophomoreClasses[c] << "," << sophomoreClasses[d] << endl;
