@@ -76,7 +76,22 @@ public class SchedulingApp implements ActionListener{
     ArrayList<ArrayList<String>> courseTable;
 
     public SchedulingApp() {
-        frame.setSize(1000, 400);
+        try{
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }catch (ClassNotFoundException e){
+
+        }catch(InstantiationException e){
+
+        }catch (UnsupportedLookAndFeelException e){
+
+        }catch (IllegalAccessException e){
+
+        }
+
+
+
+
+        frame.setSize(600, 250);
         frame.setLayout(new BorderLayout());
         north.setLayout(new GridLayout(3,3));
         north.add(forecastLabel);
@@ -95,22 +110,23 @@ public class SchedulingApp implements ActionListener{
         generateButton.addActionListener(this);
 
 
-        south.setLayout(new GridLayout(2,4));
+        south.setLayout(new GridLayout(4,2));
         south.add(periodLabel);
-        south.add(maxStudentsInCourse);
-        south.add(minStudentsInCourse);
-        south.add(freePeriodLabel);
         south.add(periodInput);
+        south.add(maxStudentsInCourse);
         south.add(maxStudentsInput);
+        south.add(minStudentsInCourse);
         south.add(minStudentsInput);
+        south.add(freePeriodLabel);
         south.add(freePeriodInput);
 
 
-        frame.add(generateButton, BorderLayout.CENTER);
-        frame.add(south, BorderLayout.SOUTH);
+        frame.add(generateButton, BorderLayout.SOUTH);
+        frame.add(south, BorderLayout.CENTER);
         frame.add(north, BorderLayout.NORTH);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
+
 
 
         //Potentially do this as some kind of GUI
