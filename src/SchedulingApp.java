@@ -23,7 +23,7 @@ import java.util.Scanner;
 public class SchedulingApp implements ActionListener{
 
     //Create the swing interface elements
-    JFrame frame = new JFrame();
+    JFrame frame = new JFrame("Scriba");
     JPanel panel = new JPanel();
     JButton generateButton = new JButton("Generate Schedules");
     JLabel forecastLabel = new JLabel("Forecasting Database Path");
