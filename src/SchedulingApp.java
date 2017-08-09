@@ -149,6 +149,7 @@ public class SchedulingApp implements ActionListener{
                 else if(courseFile == filePath) {
                     JOptionPane.showMessageDialog(null, "Please enter a valid courses file.");
                 }
+                return null;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1488,11 +1489,13 @@ public class SchedulingApp implements ActionListener{
 
 
 
-            //TODO:Make sure this function stops for real when it hits an error in the reading the CSV
             //Call the functions corresponding to each individual file
             forecastingTable = readCSV(forecastingFile);
             teacherTable = readCSV(teacherFile);
             courseTable = readCSV(courseFile);
+            if(forecastingTable == null || teacherTable == null || courseTable == null){
+                return;
+            }
             //Run the following part a few times
             for (int c = 0; c < 3; c++) {
                 //Convert the files into the proper types of objects
@@ -1622,11 +1625,21 @@ public class SchedulingApp implements ActionListener{
                 JOptionPane.showMessageDialog(null, "There was an internal error. Try running the program again with the same inputs.");
                 System.exit(0);
             }
-            //TODO: Make a save dialog for the output files
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             makeSchedule(bestSchedule.getSections());
             PrintWriter pw;
             try {
-                pw = new PrintWriter(new FileWriter(new File("sectionsOutput.txt")));
+                fc.setSelectedFile(new File("Sections.txt"));
+                int returnVal = fc.showSaveDialog(null);
+                File dir;
+                if(returnVal == JFileChooser.APPROVE_OPTION){
+                    dir = fc.getSelectedFile();
+                }else{
+                    JOptionPane.showMessageDialog(null, "The directory you selected is invalid.");
+                    return;
+                }
+                String path = dir.getAbsolutePath();
+                pw = new PrintWriter(new FileWriter(new File(path)));
                 //create the output string
                 String sectionsOutput = "Course, Teacher, # of Students\n";
                 for (int i = 0; i < totalPeriods; i++) {
@@ -1654,7 +1667,17 @@ public class SchedulingApp implements ActionListener{
             }
             PrintWriter ow;
             try {
-                ow = new PrintWriter(new FileWriter(new File("studentOutput.txt")));
+                fc.setSelectedFile(new File("Students.txt"));
+                int returnVal = fc.showSaveDialog(null);
+                File dir;
+                if(returnVal == JFileChooser.APPROVE_OPTION){
+                    dir = fc.getSelectedFile();
+                }else{
+                    JOptionPane.showMessageDialog(null, "The directory you selected is invalid.");
+                    return;
+                }
+                String path = dir.getAbsolutePath();
+                ow = new PrintWriter(new FileWriter(new File(path)));
                 //create the output string
                 //IS STUDENT ASSIGNMENT IN ORDER???? That's what this assumes.
                 String studentOutput = "Student, Per. 1(teacher), Per. 2(teacher), ...\n";
@@ -1673,12 +1696,14 @@ public class SchedulingApp implements ActionListener{
                 for (int i = 0; i < students.size(); i++) {
                     for (int j = 0; j < students.get(i).getRequested().size(); j++) {
                         for (int k = 0; k < students.get(i).getAssigned().length; k++) {
-                            if (students.get(i).getAssigned()[k] == null) {
-                                //System.out.println("?");
-                            }
-                            else if(students.get(i).getAssigned()[k].getCourse().getCourseCode() == students.get(i).getRequested().get(j).getCourseCode()) {
-                                perfect++;
-                                break;
+                            try {
+                                if (students.get(i).getAssigned()[k] == null) {
+                                    //System.out.println("?");
+                                } else if (students.get(i).getAssigned()[k].getCourse().getCourseCode() == students.get(i).getRequested().get(j).getCourseCode()) {
+                                    perfect++;
+                                    break;
+                                }
+                            }catch(NullPointerException e){
                             }
                         }
                     }
@@ -1689,12 +1714,21 @@ public class SchedulingApp implements ActionListener{
                 ow.close();
             } catch (IOException e) {
                 e.printStackTrace();
-                System.exit(0);
             }
 
             PrintWriter ww;
             try {
-                ww = new PrintWriter(new FileWriter(new File("teacherOutput.txt")));
+                fc.setSelectedFile(new File("Teachers.txt"));
+                int returnVal = fc.showSaveDialog(null);
+                File dir;
+                if(returnVal == JFileChooser.APPROVE_OPTION){
+                    dir = fc.getSelectedFile();
+                }else{
+                    JOptionPane.showMessageDialog(null, "The directory you selected is invalid.");
+                    return;
+                }
+                String path = dir.getAbsolutePath();
+                ww = new PrintWriter(new FileWriter(new File(path)));
                 //create the output string
                 String teacherOutput = "Teacher,Per. 1, Per. 2, ...\n";
                 ArrayList<Teacher> fired = new ArrayList<Teacher>();
@@ -1742,7 +1776,17 @@ public class SchedulingApp implements ActionListener{
             }
             PrintWriter xw;
             try {
-                xw = new PrintWriter(new FileWriter(new File("superSectionOutput.txt")));
+                fc.setSelectedFile(new File("Big Sections.txt"));
+                int returnVal = fc.showSaveDialog(null);
+                File dir;
+                if(returnVal == JFileChooser.APPROVE_OPTION){
+                    dir = fc.getSelectedFile();
+                }else{
+                    JOptionPane.showMessageDialog(null, "The directory you selected is invalid.");
+                    return;
+                }
+                String path = dir.getAbsolutePath();
+                xw = new PrintWriter(new FileWriter(new File(path)));
                 String superSectionOutput = "Course, Teacher, Period, Student 1, Student 2, Student 3,...\n";
                 for (int i = 0; i < totalPeriods; i++) {
                     for (int j = 0; j < twodschedule.get(i).size(); j++) {
