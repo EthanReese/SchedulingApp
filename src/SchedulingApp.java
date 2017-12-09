@@ -877,6 +877,7 @@ public class SchedulingApp implements ActionListener{
                         }
                     }
                     if (a == null) {
+                        // We're fucked
                         continue OUTER;
                     }
                     //Add the student to a section and remove them from the previous course
@@ -1513,7 +1514,7 @@ public class SchedulingApp implements ActionListener{
                 return;
             }
             //Run the following part a few times
-            for (int c = 0; c < 3; c++) {
+            for (int c = 0; c < 5p; c++) {
                 //Convert the files into the proper types of objects
                 classes(courseTable);
                 teacherCreation(teacherTable);
@@ -1647,7 +1648,7 @@ public class SchedulingApp implements ActionListener{
             makeSchedule(bestSchedule.getSections());
             PrintWriter pw;
             try {
-                fc.setSelectedFile(new File("Sections.txt"));
+                fc.setSelectedFile(new File("sectionsOutput.txt"));
                 int returnVal = fc.showSaveDialog(null);
                 File dir;
                 if(returnVal == JFileChooser.APPROVE_OPTION){
@@ -1685,7 +1686,7 @@ public class SchedulingApp implements ActionListener{
             }
             PrintWriter ow;
             try {
-                fc.setSelectedFile(new File("Students.txt"));
+                fc.setSelectedFile(new File("studentOutput.txt"));
                 int returnVal = fc.showSaveDialog(null);
                 File dir;
                 if(returnVal == JFileChooser.APPROVE_OPTION){
@@ -1736,7 +1737,7 @@ public class SchedulingApp implements ActionListener{
 
             PrintWriter ww;
             try {
-                fc.setSelectedFile(new File("Teachers.txt"));
+                fc.setSelectedFile(new File("teacherOutput.txt"));
                 int returnVal = fc.showSaveDialog(null);
                 File dir;
                 if(returnVal == JFileChooser.APPROVE_OPTION){
@@ -1794,7 +1795,7 @@ public class SchedulingApp implements ActionListener{
             }
             PrintWriter xw;
             try {
-                fc.setSelectedFile(new File("Big Sections.txt"));
+                fc.setSelectedFile(new File("classListOutput.txt"));
                 int returnVal = fc.showSaveDialog(null);
                 File dir;
                 if(returnVal == JFileChooser.APPROVE_OPTION){
